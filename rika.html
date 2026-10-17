@@ -1,0 +1,1463 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>理科たんけんクイズ</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
+<style>
+  :root{
+    --bg:#fbf3e6;
+    --paper:#fffdf9;
+    --ink:#3a2a14;
+    --ink-soft:#8a6a44;
+    --accent:#c07a2e;
+    --accent-deep:#633806;
+    --accent-bg:#faeeda;
+    --accent-bg-deep:#f3ddb8;
+    --blue:#3f6fa0;
+    --ok:#3f8d4f;
+    --ok-bg:#e5f3e2;
+    --ng:#c04a3a;
+    --ng-bg:#fbe6e1;
+    --line: rgba(99,56,6,0.14);
+    --shadow: 0 10px 24px -12px rgba(90,55,10,0.28);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#20180e;
+      --paper:#2a1f13;
+      --ink:#f3e6d2;
+      --ink-soft:#c9a877;
+      --accent:#e3a35c;
+      --accent-deep:#f2c384;
+      --accent-bg:#3a2a14;
+      --accent-bg-deep:#4a3419;
+      --blue:#7fb0e0;
+      --ok:#7fce8f;
+      --ok-bg:#213524;
+      --ng:#e78474;
+      --ng-bg:#3a2320;
+      --line: rgba(243,230,210,0.14);
+      --shadow: 0 10px 26px -12px rgba(0,0,0,0.55);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#20180e;
+    --paper:#2a1f13;
+    --ink:#f3e6d2;
+    --ink-soft:#c9a877;
+    --accent:#e3a35c;
+    --accent-deep:#f2c384;
+    --accent-bg:#3a2a14;
+    --accent-bg-deep:#4a3419;
+    --blue:#7fb0e0;
+    --ok:#7fce8f;
+    --ok-bg:#213524;
+    --ng:#e78474;
+    --ng-bg:#3a2320;
+    --line: rgba(243,230,210,0.14);
+    --shadow: 0 10px 26px -12px rgba(0,0,0,0.55);
+    color-scheme: dark;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Zen Kaku Gothic New', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+    padding-inline:16px;
+    padding-block:24px;
+    min-height:100%;
+    display:flex;
+    justify-content:center;
+  }
+  .app{ width:100%; max-width:560px; display:flex; flex-direction:column; gap:16px; }
+
+  h1,h2,h3{ font-family:'Zen Maru Gothic', 'Zen Kaku Gothic New', sans-serif; margin:0; text-wrap:balance; }
+
+  .topbar{ display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+  .topbar .kicker{ font-size:12px; letter-spacing:.08em; color:var(--ink-soft); font-weight:700; }
+  .title{ font-size:22px; font-weight:900; color:var(--accent-deep); }
+
+  .card{ background:var(--paper); border:1px solid var(--line); border-radius:20px; padding:20px; box-shadow:var(--shadow); }
+
+  .home-lead{ color:var(--ink-soft); font-size:14px; line-height:1.7; }
+  .stat-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px; }
+  .stat{ background:var(--bg); border:1px solid var(--line); border-radius:14px; padding:10px 8px; text-align:center; }
+  .stat .n{ font-size:20px; font-weight:900; font-variant-numeric:tabular-nums; color:var(--accent-deep); }
+  .stat .l{ font-size:11px; color:var(--ink-soft); margin-top:2px; }
+
+  .section-label{ font-size:12px; font-weight:700; color:var(--ink-soft); letter-spacing:.06em; margin:4px 2px 0; }
+
+  .week-chart{ display:flex; align-items:flex-end; gap:8px; height:76px; margin-top:14px; padding:0 2px; }
+  .week-chart .col{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:5px; }
+  .week-chart .bar-track{ width:100%; max-width:26px; height:52px; display:flex; align-items:flex-end; border-radius:6px; background:var(--bg); border:1px solid var(--line); overflow:hidden; }
+  .week-chart .bar-fill{ width:100%; border-radius:5px 5px 0 0; background:var(--line); transition:height .25s ease; }
+  .week-chart .bar-fill.has-data{ background:var(--accent); }
+  .week-chart .bar-fill.today{ background:var(--ng); }
+  .week-chart .dow{ font-size:10.5px; color:var(--ink-soft); font-weight:700; }
+  .week-chart .col.today .dow{ color:var(--ng); }
+
+  .unit-list{ display:flex; flex-direction:column; gap:10px; }
+  .unit-row{ display:flex; align-items:center; gap:12px; border:2px solid var(--line); background:var(--paper); border-radius:16px; padding:12px 14px; }
+  .unit-row input[type=checkbox]{ width:22px; height:22px; accent-color: var(--accent); flex:none; }
+  .unit-row .body{ flex:1; min-width:0; }
+  .unit-row .name{ font-weight:900; font-size:15px; }
+  .unit-row .meta{ font-size:11.5px; color:var(--ink-soft); margin-top:2px; display:flex; gap:8px; flex-wrap:wrap; }
+  .unit-row .meta .weak-flag{ color:var(--ng); font-weight:700; }
+
+  .row-actions{ display:flex; gap:10px; }
+  .link-btn{ appearance:none; background:none; border:none; color:var(--accent-deep); font-weight:700; font-size:13px; text-decoration:underline; cursor:pointer; font-family:inherit; padding:4px 0; }
+
+  .mode-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .chip-wrap{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{ appearance:none; border:1.5px solid var(--line); background:var(--paper); color:var(--ink); border-radius:999px; padding:8px 14px; font-size:13px; cursor:pointer; font-weight:700; font-family:inherit; }
+  .chip[aria-pressed="true"]{ background:var(--accent); border-color:var(--accent); color:#fff; }
+  .chip .cnt{ opacity:.7; font-weight:500; }
+
+  .weak-btn{ display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%; border:1.5px solid var(--line); background:var(--paper); border-radius:16px; padding:14px 16px; cursor:pointer; font-family:inherit; color:var(--ink); }
+  .weak-btn strong{ font-size:15px; color:var(--accent-deep); }
+  .weak-btn span.sub{ display:block; font-size:11.5px; color:var(--ink-soft); font-weight:500; margin-top:2px; }
+  .weak-btn .badge{ background:var(--ng); color:#fff; font-weight:900; font-size:13px; border-radius:12px; padding:4px 10px; font-variant-numeric:tabular-nums; flex:none; text-align:center; }
+  .weak-btn .chevron{ font-size:18px; color:var(--ink-soft); flex:none; }
+  .weak-btn:disabled{ opacity:.4; cursor:not-allowed; }
+
+  .start-btn{ appearance:none; border:none; border-radius:16px; padding:16px; background:var(--accent); color:#fff; font-family:inherit; font-size:17px; font-weight:900; cursor:pointer; letter-spacing:.02em; box-shadow: 0 8px 18px -6px rgba(192,122,46,0.55); }
+  .start-btn:active{ transform:translateY(1px); }
+  .start-btn:disabled{ opacity:.4; cursor:not-allowed; }
+
+  .progress-row{ display:flex; align-items:center; gap:10px; }
+  .progress-track{ flex:1; height:8px; background:var(--line); border-radius:999px; overflow:hidden; }
+  .progress-fill{ height:100%; background:var(--accent); border-radius:999px; transition:width .3s ease; }
+  .progress-num{ font-size:12px; font-weight:700; color:var(--ink-soft); font-variant-numeric:tabular-nums; flex:none; }
+
+  .quiz-card{ display:flex; flex-direction:column; gap:14px; }
+  .cat-tag{ align-self:flex-start; font-size:11px; font-weight:900; letter-spacing:.05em; color:var(--accent-deep); background:var(--accent-bg); border:1px solid var(--line); border-radius:999px; padding:4px 10px; }
+  .question-text{ font-size:19px; font-weight:700; line-height:1.6; }
+
+  .qtable{ width:100%; border-collapse:collapse; font-size:13px; }
+  .qtable th,.qtable td{ border:1px solid var(--line); padding:6px 4px; text-align:center; font-variant-numeric:tabular-nums; }
+  .qtable th{ background:var(--bg); color:var(--ink-soft); font-weight:700; }
+  .qtable-wrap{ overflow-x:auto; }
+
+  .circuit-row{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+  .circuit-box{ display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .circuit-label{ font-weight:900; font-size:14px; color:var(--accent-deep); }
+  .circuit-box svg{ display:block; }
+  .circuit-box svg line, .circuit-box svg circle.node{ stroke: var(--ink); }
+  .circuit-box svg circle.bulb{ stroke: var(--ink); fill: var(--paper); }
+  .circuit-box svg text{ fill: var(--ink); }
+
+  .choice-grid{ display:grid; grid-template-columns:1fr; gap:10px; }
+  .choice-btn{ appearance:none; text-align:left; border:2px solid var(--line); background:var(--paper); color:var(--ink); border-radius:14px; padding:13px 16px; font-size:15.5px; font-weight:700; cursor:pointer; font-family:inherit; display:flex; gap:10px; align-items:center; }
+  .choice-btn .idx{ flex:none; width:24px; height:24px; border-radius:50%; background:var(--bg); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900; color:var(--ink-soft); }
+  .choice-btn:disabled{ cursor:default; }
+  .choice-btn.correct{ border-color:var(--ok); background:var(--ok-bg); color:var(--ok); }
+  .choice-btn.correct .idx{ background:var(--ok); color:#fff; }
+  .choice-btn.wrong{ border-color:var(--ng); background:var(--ng-bg); color:var(--ng); }
+  .choice-btn.wrong .idx{ background:var(--ng); color:#fff; }
+  .choice-btn.dim{ opacity:.45; }
+
+  .write-box input[type=text], .write-box input[type=tel]{ width:100%; border:2px solid var(--line); border-radius:14px; padding:14px 16px; font-size:18px; font-family:inherit; background:var(--bg); color:var(--ink); }
+  .write-box input:focus{ outline:2px solid var(--accent); outline-offset:1px; }
+  .write-box .unit-suffix{ font-size:13px; color:var(--ink-soft); margin-top:4px; }
+
+  .next-btn{ appearance:none; border:none; border-radius:14px; padding:14px; font-size:15px; font-weight:900; cursor:pointer; font-family:inherit; color:#fff; background:var(--accent); }
+  .check-btn{ appearance:none; border:none; border-radius:14px; padding:14px; font-size:15px; font-weight:900; cursor:pointer; font-family:inherit; color:#fff; background:var(--blue); }
+
+  .answer-panel{ border-radius:14px; padding:14px 16px; display:flex; flex-direction:column; gap:6px; animation: pop .18s ease; }
+  @keyframes pop{ from{ transform:scale(.97); opacity:0;} to{ transform:scale(1); opacity:1;} }
+  .answer-panel.ok{ background:var(--ok-bg); border:2px solid var(--ok); }
+  .answer-panel.ng{ background:var(--ng-bg); border:2px solid var(--ng); }
+  .answer-panel .verdict{ font-weight:900; font-size:15px; }
+  .answer-panel.ok .verdict{ color:var(--ok); }
+  .answer-panel.ng .verdict{ color:var(--ng); }
+  .answer-panel .ans{ font-size:20px; font-weight:900; }
+  .answer-panel .also{ font-size:12.5px; color:var(--ink-soft); }
+  .answer-panel .exp{ font-size:13px; color:var(--ink-soft); border-top:1px dashed var(--line); padding-top:6px; margin-top:2px; line-height:1.6; }
+
+  .quit-link{ align-self:center; background:none; border:none; color:var(--ink-soft); font-size:12.5px; text-decoration:underline; cursor:pointer; font-family:inherit; padding:6px; }
+
+  .score-hero{ text-align:center; display:flex; flex-direction:column; gap:6px; padding:6px 0 4px; }
+  .score-big{ font-size:52px; font-weight:900; color:var(--accent-deep); font-variant-numeric:tabular-nums; line-height:1; }
+  .score-big span{ font-size:22px; color:var(--ink-soft); font-weight:700; }
+  .score-msg{ font-size:14px; color:var(--ink-soft); }
+
+  .review-list{ display:flex; flex-direction:column; gap:8px; }
+  .review-item{ display:flex; gap:10px; align-items:flex-start; border:1px solid var(--line); border-radius:12px; padding:10px 12px; background:var(--bg); }
+  .review-item .mark{ flex:none; font-weight:900; font-size:15px; margin-top:1px; }
+  .review-item.ok .mark{ color:var(--ok); }
+  .review-item.ng .mark{ color:var(--ng); }
+  .review-item .body{ display:flex; flex-direction:column; gap:2px; }
+  .review-item .q{ font-size:13.5px; font-weight:700; line-height:1.5; }
+  .review-item .a{ font-size:13px; color:var(--ink-soft); }
+  .review-item .a b{ color:var(--ink); }
+
+  .result-actions{ display:flex; flex-direction:column; gap:10px; }
+  .secondary-btn{ appearance:none; border:2px solid var(--line); background:var(--paper); color:var(--ink); border-radius:14px; padding:13px; font-size:14.5px; font-weight:900; cursor:pointer; font-family:inherit; }
+
+  [hidden]{ display:none !important; }
+  .foot-note{ text-align:center; font-size:11px; color:var(--ink-soft); padding-top:4px; }
+  .back-link{ align-self:flex-start; background:none; border:none; color:var(--ink-soft); font-size:12.5px; text-decoration:underline; cursor:pointer; font-family:inherit; padding:2px 0 0; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ===================== HOME (回えらび) ===================== -->
+  <section id="screen-home">
+    <div class="topbar">
+      <div>
+        <div class="kicker">理科一問一答クイズ</div>
+        <div class="title">理科たんけんクイズ</div>
+      </div>
+      <a class="link-btn" target="_top" href="index.html">🏠 玄関へ</a>
+    </div>
+
+    <div class="card">
+      <div class="section-label">きろく（全体合算）</div>
+      <div class="stat-row">
+        <div class="stat"><div class="n" id="statToday">0/0</div><div class="l">今日</div></div>
+        <div class="stat"><div class="n" id="statWeek">0/0</div><div class="l">今週</div></div>
+      </div>
+      <div class="week-chart" id="weekChart"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">回をえらぶ（複数えらべます）</div>
+      <div class="unit-list" id="unitList"></div>
+      <div class="row-actions">
+        <button class="link-btn" id="selectAllBtn">全部えらぶ</button>
+        <button class="link-btn" id="selectNoneBtn">えらびなおす</button>
+      </div>
+    </div>
+
+    <div class="card" id="catCard" hidden>
+      <div class="section-label">出題はんい（カテゴリ）</div>
+      <div class="chip-wrap" id="catChips"></div>
+    </div>
+
+    <button class="weak-btn" id="weakBtn">
+      <span>
+        <strong>🔥 にがて特訓モード</strong>
+        <span class="sub">えらんだ回から、にがてな問題ほど出やすい10問</span>
+      </span>
+      <span class="badge" id="weakBadge">0問</span>
+      <span class="chevron" aria-hidden="true">›</span>
+    </button>
+
+    <button class="start-btn" id="startBtn" disabled>10問はじめる</button>
+    <p class="foot-note">成績はこの端末のブラウザだけに保存されます</p>
+  </section>
+
+  <!-- ===================== QUIZ ===================== -->
+  <section id="screen-quiz" hidden>
+    <div class="progress-row">
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-num" id="progressNum">1/10</div>
+    </div>
+
+    <div class="card quiz-card">
+      <span class="cat-tag" id="qCatTag">分類</span>
+      <div class="question-text" id="qText">問題文がここに入ります</div>
+
+      <div id="qTableWrap" hidden></div>
+      <div id="qCircuitWrap" hidden></div>
+
+      <!-- choice grid (pick / choice) -->
+      <div class="choice-grid" id="choiceGrid" hidden></div>
+
+      <!-- write box (text / num) -->
+      <div class="write-box" id="writeBox" hidden>
+        <input type="text" id="writeInput" placeholder="ここに答えを書いてね" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <div class="unit-suffix" id="unitSuffix" hidden></div>
+      </div>
+      <button class="check-btn" id="checkBtn" hidden>こたえあわせ</button>
+
+      <div class="answer-panel" id="answerPanel" hidden>
+        <div class="verdict" id="verdictText"></div>
+        <div class="ans" id="ansText"></div>
+        <div class="also" id="ansAlso" hidden></div>
+        <div class="exp" id="ansExp" hidden></div>
+      </div>
+
+      <button class="next-btn" id="nextBtn" hidden>つぎへ →</button>
+    </div>
+
+    <button class="quit-link" id="quitBtn">やめてホームにもどる</button>
+  </section>
+
+  <!-- ===================== RESULT ===================== -->
+  <section id="screen-result" hidden>
+    <div class="card score-hero">
+      <div class="section-label">けっか</div>
+      <div class="score-big"><span id="resultScore">0</span><span>/10問 正解</span></div>
+      <div class="score-msg" id="resultMsg"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">今回のふりかえり</div>
+      <div class="review-list" id="reviewList"></div>
+    </div>
+
+    <div class="result-actions">
+      <button class="start-btn" id="retryBtn">もう10問やる</button>
+      <button class="secondary-btn" id="homeBtn">ホームにもどる</button>
+    </div>
+  </section>
+
+</div>
+
+<script>window.KQ_STATIC=true;window.KQ_PAGE="rika";window.KQ_REPORT_URL="https://script.google.com/macros/s/AKfycby687LvFEfQsD0mvNnzUHikwb67ZGJ7fzP9yeC81q5SbpD043nhpPnTEmRS_3NTuwZw0w/exec";</script>
+<script src="common.js"></script>
+<script>
+/* ============================================================
+   DATA — 出典：予習シリーズ理科4年下（本体・計算編・穴埋め編）＋
+   早稲田アカデミー「予習シリーズまとめプリント」の写真
+   写真に写っている内容のみを出題。計算問題のみ exp（解説）を付ける。
+============================================================ */
+
+var CATS = {
+  u01: { A:"骨・筋肉", B:"呼吸", C:"消化", D:"血液の流れ", E:"感覚器官" },
+  u02: { A:"秋の植物", B:"種子・実の散らばり方", C:"昆虫", D:"動物・鳥・魚" },
+  u03: { A:"電気を通す・通さない", B:"豆電球・LED・モーター", C:"電気をつくり出すもの", D:"回路・検流計" },
+  u04: { A:"回路図・基本知識", B:"かん電池のつなぎ方", C:"豆電球のつなぎ方", D:"回路の明るさ比べ", E:"くらしの中の電気" },
+  u06: { A:"水に溶けるということ", B:"限度量・飽和水溶液", C:"とける量の計算" },
+  u07: { A:"ろ過・再結晶", B:"限度量の表を読む", C:"とける量の計算（応用）" },
+  u08: { A:"川の3作用と地形", B:"地層・化石", C:"堆積物と水はけ・防災利用" },
+  u09: { A:"力のつり合い・作用反作用", B:"ばねの性質", C:"ばねの計算", D:"いろいろなばね" }
+};
+
+/* ---- 秋の七草（穴埋め7問を作るための元データ） ---- */
+var AKINONANAKUSA = ["ハギ","ススキ","キキョウ","ナデシコ","オミナエシ","クズ","フジバカマ"];
+var NANAKUSA_ALTS = {
+  "ハギ":["萩"], "ススキ":["薄","芒"], "キキョウ":["桔梗"], "ナデシコ":["撫子"],
+  "オミナエシ":["女郎花"], "クズ":["葛"], "フジバカマ":["藤袴"]
+};
+function buildNanakusaQuestions(){
+  return AKINONANAKUSA.map(function(target, i){
+    var shown = AKINONANAKUSA.map(function(x){ return x===target ? "（？）" : x; });
+    return {
+      id: "U02-A0"+(4+i), cat:"A", type:"choice", g:"nanakusa",
+      q: "秋の七草は、"+shown.join("・")+"です。（？）に入る植物は？",
+      a: target, alts: NANAKUSA_ALTS[target]
+    };
+  });
+}
+
+/* ============================================================
+   第2回 秋の生物
+============================================================ */
+var QUESTIONS_U02 = [
+  // --- A. 秋の植物 ---
+  { id:"U02-A01", cat:"A", type:"choice", g:"aki_hana", q:"秋分の日のころに花をさかせ、花がかれるころ球根に養分をたくわえ、葉を出して次の春まで光合成を行う植物は？", a:"ヒガンバナ", alts:["彼岸花"] },
+  { id:"U02-A02", cat:"A", type:"pick", q:"ススキの開花が早いのは、南の地方と北の地方のどちら？", pick:["南の地方","北の地方"], a:"北の地方" },
+  { id:"U02-A03", cat:"A", type:"pick", q:"ススキの開花が早いのは、山地と平地のどちら？", pick:["山地","平地"], a:"山地" },
+].concat(buildNanakusaQuestions()).concat([
+  { id:"U02-A11", cat:"A", type:"choice", g:"shokubutsu_nakama", q:"キク・コスモス・ダリア・マリーゴールド・マーガレットは、すべて何という植物のなかま？", a:"キク" },
+  { id:"U02-A12", cat:"A", type:"choice", g:"aki_hana", q:"あまい香りが特ちょうで、秋に花がさく庭木は？", a:"キンモクセイ" },
+  { id:"U02-A13", cat:"A", type:"choice", g:"jumoku_type", q:"一年中緑色の葉をつけている樹木を何という？", a:"常緑樹", kana:"じょうりょくじゅ" },
+  { id:"U02-A14", cat:"A", type:"choice", q:"クヌギ・コナラ・スギのうち、常緑樹はどれ？", a:"スギ", g:"tree" },
+  { id:"U02-A15", cat:"A", type:"choice", g:"jumoku_type", q:"秋になると葉を落とす樹木を何という？", a:"落葉樹", kana:"らくようじゅ" },
+  { id:"U02-A16", cat:"A", type:"choice", q:"イチョウ・ツタ・ニシキギのうち、葉を落とすころに黄葉するのはどれ？", a:"イチョウ", g:"tree" },
+  { id:"U02-A17", cat:"A", type:"choice", q:"イロハモミジ・クヌギ・ポプラのうち、紅葉するのはどれ？", a:"イロハモミジ", g:"tree" },
+  { id:"U02-A18", cat:"A", type:"pick", q:"イロハモミジの紅葉前線が移っていく向きは？", pick:["南の地方から北の地方へ","北の地方から南の地方へ"], a:"北の地方から南の地方へ" },
+  { id:"U02-A19", cat:"A", type:"pick", q:"イロハモミジの紅葉前線は、同じ地方では山地と平地のどちらから先に色づく？", pick:["山地","平地"], a:"山地" },
+  { id:"U02-A20", cat:"A", type:"choice", g:"youhen", q:"落葉したあとの枝に残り、春になると葉や花になるものは？", a:"冬芽", kana:"とうが" },
+  { id:"U02-A21", cat:"A", type:"choice", g:"youhen", q:"葉緑素がこわれ、紫外線によって糖から赤い色素がつくられて赤くなる現象は？", a:"紅葉", kana:"こうよう" },
+  { id:"U02-A22", cat:"A", type:"choice", g:"youhen", q:"葉緑素がこわれ、もとの葉の色である黄色が目立つようになる現象は？", a:"黄葉", kana:"おうよう" },
+  { id:"U02-A23", cat:"A", type:"pick", q:"マツ・スギなど針葉樹の多くは、常緑樹と落葉樹のどちら？", pick:["常緑樹","落葉樹"], a:"常緑樹" },
+  { id:"U02-A24", cat:"A", type:"choice", g:"tree", q:"クリスマスツリーに使われる代表的な常緑樹は？", a:"モミ" },
+  { id:"U02-A25", cat:"A", type:"choice", g:"tree", q:"節分の飾りに使われる代表的な常緑樹は？", a:"ヒイラギ" },
+  { id:"U02-A27", cat:"A", type:"choice", g:"konomi", q:"クヌギ・コナラ・シイ・カシなどの実をまとめて何という？", a:"ドングリ" },
+  { id:"U02-A26", cat:"A", type:"choice", g:"aki_hana", q:"秋から冬にかけて根にデンプンをたくわえ、根から葛粉が作られる植物は？", a:"クズ" },
+
+  // --- B. 種子・実の散らばり方 ---
+  { id:"U02-B01", cat:"B", type:"choice", q:"ススキ・カエデ・マツの種子はどのように運ばれる？", a:"風に運ばれる", g:"method" },
+  { id:"U02-B02", cat:"B", type:"choice", q:"オナモミ・イノコズチ・ヌスビトハギの種子はどのように運ばれる？", a:"動物のからだについて運ばれる", g:"method" },
+  { id:"U02-B03", cat:"B", type:"choice", q:"ナンテン・ヤマブドウ・アケビの種子はどのように運ばれる？", a:"動物に食べられて運ばれる", g:"method" },
+  { id:"U02-B04", cat:"B", type:"choice", q:"クヌギ・コナラ・シイ・カシの実はどのように散らばる？", a:"自分の重さで落ちて散らばる", g:"method" },
+  { id:"U02-B05", cat:"B", type:"choice", q:"ホウセンカ・カタバミの実はどのように散らばる？", a:"実がはじけて散らばる", g:"method" },
+  { id:"U02-B06", cat:"B", type:"pick", q:"アケビ・クヌギ・ススキのうち、種子が風に運ばれるのは？", pick:["アケビ","クヌギ","ススキ"], a:"ススキ" },
+  { id:"U02-B07", cat:"B", type:"pick", q:"オナモミ・カエデ・カタバミのうち、種子が動物のからだについて運ばれるのは？", pick:["オナモミ","カエデ","カタバミ"], a:"オナモミ" },
+  { id:"U02-B08", cat:"B", type:"pick", q:"イノコズチ・ナンテン・ホウセンカのうち、実がはじけて種子を遠くへ飛ばすのは？", pick:["イノコズチ","ナンテン","ホウセンカ"], a:"ホウセンカ" },
+
+  // --- C. 昆虫 ---
+  { id:"U02-C01", cat:"C", type:"pick", q:"トンボが卵を産むのは、木の枝・土の中・水の中のどこ？", pick:["木の枝","土の中","水の中"], a:"水の中" },
+  { id:"U02-C02", cat:"C", type:"pick", q:"カマキリ・コオロギ・トンボのうち、細い木の枝や背の高い草のくきに卵のかたまりを産みつけるのは？", pick:["カマキリ","コオロギ","トンボ"], a:"カマキリ" },
+  { id:"U02-C03", cat:"C", type:"pick", q:"土の中に細長い卵を産むのは、トノサマバッタとどれ？", pick:["コオロギ","カマキリ","トンボ"], a:"コオロギ" },
+  { id:"U02-C04", cat:"C", type:"pick", q:"キリギリスのなかまが鳴くのは、9月ごろまでと10月ごろまでのどちら？", pick:["9月ごろまで","10月ごろまで"], a:"9月ごろまで" },
+  { id:"U02-C05", cat:"C", type:"pick", q:"コオロギのなかまが鳴くのは、9月ごろまでと10月ごろまでのどちら？", pick:["9月ごろまで","10月ごろまで"], a:"10月ごろまで" },
+  { id:"U02-C06", cat:"C", type:"pick", q:"秋に鳴く昆虫が音を出しているのは、オスとメスのどちら？", pick:["オス","メス"], a:"オス" },
+  { id:"U02-C07", cat:"C", type:"choice", g:"mushi_part", q:"昆虫はどこをこすり合わせて鳴く音を出す？", a:"前羽", alts:["前ばね","まえばね"] },
+  { id:"U02-C08", cat:"C", type:"choice", q:"「ギースチョン」と鳴く昆虫は？", a:"キリギリス", g:"insect" },
+  { id:"U02-C09", cat:"C", type:"choice", q:"「スイーッチョン」と鳴く昆虫は？", a:"ウマオイ", g:"insect" },
+  { id:"U02-C10", cat:"C", type:"choice", q:"「ガチャガチャ」と鳴く昆虫は？", a:"クツワムシ", g:"insect" },
+  { id:"U02-C11", cat:"C", type:"choice", q:"「コロコロコロコロリー」と鳴く昆虫は？", a:"エンマコオロギ", g:"insect" },
+  { id:"U02-C12", cat:"C", type:"choice", q:"「チンチロリン」と鳴く昆虫は？", a:"マツムシ", g:"insect" },
+  { id:"U02-C13", cat:"C", type:"choice", q:"「リーンリーン」と鳴く昆虫は？", a:"スズムシ", g:"insect" },
+  { id:"U02-C14", cat:"C", type:"pick", q:"ギンヤンマ・シオカラトンボは、幼虫と卵のどちらのすがたで冬を越す？", pick:["幼虫","卵"], a:"幼虫" },
+  { id:"U02-C15", cat:"C", type:"pick", q:"アキアカネは、幼虫と卵のどちらのすがたで冬を越す？", pick:["幼虫","卵"], a:"卵" },
+  { id:"U02-C16", cat:"C", type:"choice", q:"カマキリ・バッタ・コオロギは、秋に成虫になり何のすがたで冬を越す？", a:"卵", g:"stage" },
+  { id:"U02-C17", cat:"C", type:"choice", q:"セミ・カブトムシは、夏に成虫になり何のすがたで冬を越す？", a:"幼虫", g:"stage" },
+  { id:"U02-C18", cat:"C", type:"choice", q:"モンシロチョウ・アゲハは、春に成虫になり何のすがたで冬を越す？", a:"さなぎ", alts:["蛹"], g:"stage" },
+  { id:"U02-C19", cat:"C", type:"choice", q:"ハチ・アリ・テントウムシは、冬になっても何のすがたでいる？", a:"成虫", g:"stage" },
+
+  // --- D. 動物・鳥・魚 ---
+  { id:"U02-D01", cat:"D", type:"pick", q:"サケは、海と川のどちらで成長する？", pick:["海","川"], a:"海" },
+  { id:"U02-D02", cat:"D", type:"choice", g:"sake_spawn", q:"サケが産卵するのはどこ？", a:"生まれた川の上流", alts:["川の上流"] },
+  { id:"U02-D03", cat:"D", type:"pick", q:"アユ・ウナギ・サケのうち、海で成長したあと生まれた川にもどって産卵するのは？", pick:["アユ","ウナギ","サケ"], a:"サケ" },
+  { id:"U02-D04", cat:"D", type:"pick", q:"ウナギが産卵するのは、近くの川と遠い南の海のどちら？", pick:["近くの川","遠い南の海"], a:"遠い南の海" },
+  { id:"U02-D05", cat:"D", type:"choice", g:"wintering_bird", q:"ツバメ・カッコウのように、夏に日本で子育てをする鳥を何という？", a:"夏鳥", kana:"なつどり" },
+  { id:"U02-D06", cat:"D", type:"choice", g:"wintering_bird", q:"ハクチョウ・ガン・マガモのように、冬に日本で冬越しをする鳥を何という？", a:"冬鳥", kana:"ふゆどり" },
+  { id:"U02-D07", cat:"D", type:"pick", q:"カッコウ・ツバメ・ハクチョウのうち、秋になると北の国からわたってくる鳥は？", pick:["カッコウ","ツバメ","ハクチョウ"], a:"ハクチョウ" },
+  { id:"U02-D08", cat:"D", type:"pick", q:"渡り鳥が北へ移動するのは、春と秋のどちら？", pick:["春","秋"], a:"春" },
+  { id:"U02-D09", cat:"D", type:"pick", q:"カエル・ヘビ・トカゲが秋の終わりにすることは？", pick:["土の中にもぐる","えさをたくわえる"], a:"土の中にもぐる" },
+  { id:"U02-D10", cat:"D", type:"choice", g:"taion_doubutsu", q:"カエル・ヘビ・トカゲのように、体温が外気と同じ動物を何という？", a:"変温動物", kana:"へんおんどうぶつ" },
+  { id:"U02-D11", cat:"D", type:"choice", g:"taion_doubutsu", q:"ヤマネ・シマリス・コウモリ・クマのように、体温が一定の動物を何という？", a:"恒温動物", kana:"こうおんどうぶつ" },
+  { id:"U02-D12", cat:"D", type:"choice", g:"hibernate_reason", q:"クマが冬眠するのは、からだが大きくて何が足りなくなるため？", a:"えさ" }
+]);
+
+/* ============================================================
+   第4回 電気(2)
+============================================================ */
+var QUESTIONS_U04 = [
+  // --- A. 回路図・基本知識 ---
+  { id:"U04-A01", cat:"A", type:"choice", g:"kairozu", q:"かん電池・豆電球などをつないだようすを、記号で表したものを何という？", a:"回路図", kana:"かいろず" },
+  { id:"U04-A02", cat:"A", type:"pick", q:"かん電池の電気用図記号で、長い方の線は＋極と－極のどちら？", pick:["＋極","－極"], a:"＋極" },
+  { id:"U04-A03", cat:"A", type:"choice", g:"denki_ryou", q:"電気を流す力の大きさを何という？", a:"電圧", kana:"でんあつ" },
+  { id:"U04-A04", cat:"A", type:"choice", g:"denki_ryou", q:"導線を流れる電気の流れの大きさを何という？", a:"電流", kana:"でんりゅう" },
+  { id:"U04-A05", cat:"A", type:"choice", g:"denki_ryou", q:"電流の流れにくさを何という？", a:"抵抗", kana:"ていこう" },
+
+  // --- B. かん電池のつなぎ方 ---
+  { id:"U04-B01", cat:"B", type:"pick", q:"かん電池2個を直列につなぐと、豆電球の明るさは？", pick:["明るくなる","変わらない","暗くなる"], a:"明るくなる" },
+  { id:"U04-B02", cat:"B", type:"pick", q:"かん電池を直列につないでいるとき、かん電池を1つ外すと豆電球は？", pick:["消える","消えない"], a:"消える" },
+  { id:"U04-B03", cat:"B", type:"pick", q:"かん電池2個を並列につなぐと、豆電球の明るさは？", pick:["明るくなる","変わらない","暗くなる"], a:"変わらない" },
+  { id:"U04-B04", cat:"B", type:"pick", q:"かん電池を並列につないでいるとき、かん電池を1つ外すと豆電球は？", pick:["消える","消えない"], a:"消えない" },
+  { id:"U04-B05", cat:"B", type:"pick", q:"かん電池が使える時間が長いのは、直列つなぎと並列つなぎのどちら？", pick:["直列つなぎ","並列つなぎ"], a:"並列つなぎ" },
+
+  // --- C. 豆電球のつなぎ方 ---
+  { id:"U04-C01", cat:"C", type:"pick", q:"豆電球2個を直列につなぐと、明るさは？", pick:["明るくなる","変わらない","暗くなる"], a:"暗くなる" },
+  { id:"U04-C02", cat:"C", type:"pick", q:"豆電球を直列につないでいるとき、1つ外すともう1つの豆電球は？", pick:["消える","消えない"], a:"消える" },
+  { id:"U04-C03", cat:"C", type:"pick", q:"豆電球2個を並列につなぐと、明るさは？", pick:["明るくなる","変わらない","暗くなる"], a:"変わらない" },
+  { id:"U04-C04", cat:"C", type:"pick", q:"豆電球を並列につないでいるとき、1つ外すともう1つの豆電球は？", pick:["消える","消えない"], a:"消えない" },
+  { id:"U04-C05", cat:"C", type:"pick", q:"豆電球を2個直列につないだとき、2つの豆電球の明るさは同じ？ちがう？", pick:["同じ","ちがう"], a:"同じ" },
+  { id:"U04-C06", cat:"C", type:"pick", q:"豆電球を2個並列につないだとき、2つの豆電球の明るさは同じ？ちがう？", pick:["同じ","ちがう"], a:"同じ" },
+
+  // --- D. 回路の明るさ比べ（①を基準に②と比べる） ---
+  { id:"U04-D01", cat:"D", type:"circuit", q:"①と②の回路を比べると、明るさはどうなっていますか。", circuits:[{label:"①",bat:"1",bulb:"1"},{label:"②",bat:"1",bulb:"p2"}], pick:["①のほうが明るい","②のほうが明るい","①と②は同じ明るさ"], a:"①と②は同じ明るさ" },
+  { id:"U04-D02", cat:"D", type:"circuit", q:"①と②の回路を比べると、明るさはどうなっていますか。", circuits:[{label:"①",bat:"1",bulb:"1"},{label:"②",bat:"1",bulb:"s2"}], pick:["①のほうが明るい","②のほうが明るい","①と②は同じ明るさ"], a:"①のほうが明るい" },
+  { id:"U04-D03", cat:"D", type:"circuit", q:"①と②の回路を比べると、明るさはどうなっていますか。", circuits:[{label:"①",bat:"1",bulb:"1"},{label:"②",bat:"p2",bulb:"1"}], pick:["①のほうが明るい","②のほうが明るい","①と②は同じ明るさ"], a:"①と②は同じ明るさ" },
+  { id:"U04-D04", cat:"D", type:"circuit", q:"①と②の回路を比べると、明るさはどうなっていますか。", circuits:[{label:"①",bat:"1",bulb:"1"},{label:"②",bat:"p2",bulb:"p2"}], pick:["①のほうが明るい","②のほうが明るい","①と②は同じ明るさ"], a:"①と②は同じ明るさ" },
+  { id:"U04-D05", cat:"D", type:"circuit", q:"①と②の回路を比べると、明るさはどうなっていますか。", circuits:[{label:"①",bat:"1",bulb:"1"},{label:"②",bat:"p2",bulb:"s2"}], pick:["①のほうが明るい","②のほうが明るい","①と②は同じ明るさ"], a:"①のほうが明るい" },
+  { id:"U04-D06", cat:"D", type:"circuit", q:"①と②の回路を比べると、明るさはどうなっていますか。", circuits:[{label:"①",bat:"1",bulb:"1"},{label:"②",bat:"s2",bulb:"1"}], pick:["①のほうが明るい","②のほうが明るい","①と②は同じ明るさ"], a:"②のほうが明るい" },
+  { id:"U04-D07", cat:"D", type:"circuit", q:"①と②の回路を比べると、明るさはどうなっていますか。", circuits:[{label:"①",bat:"1",bulb:"1"},{label:"②",bat:"s2",bulb:"p2"}], pick:["①のほうが明るい","②のほうが明るい","①と②は同じ明るさ"], a:"②のほうが明るい" },
+  { id:"U04-D08", cat:"D", type:"circuit", q:"①と②の回路を比べると、明るさはどうなっていますか。", circuits:[{label:"①",bat:"1",bulb:"1"},{label:"②",bat:"s2",bulb:"s2"}], pick:["①のほうが明るい","②のほうが明るい","①と②は同じ明るさ"], a:"①と②は同じ明るさ" },
+  { id:"U04-D09", cat:"D", type:"circuit", q:"①と②の回路を比べると、明るさはどうなっていますか。", circuits:[{label:"①",bat:"s2",bulb:"1"},{label:"②",bat:"s3",bulb:"1"}], pick:["①のほうが明るい","②のほうが明るい","①と②は同じ明るさ"], a:"②のほうが明るい" },
+  { id:"U04-D10", cat:"D", type:"circuit", q:"①と②の回路を比べると、明るさはどうなっていますか。", circuits:[{label:"①",bat:"1",bulb:"s2"},{label:"②",bat:"1",bulb:"s3"}], pick:["①のほうが明るい","②のほうが明るい","①と②は同じ明るさ"], a:"①のほうが明るい" },
+
+  // --- E. くらしの中の電気 ---
+  { id:"U04-E01", cat:"E", type:"pick", q:"家庭用コンセントの配線は、直列と並列のどちら？", pick:["直列","並列"], a:"並列" },
+  { id:"U04-E02", cat:"E", type:"choice", g:"breaker_word", q:"電化製品に流れる電流の合計が大きくなりすぎたとき、自動的に回路を切る安全そうちは？", a:"ブレーカー", alts:["配線用遮断器"] }
+];
+
+/* ============================================================
+   第6回 物の溶け方(1)
+============================================================ */
+var SOLUBILITY = {
+  boric: { name:"ホウ酸", unit:"g", data:{0:3, 20:5, 40:9, 60:15, 80:24, 100:38} },
+  salt:  { name:"食塩",   unit:"g", data:{0:35.5, 20:36, 40:36.5, 60:37, 80:38, 100:39} },
+  sugar: { name:"砂糖",   unit:"g", data:{20:204} }
+};
+
+var QUESTIONS_U06 = [
+  // --- A. 水に溶けるということ ---
+  { id:"U06-A01", cat:"A", type:"choice", g:"suiyoueki_word", q:"物が水にとけている液を何という？", a:"水溶液", kana:"すいようえき" },
+  { id:"U06-A02", cat:"A", type:"pick", q:"食塩・ホウ酸を水に溶かした水溶液の色は？", pick:["無色","白色"], a:"無色" },
+  { id:"U06-A03", cat:"A", type:"choice", g:"mushoku_taion", q:"「無色」と対になる、色がついているという意味の言葉は？", a:"有色", kana:"ゆうしょく" },
+  { id:"U06-A04", cat:"A", type:"pick", q:"コーヒーやコーラのように、色がついているのに透明な水溶液はある？", pick:["ある","ない"], a:"ある" },
+  { id:"U06-A05", cat:"A", type:"pick", q:"物が水に溶けると、つぶは液の中でどのようになる？", pick:["液全体に広がっていく","底に沈んだままになる"], a:"液全体に広がっていく" },
+  { id:"U06-A06", cat:"A", type:"pick", q:"物が水に溶けた液は、濃さがどこも同じ濃さになる？場所によってちがう？", pick:["どこも同じ濃さになる","場所によってちがう"], a:"どこも同じ濃さになる" },
+  { id:"U06-A07", cat:"A", type:"pick", q:"物が水に溶ける前後で、水と溶けた物の重さの合計はどうなる？", pick:["変わらない","軽くなる","重くなる"], a:"変わらない" },
+  { id:"U06-A08", cat:"A", type:"choice", g:"suiyoueki_word", q:"溶ける限度量まで物を溶かした水溶液を何という？", a:"飽和水溶液", kana:"ほうわすいようえき" },
+  { id:"U06-A09", cat:"A", type:"pick", q:"飽和水溶液に、まだその物をとかすことができる？", pick:["できる","できない"], a:"できない" },
+  { id:"U06-A10", cat:"A", type:"pick", q:"水温を上げると、ホウ酸が水に溶ける限度量はどうなる？", pick:["増える","減る","変わらない"], a:"増える" },
+  { id:"U06-A11", cat:"A", type:"pick", q:"水温を上げたとき、食塩が水に溶ける限度量は、ホウ酸と比べて大きく増える？あまり変わらない？", pick:["大きく増える","あまり変わらない"], a:"あまり変わらない" },
+  { id:"U06-A12", cat:"A", type:"pick", q:"20℃の水100gに、いちばんよく溶けるのは食塩・ホウ酸・砂糖のうちどれ？", pick:["食塩","ホウ酸","砂糖"], a:"砂糖" },
+  { id:"U06-A13", cat:"A", type:"pick", q:"水の量を2倍にすると、物が溶ける限度量は何倍になる？", pick:["2倍","3倍","変わらない"], a:"2倍" },
+
+  // --- B. 限度量の表を読む ---
+  { id:"U06-B01", cat:"B", type:"num", q:"20℃の水100gに、ホウ酸は何gまで溶ける？", a:5, unit:"g", table:"boric" },
+  { id:"U06-B02", cat:"B", type:"num", q:"40℃の水100gに、ホウ酸は何gまで溶ける？", a:9, unit:"g", table:"boric" },
+  { id:"U06-B03", cat:"B", type:"num", q:"60℃の水100gに、ホウ酸は何gまで溶ける？", a:15, unit:"g", table:"boric" },
+  { id:"U06-B04", cat:"B", type:"num", q:"80℃の水100gに、ホウ酸は何gまで溶ける？", a:24, unit:"g", table:"boric" },
+  { id:"U06-B05", cat:"B", type:"num", q:"100℃の水100gに、ホウ酸は何gまで溶ける？", a:38, unit:"g", table:"boric" },
+  { id:"U06-B06", cat:"B", type:"num", q:"20℃の水100gに、食塩は何gまで溶ける？", a:36, unit:"g", table:"salt" },
+  { id:"U06-B07", cat:"B", type:"num", q:"60℃の水100gに、食塩は何gまで溶ける？", a:37, unit:"g", table:"salt" },
+  { id:"U06-B08", cat:"B", type:"num", q:"100℃の水100gに、食塩は何gまで溶ける？", a:39, unit:"g", table:"salt" },
+  { id:"U06-B09", cat:"B", type:"num", q:"20℃の水100gに、砂糖は何gまで溶ける？", a:204, unit:"g", table:"sugar" },
+
+  // --- C. とける量の計算（計算編・解答つき） ---
+  { id:"U06-C01", cat:"C", type:"num", q:"20℃の水100gに、ホウ酸は何gまで溶けますか。", a:5, unit:"g", table:"boric", exp:"20℃の水100gにホウ酸は5g溶けます。" },
+  { id:"U06-C02", cat:"C", type:"num", q:"60℃の水200gに、ホウ酸は何gまで溶けますか。", a:30, unit:"g", table:"boric", exp:"60℃の水100gにホウ酸は15g溶けるので、15×200÷100＝30gです。" },
+  { id:"U06-C03", cat:"C", type:"num", q:"80℃の水50gに、ホウ酸は何gまで溶けますか。", a:12, unit:"g", table:"boric", exp:"80℃の水100gにホウ酸は24g溶けるので、24×50÷100＝12gです。" },
+  { id:"U06-C04", cat:"C", type:"num", q:"40℃の水100gに、ホウ酸を5g入れました。あと何gとかすことができますか。", a:4, unit:"g", table:"boric", exp:"40℃の水100gにホウ酸は9g溶けるので、9－5＝4gです。" },
+  { id:"U06-C05", cat:"C", type:"num", q:"80℃の水200gに、ホウ酸を60g入れました。とけ残ったホウ酸は何gですか。", a:12, unit:"g", table:"boric", exp:"80℃の水100gにホウ酸は24g溶けるので、水200gには24×200÷100＝48g溶けます。よって60－48＝12gがとけ残ります。" },
+  { id:"U06-C06", cat:"C", type:"num", q:"20℃の水50gに、ホウ酸は何gまで溶けますか。", a:2.5, unit:"g", table:"boric", exp:"20℃の水100gにホウ酸は5g溶けるので、5×50÷100＝2.5gです。" },
+  { id:"U06-C07", cat:"C", type:"num", q:"100℃の水50gに、ホウ酸は何gまで溶けますか。", a:19, unit:"g", table:"boric", exp:"100℃の水100gにホウ酸は38g溶けるので、38×50÷100＝19gです。" },
+  { id:"U06-C08", cat:"C", type:"num", q:"60℃の水200gに、食塩は何gまで溶けますか。", a:74, unit:"g", table:"salt", exp:"60℃の水100gに食塩は37g溶けるので、37×2＝74gです。" },
+  { id:"U06-C09", cat:"C", type:"num", q:"20℃の水300gに、食塩は何gまで溶けますか。", a:108, unit:"g", table:"salt", exp:"20℃の水100gに食塩は36g溶けるので、36×3＝108gです。" }
+];
+
+/* ============================================================
+   第1回 ヒトのからだ
+============================================================ */
+var QUESTIONS_U01 = [
+  // A: 骨・筋肉
+  { id:"U01-A01", cat:"A", type:"choice", g:"body_bone", q:"脳を守る骨を何といいますか。", a:"頭骨", kana:"とうこつ", also:["頭がい骨"] },
+  { id:"U01-A02", cat:"A", type:"choice", g:"body_bone", q:"肺や心臓を守る骨を何といいますか。", a:"ろっ骨", kana:"ろっこつ" },
+  { id:"U01-A03", cat:"A", type:"choice", g:"body_bone", q:"内臓を支える骨を何といいますか。", a:"骨ばん", kana:"こつばん" },
+  { id:"U01-A04", cat:"A", type:"choice", g:"body_bone", q:"からだを動かす骨どうしがつながっているつくりを何といいますか。", a:"関節", kana:"かんせつ" },
+  { id:"U01-A05", cat:"A", type:"choice", g:"body_bone", q:"骨と筋肉をつなぐ、筋肉のはしのじょうぶなつくりを何といいますか。", a:"けん" },
+  { id:"U01-A06", cat:"A", type:"pick", q:"うでをまっすぐにのばしたとき、外側の筋肉と内側の筋肉のどちらが縮みますか。", pick:["外側","内側"], a:"外側" },
+  { id:"U01-A07", cat:"A", type:"pick", q:"うでを曲げたとき、外側の筋肉と内側の筋肉のどちらが縮みますか。", pick:["外側","内側"], a:"内側" },
+  { id:"U01-A08", cat:"A", type:"num", q:"セキツイ動物の背骨は、何個の骨がつながってできていますか。", a:24, unit:"個" },
+  { id:"U01-A09", cat:"A", type:"pick", q:"背骨がまっすぐだと、しょうげきに対して折れやすいですか、折れにくいですか。", pick:["折れやすい","折れにくい"], a:"折れやすい" },
+  // B: 呼吸
+  { id:"U01-B01", cat:"B", type:"choice", g:"hataraki", q:"必要なエネルギーをつくり出すための酸素を空気中から体内に取り入れ、不要な二酸化炭素をからだの外に出すはたらきを何といいますか。", a:"呼吸", kana:"こきゅう" },
+  { id:"U01-B02", cat:"B", type:"choice", g:"kokyu_kikan", q:"ヒトが鼻や口から取り入れた空気から酸素を血液中に取り入れ、血液中の二酸化炭素を外へ出す役割をもつ、左右1つずつある器官を何といいますか。", a:"肺", kana:"はい" },
+  { id:"U01-B03", cat:"B", type:"choice", g:"kitai", q:"吸う息とはく息のうち、2番目に多くふくまれる気体は何ですか。ただし、水蒸気は除きます。", a:"酸素" },
+  { id:"U01-B04", cat:"B", type:"choice", g:"kokyu_kikan", q:"肺の中にある、気体の交換をしている小さな袋状のつくりを何といいますか。", a:"肺胞", kana:"はいほう" },
+  { id:"U01-B05", cat:"B", type:"choice", g:"junkan", q:"肺胞のまわりを取り囲んでいる、あみの目のように広がる細い血管を何といいますか。", a:"毛細血管", kana:"もうさいけっかん" },
+  // C: 消化
+  { id:"U01-C01", cat:"C", type:"choice", g:"hataraki", q:"口から取り入れた食物を歯でかみくだいたり、体内に吸収できる別の物質に変えたりするはたらきを何といいますか。", a:"消化", kana:"しょうか" },
+  { id:"U01-C02", cat:"C", type:"choice", g:"ha", q:"門歯・犬歯・きゅう歯のうち、食物をすりつぶすのにつごうのよいつくりになっている歯はどれですか。", a:"きゅう歯", kana:"きゅうし" },
+  { id:"U01-C03", cat:"C", type:"choice", g:"shouka_word", q:"食物の通り道を何といいますか。", a:"消化管", kana:"しょうかかん" },
+  { id:"U01-C04", cat:"C", type:"choice", g:"shoukikan", q:"消化した養分を吸収する器官は何ですか。", a:"小腸", kana:"しょうちょう" },
+  { id:"U01-C05", cat:"C", type:"choice", g:"shouka_word", q:"消化に関係するつくりをまとめて何といいますか。", a:"消化器官", kana:"しょうかきかん" },
+  { id:"U01-C06", cat:"C", type:"choice", g:"nutrient", q:"米やジャガイモなどに多くふくまれている栄養素を何といいますか。", a:"炭水化物", kana:"たんすいかぶつ" },
+  { id:"U01-C07", cat:"C", type:"choice", g:"nutrient", q:"肉や魚などに多くふくまれている栄養素を何といいますか。", a:"タンパク質", also:["たんぱく質"], kana:"たんぱくしつ" },
+  { id:"U01-C08", cat:"C", type:"choice", g:"nutrient", q:"肉のあぶら身やゴマなどに多くふくまれている栄養素を何といいますか。", a:"しぼう" },
+  { id:"U01-C09", cat:"C", type:"choice", g:"shoukikan", q:"食物は、口の次にどこを通りますか。", a:"食道", kana:"しょくどう" },
+  { id:"U01-C10", cat:"C", type:"choice", g:"shoukikan", q:"食物は、食道の次にどこを通りますか。", a:"胃" },
+  { id:"U01-C11", cat:"C", type:"choice", g:"shoukikan", q:"食物は、胃の次にどこを通りますか。", a:"小腸", kana:"しょうちょう" },
+  { id:"U01-C12", cat:"C", type:"choice", g:"shoukikan", q:"食物は、小腸の次にどこを通りますか。", a:"大腸", kana:"だいちょう" },
+  { id:"U01-C13", cat:"C", type:"choice", g:"shoukikan", q:"食物は、大腸の次にどこを通りますか。", a:"肛門", kana:"こうもん" },
+  // D: 血液の流れ
+  { id:"U01-D01", cat:"D", type:"choice", g:"junkan", q:"血液を送り出すポンプの役割をしている器官は何ですか。", a:"心臓", kana:"しんぞう" },
+  { id:"U01-D02", cat:"D", type:"choice", g:"junkan", q:"心臓から送り出される血液が通る血管を何といいますか。", a:"動脈", kana:"どうみゃく" },
+  { id:"U01-D03", cat:"D", type:"choice", g:"junkan", q:"心臓にもどってくる血液が通る血管を何といいますか。", a:"静脈", kana:"じょうみゃく" },
+  { id:"U01-D04", cat:"D", type:"choice", g:"junkan", q:"心臓にもどってくる血液が通る血管で、血液の逆流を防ぐはたらきをするつくりを何といいますか。", a:"弁", kana:"べん" },
+  { id:"U01-D05", cat:"D", type:"choice", g:"junkan", q:"全身にあみの目のように広がっている血管を何といいますか。", a:"毛細血管", kana:"もうさいけっかん" },
+  // E: 感覚器官
+  { id:"U01-E01", cat:"E", type:"choice", g:"kankaku_kikan", q:"目に入ってくる光は、角まく、ひとみ、レンズを通って、何という部分に像をつくりますか。", a:"もうまく" },
+  { id:"U01-E02", cat:"E", type:"pick", q:"ひとみが大きくなるのは、明るい場所と暗い場所のどちらですか。", pick:["明るい場所","暗い場所"], a:"暗い場所" },
+  { id:"U01-E03", cat:"E", type:"choice", g:"kankaku_kikan", q:"音による空気のしん動を感じ取る部分を何といいますか。", a:"こまく" },
+  { id:"U01-E04", cat:"E", type:"choice", g:"kankaku_kikan", q:"内耳にある、からだのかたむきや回転を感じとるはたらきをするものを何といいますか。", a:"半規管", also:["三半規管"], kana:"はんきかん" },
+  { id:"U01-E05", cat:"E", type:"choice", g:"kankaku_kikan", q:"目に入る光の量を調節する、ドーナツ状の膜を何といいますか。", a:"こうさい" },
+  { id:"U01-E06", cat:"E", type:"pick", q:"遠くを見るとき、目のレンズ（水晶体）は厚くなりますか、うすくなりますか。", pick:["厚くなる","うすくなる"], a:"うすくなる" },
+  { id:"U01-E07", cat:"E", type:"pick", q:"近くを見るとき、目のレンズ（水晶体）は厚くなりますか、うすくなりますか。", pick:["厚くなる","うすくなる"], a:"厚くなる" },
+  { id:"U01-E08", cat:"E", type:"choice", g:"kikanetsu", q:"汗が蒸発するときに体温を下げるしくみを、漢字3字で何といいますか。", a:"気化熱", kana:"きかねつ" }
+];
+
+/* ============================================================
+   第3回 電気(1)
+============================================================ */
+var QUESTIONS_U03 = [
+  // A: 電気を通す・通さない
+  { id:"U03-A01", cat:"A", type:"pick", q:"アルミニウム・ガラス・ゴムのうち、電気を通すものはどれですか。", pick:["アルミニウム","ガラス","ゴム"], a:"アルミニウム" },
+  { id:"U03-A02", cat:"A", type:"pick", q:"銅・鉄・プラスチックのうち、電気を通さないものはどれですか。", pick:["銅","鉄","プラスチック"], a:"プラスチック" },
+  { id:"U03-A03", cat:"A", type:"choice", g:"dentai", q:"電気を通さないものをまとめて何といいますか。", a:"絶縁体", kana:"ぜつえんたい" },
+  // B: 豆電球・LED・モーター
+  { id:"U03-B01", cat:"B", type:"choice", g:"mametama_parts", q:"豆電球の光る部分を何といいますか。", a:"フィラメント" },
+  { id:"U03-B02", cat:"B", type:"choice", g:"kinzoku", q:"豆電球の光る部分（フィラメント）は何という金属でできていますか。", a:"タングステン" },
+  { id:"U03-B03", cat:"B", type:"choice", g:"shinkuu_state", q:"豆電球のガラス球の中はどのような状態になっていますか。", a:"真空", kana:"しんくう", also:["ちっ素とアルゴンの混合気体"] },
+  { id:"U03-B04", cat:"B", type:"choice", g:"led_word", q:"電気を流すと光を発し、蛍光灯に比べて使う電気の量が少なく、寿命が長いことから、電光掲示板や信号機などに使われているものを何といいますか。", a:"発光ダイオード", also:["LED"] },
+  { id:"U03-B05", cat:"B", type:"pick", q:"プロペラをつけたモーターにつないだかん電池の＋極と－極を入れかえると、プロペラの回転する向きはどうなりますか。", pick:["向きは変わらず回る","逆回りに回る"], a:"逆回りに回る" },
+  { id:"U03-B06", cat:"B", type:"pick", q:"せん風機・そうじ機・電気自動車に共通して使われている、電気を回転運動に変えるものは何ですか。", pick:["モーター","かん電池","フィラメント"], a:"モーター" },
+  // C: 電気をつくり出すもの
+  { id:"U03-C01", cat:"C", type:"pick", q:"かん電池の電気は、＋極と－極のどちらから流れ出しますか。", pick:["＋極","－極"], a:"＋極" },
+  { id:"U03-C02", cat:"C", type:"num", q:"かん電池がふつう起こす電圧は何Vですか。", a:1.5, unit:"V" },
+  { id:"U03-C03", cat:"C", type:"choice", g:"denki_ryou", q:"電気を流す力の大きさを表す単位「V」で表されるものを、漢字2字で何といいますか。", a:"電圧", kana:"でんあつ" },
+  { id:"U03-C04", cat:"C", type:"choice", g:"hatsuden", q:"光があたると電気をつくることができる装置を何といいますか。", a:"光電池", kana:"ひかりでんち" },
+  { id:"U03-C05", cat:"C", type:"pick", q:"光電池は、電気をつくるときに二酸化炭素や有害物質を出しますか、出しませんか。", pick:["出す","出さない"], a:"出さない" },
+  { id:"U03-C06", cat:"C", type:"choice", g:"hatsuden", q:"ハンドルを回すことで電気をつくる道具を何といいますか。", a:"手回し発電機" },
+  { id:"U03-C07", cat:"C", type:"pick", q:"手回し発電機のハンドルを速く回すと、つくられる電気はどうなりますか。", pick:["大きくなる","小さくなる","変わらない"], a:"大きくなる" },
+  { id:"U03-C08", cat:"C", type:"pick", q:"手回し発電機のハンドルを逆に回すと、電流の流れの向きはどうなりますか。", pick:["同じになる","逆になる"], a:"逆になる" },
+  { id:"U03-C09", cat:"C", type:"pick", q:"光電池は、太陽光に対してどのように設置すると発電量が最も大きくなりますか。", pick:["垂直になるように置く","ななめに置く"], a:"垂直になるように置く" },
+  // D: 回路・検流計
+  { id:"U03-D01", cat:"D", type:"choice", g:"kairo_word", q:"豆電球やかん電池などを、電気が流れるように配線したときの電気の通り道を何といいますか。", a:"回路", kana:"かいろ" },
+  { id:"U03-D02", cat:"D", type:"pick", q:"豆電球につないだかん電池の＋極と－極を入れかえると、豆電球の明るさはどうなりますか。", pick:["明るくなる","暗くなる","変わらない"], a:"変わらない" },
+  { id:"U03-D03", cat:"D", type:"choice", g:"short_word", q:"かん電池の＋極と－極を導線で直接つないだときに、たくさんの電気が一度に流れてしまうことを何といいますか。", a:"ショート", also:["短絡"] },
+  { id:"U03-D04", cat:"D", type:"choice", g:"kenryuukei", q:"回路に流れる電流の大きさや向きを調べる道具を何といいますか。", a:"検流計", kana:"けんりゅうけい" },
+  { id:"U03-D05", cat:"D", type:"pick", q:"検流計の針のふれる大きさは、電流の大きさと向きのどちらを表していますか。", pick:["大きさ","向き"], a:"大きさ" },
+  { id:"U03-D06", cat:"D", type:"pick", q:"検流計の針のふれる向きは、電流の大きさと向きのどちらを表していますか。", pick:["大きさ","向き"], a:"向き" },
+  { id:"U03-D07", cat:"D", type:"choice", g:"denki_ryou", q:"同じ金属でも電気の通しにくさにちがいがあり、この電気の通しにくさを何といいますか。", a:"抵抗", kana:"ていこう" }
+];
+
+var QUESTIONS_U07 = [
+
+    // ================= A. ろ過・再結晶 =================
+    { id:"U07-A01", cat:"A", type:"choice", g:"rokano", q:"液体にとけていない固体のつぶを、ろ紙を使って液体と分けることを何といいますか。", a:"ろ過", kana:"ろか" },
+    { id:"U07-A02", cat:"A", type:"choice", g:"rokano", q:"ろ過をしたときに、ろ紙を通りぬけて出てくる液を何といいますか。", a:"ろ液", kana:"ろえき" },
+    { id:"U07-A03", cat:"A", type:"pick", q:"ろ過をするとき、ろうとの足の長い方はビーカーの内側の壁につけますか、つけませんか。", pick:["つける","つけない"], a:"つける" },
+    { id:"U07-A04", cat:"A", type:"pick", q:"ろ過をするとき、液はガラス棒を伝わらせて注ぎますか、直接そそぎますか。", pick:["ガラス棒を伝わらせて注ぐ","直接そそぐ"], a:"ガラス棒を伝わらせて注ぐ" },
+    { id:"U07-A05", cat:"A", type:"pick", q:"水にとけている物質のつぶと、とけ残った物質のつぶでは、ろ紙を通りぬけられるのはどちらですか。", pick:["とけている物質のつぶ","とけ残った物質のつぶ"], a:"とけている物質のつぶ" },
+    { id:"U07-A06", cat:"A", type:"pick", q:"ろ過した後のろ液の中に、とけ残りの固体は残っていますか。", pick:["残っている","残っていない"], a:"残っていない" },
+    { id:"U07-A07", cat:"A", type:"choice", g:"rokano", q:"水溶液を冷やしたり水を蒸発させたりして、とけていた物をふたたび結晶として取り出すことを何といいますか。", a:"再結晶", kana:"さいけっしょう" },
+    { id:"U07-A08", cat:"A", type:"pick", q:"食塩のように、水の温度が変わっても溶ける限度量があまり変化しない物質を水溶液から取り出すには、水を蒸発させる方法と温度を下げる方法のどちらが適していますか。", pick:["水を蒸発させる","水の温度を下げる"], a:"水を蒸発させる" },
+    { id:"U07-A09", cat:"A", type:"pick", q:"ホウ酸のように、水の温度によって溶ける限度量が大きく変化する物質を水溶液から取り出すには、水を蒸発させる方法と温度を下げる方法のどちらが適していますか。", pick:["水を蒸発させる","水の温度を下げる"], a:"水の温度を下げる" },
+    { id:"U07-A10", cat:"A", type:"choice", g:"kessho_shape", q:"食塩の結晶は、どのような形をしていますか。", a:"立方体", alts:["立方体形"] },
+
+    // ================= B. 限度量の表を読む =================
+    { id:"U07-B01", cat:"B", type:"num", q:"0℃の水100gに、食塩は何gまで溶ける？", a:35.5, unit:"g", table:"salt" },
+    { id:"U07-B02", cat:"B", type:"num", q:"40℃の水100gに、食塩は何gまで溶ける？", a:36.5, unit:"g", table:"salt" },
+    { id:"U07-B03", cat:"B", type:"num", q:"80℃の水100gに、食塩は何gまで溶ける？", a:38, unit:"g", table:"salt" },
+    { id:"U07-B04", cat:"B", type:"num", q:"0℃の水100gに、ホウ酸は何gまで溶ける？", a:3, unit:"g", table:"boric" },
+    { id:"U07-B05", cat:"B", type:"num", q:"100℃の水100gに、ホウ酸は何gまで溶ける？", a:38, unit:"g", table:"boric" },
+    { id:"U07-B06", cat:"B", type:"num", q:"40℃と100℃で、水100gに溶けるホウ酸の量の差は何gですか。", a:29, unit:"g", table:"boric", exp:"100℃では38g、40℃では9g溶けるので、38－9＝29gです。" },
+    { id:"U07-B07", cat:"B", type:"num", q:"20℃と100℃で、水100gに溶ける食塩の量の差は何gですか。", a:3, unit:"g", table:"salt", exp:"100℃では39g、20℃では36g溶けるので、39－36＝3gです。" },
+    { id:"U07-B08", cat:"B", type:"num", q:"60℃の水100gに溶ける食塩とホウ酸の量の差は何gですか。", a:22, unit:"g", table:"boric", exp:"60℃で食塩は37g、ホウ酸は15g溶けるので、37－15＝22gです。" },
+
+    // ================= C. とける量の計算（応用） =================
+    { id:"U07-C01", cat:"C", type:"num", q:"60℃の水100gに食塩を30g溶かしました。食塩はあと何gまで溶かすことができますか。", a:7, unit:"g", table:"salt", exp:"60℃の水100gに食塩は37g溶けるので、37－30＝7gです。" },
+    { id:"U07-C02", cat:"C", type:"num", q:"60℃の水100gにホウ酸を10g溶かしました。ホウ酸はあと何gまで溶かすことができますか。", a:5, unit:"g", table:"boric", exp:"60℃の水100gにホウ酸は15g溶けるので、15－10＝5gです。" },
+    { id:"U07-C03", cat:"C", type:"num", q:"80℃の水100gに食塩をとかしてつくった飽和水溶液から、水を50g蒸発させました。何gの食塩がとけきれずに出てきますか。", a:19, unit:"g", table:"salt", exp:"80℃の水100gに食塩は38g溶ける。水50gには38×50÷100＝19g溶けるので、もとの38gから19gを引いて19gが出てくる。" },
+    { id:"U07-C04", cat:"C", type:"num", q:"80℃の水100gにホウ酸をとかしてつくった飽和水溶液から、水を50g蒸発させました。何gのホウ酸がとけきれずに出てきますか。", a:12, unit:"g", table:"boric", exp:"80℃の水100gにホウ酸は24g溶ける。水50gには24×50÷100＝12g溶けるので、24－12＝12gが出てくる。" },
+    { id:"U07-C05", cat:"C", type:"num", q:"100℃の水100gに食塩をとかしてつくった飽和水溶液を、0℃まで冷やしました。何gの食塩がとけきれずに出てきますか。", a:3.5, unit:"g", table:"salt", exp:"100℃では39g、0℃では35.5g溶けるので、39－35.5＝3.5gです。" },
+    { id:"U07-C06", cat:"C", type:"num", q:"100℃の水100gにホウ酸をとかしてつくった飽和水溶液を、0℃まで冷やしました。何gのホウ酸がとけきれずに出てきますか。", a:35, unit:"g", table:"boric", exp:"100℃では38g、0℃では3g溶けるので、38－3＝35gです。" },
+    { id:"U07-C07", cat:"C", type:"num", q:"20℃の水100gに食塩を38g入れると、とけ残りができました。このとけ残りをすべて溶かすには、水溶液の温度を少なくとも何℃まで上げる必要がありますか。", a:80, unit:"℃", table:"salt", exp:"食塩が38g以上溶けるのは80℃（38g）からなので、80℃まで上げる必要があります。" },
+    { id:"U07-C08", cat:"C", type:"num", q:"40℃の水200gに、ホウ酸は何gまで溶けますか。", a:18, unit:"g", table:"boric", exp:"40℃の水100gにホウ酸は9g溶けるので、9×200÷100＝18gです。" },
+    { id:"U07-C09", cat:"C", type:"num", q:"80℃の水50gに、食塩は何gまで溶けますか。", a:19, unit:"g", table:"salt", exp:"80℃の水100gに食塩は38g溶けるので、38×50÷100＝19gです。" },
+    { id:"U07-C10", cat:"C", type:"num", q:"20℃の水300gに、ホウ酸は何gまで溶けますか。", a:15, unit:"g", table:"boric", exp:"20℃の水100gにホウ酸は5g溶けるので、5×300÷100＝15gです。" },
+    { id:"U07-C11", cat:"C", type:"num", q:"60℃の水400gに、ホウ酸を80g入れました。とけ残ったホウ酸は何gですか。", a:20, unit:"g", table:"boric", exp:"60℃の水100gにホウ酸は15g溶けるので、水400gには15×400÷100＝60g溶ける。よって80－60＝20gがとけ残ります。" },
+    { id:"U07-C12", cat:"C", type:"num", q:"100℃の水150gに、食塩は何gまで溶けますか。", a:58.5, unit:"g", table:"salt", exp:"100℃の水100gに食塩は39g溶けるので、39×150÷100＝58.5gです。" },
+    { id:"U07-C13", cat:"C", type:"num", q:"40℃の水100gに、食塩を20g入れました。あと何gまで溶かすことができますか。", a:16.5, unit:"g", table:"salt", exp:"40℃の水100gに食塩は36.5g溶けるので、36.5－20＝16.5gです。" },
+    { id:"U07-C14", cat:"C", type:"num", q:"0℃の水50gに、ホウ酸は何gまで溶けますか。", a:1.5, unit:"g", table:"boric", exp:"0℃の水100gにホウ酸は3g溶けるので、3×50÷100＝1.5gです。" }
+
+  ];
+
+var QUESTIONS_U08 = [
+
+    // ================= A. 川の3作用と地形 =================
+    { id:"U08-A01", cat:"A", type:"choice", g:"kawa_sayou", q:"流水が地面をけずるはたらきを何といいますか。", a:"侵食", kana:"しんしょく", alts:["浸食"] },
+    { id:"U08-A02", cat:"A", type:"choice", g:"kawa_sayou", q:"流水が土砂を運ぶはたらきを何といいますか。", a:"運搬", kana:"うんぱん" },
+    { id:"U08-A03", cat:"A", type:"choice", g:"kawa_sayou", q:"流水が運んできた土砂を積もらせるはたらきを何といいますか。", a:"堆積", kana:"たいせき" },
+    { id:"U08-A04", cat:"A", type:"choice", g:"chikei", q:"川の上流に見られる、深くけずられたアルファベットの形をした谷を何といいますか。", a:"V字谷", kana:"ぶいじこく", alts:["Vじこく"] },
+    { id:"U08-A05", cat:"A", type:"choice", g:"chikei", q:"山地から平地に出るところに、土砂が扇のような形に積もってできる地形を何といいますか。", a:"扇状地", kana:"せんじょうち" },
+    { id:"U08-A06", cat:"A", type:"choice", g:"chikei", q:"川が海や湖に注ぐところに、土砂が積もってできる平らな地形を何といいますか。", a:"三角州", kana:"さんかくす" },
+    { id:"U08-A07", cat:"A", type:"choice", g:"chikei", q:"川が曲がりくねって流れることを何といいますか。", a:"蛇行", kana:"だこう" },
+    { id:"U08-A08", cat:"A", type:"choice", g:"chikei", q:"蛇行していた川の一部が取り残されてできる三日月形の湖を何といいますか。", a:"三日月湖", kana:"みかづきこ" },
+    { id:"U08-A09", cat:"A", type:"pick", q:"川の流れが速いのは、上流と下流のどちらですか。", pick:["上流","下流"], a:"上流" },
+    { id:"U08-A10", cat:"A", type:"pick", q:"川原の石が丸みを帯びて小さくなっているのは、上流と下流のどちらですか。", pick:["上流","下流"], a:"下流" },
+    { id:"U08-A11", cat:"A", type:"pick", q:"扇状地ができるのは、川が山地から平地に出て流れが急にゆるやかになる場所と、流れが急に速くなる場所のどちらですか。", pick:["流れが急にゆるやかになる場所","流れが急に速くなる場所"], a:"流れが急にゆるやかになる場所" },
+    { id:"U08-A12", cat:"A", type:"choice", g:"chikei", q:"川の両側に、階段のような形で広がる地形を何といいますか。", a:"河岸段丘", kana:"かがんだんきゅう" },
+
+    // ================= B. 地層・化石 =================
+    { id:"U08-B01", cat:"B", type:"choice", g:"kaseki_type", q:"地層ができた当時の環境を知る手がかりになる化石を何といいますか。", a:"示相化石", kana:"じそうかせき" },
+    { id:"U08-B02", cat:"B", type:"choice", g:"kaseki_type", q:"地層ができた時代を知る手がかりになる化石を何といいますか。", a:"示準化石", kana:"じじゅんかせき" },
+    { id:"U08-B03", cat:"B", type:"choice", q:"サンゴの化石が見つかると、その地層はどのような環境で堆積したとわかりますか。", a:"あたたかく浅い海", g:"kankyo" },
+    { id:"U08-B04", cat:"B", type:"choice", q:"シジミの化石が見つかると、その地層はどのような環境で堆積したとわかりますか。", a:"河口や湖", g:"kankyo" },
+    { id:"U08-B05", cat:"B", type:"choice", q:"ホタテの化石が見つかると、その地層はどのような環境で堆積したとわかりますか。", a:"冷たい海", g:"kankyo" },
+    { id:"U08-B06", cat:"B", type:"choice", q:"アサリの化石が見つかると、その地層はどのような環境で堆積したとわかりますか。", a:"浅い海", g:"kankyo" },
+    { id:"U08-B07", cat:"B", type:"choice", q:"中生代を代表する示準化石は次のうちどれですか。", a:"アンモナイト", g:"jidai" },
+    { id:"U08-B08", cat:"B", type:"choice", q:"新生代を代表する示準化石（大型のほ乳類）は次のうちどれですか。", a:"マンモス", g:"jidai" },
+    { id:"U08-B09", cat:"B", type:"choice", q:"古生代を代表する示準化石は次のうちどれですか。", a:"サンヨウチュウ", g:"jidai" },
+    { id:"U08-B10", cat:"B", type:"choice", q:"新生代の示準化石として知られる巻貝のなかまは次のうちどれですか。", a:"ビカリア", g:"jidai" },
+    { id:"U08-B11", cat:"B", type:"choice", g:"boring_word", q:"地下の地層のようすを調べるために、地面に穴をほって地層の試料を取り出す調査を何といいますか。", a:"ボーリング調査", kana:"ぼーりんぐちょうさ" },
+
+    // ================= C. 堆積物と水はけ・防災利用 =================
+    { id:"U08-C01", cat:"C", type:"pick", q:"れき・砂・どろのうち、つぶが最も大きいものはどれですか。", pick:["れき","砂","どろ"], a:"れき" },
+    { id:"U08-C02", cat:"C", type:"pick", q:"れき・砂・どろのうち、つぶが最も小さいものはどれですか。", pick:["れき","砂","どろ"], a:"どろ" },
+    { id:"U08-C03", cat:"C", type:"pick", q:"れき・砂・どろのうち、海岸から遠い深い海に堆積しやすいものはどれですか。", pick:["れき","砂","どろ"], a:"どろ" },
+    { id:"U08-C04", cat:"C", type:"pick", q:"れき・砂・どろのうち、海岸に近い浅い場所に堆積しやすいものはどれですか。", pick:["れき","砂","どろ"], a:"れき" },
+    { id:"U08-C05", cat:"C", type:"choice", g:"ryuushi", q:"つぶの直径が2mm以上のものを何といいますか。", a:"れき" },
+    { id:"U08-C06", cat:"C", type:"choice", g:"ryuushi", q:"つぶの直径が16分の1mm未満の、最も細かいつぶを何といいますか。", a:"どろ" },
+    { id:"U08-C07", cat:"C", type:"choice", g:"bousai_setsubi", q:"大雨などで川が増水した際に水を一時的にためて、下流の洪水を防ぐしせつを何といいますか。", a:"ダム" },
+    { id:"U08-C08", cat:"C", type:"choice", g:"bousai_setsubi", q:"川の水があふれるのを防ぐため、川に沿って土を高く盛った土手を何といいますか。", a:"堤防", kana:"ていぼう" },
+    { id:"U08-C09", cat:"C", type:"pick", q:"扇状地は、水はけがよいですか、悪いですか。", pick:["よい","悪い"], a:"よい" },
+    { id:"U08-C10", cat:"C", type:"choice", g:"tochi_riyou", q:"水はけのよい扇状地で、畑や果樹園として盛んに利用されている土地の例といえば何ですか。", a:"果樹園", alts:["畑"] },
+    { id:"U08-C11", cat:"C", type:"choice", g:"tochi_riyou", q:"どろが堆積してできた、水を通しにくい平らな三角州が、多く利用されている土地の使い方は何ですか。", a:"水田", alts:["田"] }
+
+  ];
+
+var QUESTIONS_U09 = [
+
+    // ================= A. 力のつり合い・作用反作用 =================
+    { id:"U09-A01", cat:"A", type:"choice", g:"chikara_gainen", q:"地球が物を引く、下向きにはたらく力を何といいますか。", a:"重力", kana:"じゅうりょく" },
+    { id:"U09-A02", cat:"A", type:"pick", q:"机の上に置かれた物が静止しているとき、物にはたらく重力と机が物を支える力の大きさの関係はどうなっていますか。", pick:["重力の方が大きい","支える力の方が大きい","つり合っている"], a:"つり合っている" },
+    { id:"U09-A03", cat:"A", type:"choice", g:"chikara_gainen", q:"物体が静止しているとき、2つの力が同じ大きさで反対向きにはたらき合っていることを何といいますか。", a:"力のつり合い", kana:"ちからのつりあい" },
+    { id:"U09-A04", cat:"A", type:"choice", g:"chikara_gainen", q:"物体に力を加えると、その物体からも同じ大きさの力を反対向きに受けるという法則を何といいますか。", a:"作用・反作用の法則", alts:["作用反作用の法則"] },
+    { id:"U09-A05", cat:"A", type:"pick", q:"手でボールを上向きに支えているとき、ボールにはたらく重力と、手がボールを支える力の向きの関係はどうなっていますか。", pick:["同じ向き","反対向き"], a:"反対向き" },
+    { id:"U09-A06", cat:"A", type:"pick", q:"ひもでおもりをつるして静止しているとき、おもりにはたらく重力とひもがおもりを引く力はつり合っていますか。", pick:["つり合っている","つり合っていない"], a:"つり合っている" },
+    { id:"U09-A07", cat:"A", type:"choice", g:"dansei", q:"ばねやゴムのように、変形すると元の形にもどろうとする性質を何といいますか。", a:"弾性", kana:"だんせい" },
+    { id:"U09-A08", cat:"A", type:"choice", g:"dansei", q:"弾性をもつ物体のことを何といいますか。", a:"弾性体", kana:"だんせいたい" },
+
+    // ================= B. ばねの性質 =================
+    { id:"U09-B01", cat:"B", type:"pick", q:"ばねにつるすおもりの重さを2倍、3倍にすると、ばねののびは何倍になりますか。", pick:["2倍、3倍になる","4倍、9倍になる","変わらない"], a:"2倍、3倍になる" },
+    { id:"U09-B02", cat:"B", type:"choice", g:"bane_word", q:"ばねに何もつるしていないときのばねの長さを何といいますか。", a:"自然長", kana:"しぜんちょう" },
+    { id:"U09-B03", cat:"B", type:"choice", g:"bane_word", q:"ばねにおもりをつるしたときに、自然長からのびた長さのことを何といいますか。", a:"のび", alts:["伸び"] },
+    { id:"U09-B04", cat:"B", type:"choice", g:"bane_word", q:"ばねの全長は、自然長と何の長さの和で求められますか。", a:"のび", alts:["伸びの長さ"] },
+    { id:"U09-B05", cat:"B", type:"pick", q:"ばねののびは、つるすおもりの重さに比例しますか、反比例しますか。", pick:["比例する","反比例する"], a:"比例する" },
+    { id:"U09-B06", cat:"B", type:"pick", q:"おもりの重さとばねののびの関係をグラフに表すと、どのような形になりますか。", pick:["原点を通る直線","原点を通らない曲線"], a:"原点を通る直線" },
+    { id:"U09-B07", cat:"B", type:"choice", g:"omosa_dougu", q:"つるすおもりの重さに対するばねの伸びが一定の割合であることを利用してつくられている、重さをはかる道具を何といいますか。", a:"ばねばかり" },
+    { id:"U09-B08", cat:"B", type:"pick", q:"ばねを縮める場合も、縮んだ長さはおもりの重さに比例しますか。", pick:["比例する","比例しない"], a:"比例する" },
+
+    // ================= C. ばねの計算 =================
+    { id:"U09-C01", cat:"C", type:"num", q:"10gのおもりをつるすと2cmのびるばねがあります。40gのおもりをつるすと何cmのびますか。", a:8, unit:"cm", exp:"40gは10gの4倍なので、のびも4倍で2×4＝8cmです。" },
+    { id:"U09-C02", cat:"C", type:"num", q:"10gのおもりをつるすと2cmのびるばねがあります。ある重さのおもりをつるすと12cmのびました。何gのおもりをつるしましたか。", a:60, unit:"g", exp:"12cmは2cmの6倍なので、重さも6倍で10×6＝60gです。" },
+    { id:"U09-C03", cat:"C", type:"num", q:"自然長が12cmで、10gのおもりをつるすと3cmのびるばねがあります。10gのおもりをつるすと、ばねの全長は何cmになりますか。", a:15, unit:"cm", exp:"全長＝自然長＋のびなので、12＋3＝15cmです。" },
+    { id:"U09-C04", cat:"C", type:"num", q:"自然長が12cmで、10gのおもりをつるすと3cmのびるばねがあります。80gのおもりをつるすと、ばねの全長は何cmになりますか。", a:36, unit:"cm", exp:"80gでは3×8＝24cmのびるので、12＋24＝36cmです。" },
+    { id:"U09-C05", cat:"C", type:"num", q:"自然長が12cmで、10gのおもりをつるすと3cmのびるばねがあります。全長が42cmになるのは何gのおもりをつるしたときですか。", a:100, unit:"g", exp:"のびは42－12＝30cmで、3cmの10倍なので、10×10＝100gです。" },
+    { id:"U09-C06", cat:"C", type:"num", q:"自然長が8cmで、10gのおもりをつるすと2cmのびるばねがあります。90gのおもりをつるすと、ばねの全長は何cmになりますか。", a:26, unit:"cm", exp:"90gでは2×9＝18cmのびるので、8＋18＝26cmです。" },
+    { id:"U09-C07", cat:"C", type:"num", q:"自然長が8cmで、10gのおもりをつるすと2cmのびるばねがあります。20gのおもりをつるすと、ばねの全長は何cmになりますか。", a:12, unit:"cm", exp:"20gでは2×2＝4cmのびるので、8＋4＝12cmです。" },
+    { id:"U09-C08", cat:"C", type:"num", q:"自然長が15cmで、10gのおもりをつるすと1cmのびるばねAがあります。90gのおもりをつるすと、全長は何cmになりますか。", a:24, unit:"cm", exp:"90gでは1×9＝9cmのびるので、15＋9＝24cmです。" },
+    { id:"U09-C09", cat:"C", type:"num", q:"自然長が10cmで、10gのおもりをつるすと2cmのびるばねBがあります。90gのおもりをつるすと、全長は何cmになりますか。", a:28, unit:"cm", exp:"90gでは2×9＝18cmのびるので、10＋18＝28cmです。" },
+    { id:"U09-C10", cat:"C", type:"num", q:"自然長が15cmで、10gのおもりをつるすと1cmのびるばねAがあります。150gのおもりをつるすと、全長は何cmになりますか。", a:30, unit:"cm", exp:"150gでは1×15＝15cmのびるので、15＋15＝30cmです。" },
+    { id:"U09-C11", cat:"C", type:"num", q:"自然長が10cmで、10gのおもりをつるすと2cmのびるばねBがあります。全長が34cmになるのは何gのおもりをつるしたときですか。", a:120, unit:"g", exp:"のびは34－10＝24cmで、2cmの12倍なので、10×12＝120gです。" },
+    { id:"U09-C12", cat:"C", type:"num", q:"あるばねに10gのおもりをつるすと1cmのびました。このばねに100gのおもりをつるすと、のびは何cmになりますか。", a:10, unit:"cm", exp:"100gは10gの10倍なので、のびも10倍で1×10＝10cmです。" },
+    { id:"U09-C13", cat:"C", type:"num", q:"自然長が10cmのばねに、10gにつき2cmのびる性質があります。60gのおもりをつるすと、ばねののびは何cmになりますか。", a:12, unit:"cm", exp:"60gは10gの6倍なので、のびも6倍で2×6＝12cmです。" },
+
+    // ================= D. いろいろなばね =================
+    { id:"U09-D01", cat:"D", type:"choice", g:"omosa_dougu", q:"つる巻きばねのように、力に対して規則正しく変形するばねを利用してつくられている、重さをはかる道具を何といいますか。", a:"台はかり", alts:["ばねはかり"] },
+    { id:"U09-D02", cat:"D", type:"choice", q:"しょうげきをやわらげるために、つる巻きばねが使われているものは次のうちどれですか。", a:"マットレス", g:"springtype" },
+    { id:"U09-D03", cat:"D", type:"choice", q:"力のもとになるばね（うず巻きばね）が使われているものは次のうちどれですか。", a:"ぜんまい", g:"springtype" },
+    { id:"U09-D04", cat:"D", type:"choice", g:"dansei", q:"物体が変形したときに、元にもどろうとして生じる力を何といいますか。", a:"弾性力", kana:"だんせいりょく" },
+    { id:"U09-D05", cat:"D", type:"pick", q:"100gの力でばねを縮めたとき、ばねに生じる弾性力の大きさは何gの力に相当しますか。", pick:["50gの力","100gの力","200gの力"], a:"100gの力" },
+    { id:"U09-D06", cat:"D", type:"choice", q:"力のもとになるばねを使い、物をはさむ力を生み出しているものは次のうちどれですか。", a:"洗たくばさみ", g:"springtype" },
+    { id:"U09-D07", cat:"D", type:"choice", q:"力の大きさを直接はかる道具として使われているばねは次のうちどれですか。", a:"ばねばかり", g:"springtype" }
+
+  ];
+
+var UNITS = [
+  { id:"u01", name:"第1回 ヒトのからだ", questions: QUESTIONS_U01 },
+  { id:"u02", name:"第2回 秋の生物", questions: QUESTIONS_U02 },
+  { id:"u03", name:"第3回 電気(1)", questions: QUESTIONS_U03 },
+  { id:"u04", name:"第4回 電気(2)", questions: QUESTIONS_U04 },
+  { id:"u06", name:"第6回 物の溶け方(1)", questions: QUESTIONS_U06 },
+  { id:"u07", name:"第7回 物の溶け方(2)", questions: QUESTIONS_U07 },
+  { id:"u08", name:"第8回 流水と地形", questions: QUESTIONS_U08 },
+  { id:"u09", name:"第9回 ばね", questions: QUESTIONS_U09 }
+];
+
+</script>
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   全問題を1つの配列にまとめる（ID重複チェックにも使う）
+============================================================ */
+var ALL_QUESTIONS = [];
+UNITS.forEach(function(u){
+  u.questions.forEach(function(q){ q._unit = u.id; ALL_QUESTIONS.push(q); });
+});
+
+var FALLBACK_POOL = {
+  tree: ["ケヤキ","ポプラ","クヌギ","ツバキ","コナラ"],
+  substance: ["食塩","ホウ酸","砂糖"],
+
+  aki_hana: ["コスモス"],
+  shokubutsu_nakama: ["バラ","ユリ","マメ"],
+  jumoku_type: ["針葉樹","広葉樹"],
+  youhen: ["落葉"],
+  konomi: ["松ぼっくり","くるみ","栗"],
+  mushi_part: ["後羽","あし","はねの付け根"],
+  sake_spawn: ["海","近くの川の下流","遠い南の海"],
+  wintering_bird: ["渡り鳥","留鳥"],
+  taion_doubutsu: ["冬眠する動物","夜行性の動物"],
+  hibernate_reason: ["気温","日照時間","水"],
+
+  body_bone: [],
+  hataraki: ["循環","排出"],
+  kokyu_kikan: ["気管","気管支"],
+  kitai: ["二酸化炭素","ちっ素","水素"],
+  junkan: [],
+  shouka_word: ["吸収","分解"],
+  ha: ["門歯","犬歯","親知らず"],
+  nutrient: ["ビタミン"],
+  shoukikan: [],
+  kankaku_kikan: [],
+  kikanetsu: ["放熱","発汗","体温調節"],
+
+  dentai: ["導体","半導体","磁性体"],
+  mametama_parts: ["ソケット","スイッチ","導線"],
+  kinzoku: ["銅","鉄","アルミニウム"],
+  shinkuu_state: ["空気","水素","二酸化炭素"],
+  led_word: ["蛍光灯","白熱灯","ネオン管"],
+  denki_ryou: ["電力"],
+  hatsuden: ["かん電池","発電機"],
+  kairo_word: ["導線","スイッチ","電流"],
+  short_word: ["停電","漏電","感電"],
+  kenryuukei: ["電圧計","方位磁針","温度計"],
+  kairozu: ["回路","配線図","設計図"],
+  breaker_word: ["ヒューズ","テスター","コンセント"],
+
+  suiyoueki_word: ["ろ液","混合物"],
+  mushoku_taion: ["無色","透明","不透明"],
+
+  rokano: ["蒸発"],
+  kessho_shape: ["正六角柱","針状","正八面体"],
+
+  kawa_sayou: ["風化"],
+  chikei: [],
+  kaseki_type: ["化石","痕跡化石"],
+  boring_word: ["柱状図","測量","地震観測"],
+  ryuushi: ["砂","火山灰"],
+  bousai_setsubi: ["ため池","防波堤"],
+  tochi_riyou: ["住宅地","工業地"],
+
+  chikara_gainen: ["摩擦力"],
+  dansei: ["塑性"],
+  bane_word: ["全長","伸縮率"],
+  omosa_dougu: ["てんびん","メスシリンダー"]
+};
+
+/* ============================================================
+   採点エンジン
+============================================================ */
+function toKatakana(s){
+  return s.replace(/[ぁ-ゖ]/g, function(c){
+    return String.fromCharCode(c.charCodeAt(0) + 0x60);
+  });
+}
+function normalizeAnswer(s){
+  if(s===null || s===undefined) return "";
+  var t = String(s).normalize("NFKC");
+  t = toKatakana(t);
+  t = t.replace(/[\s　。、・･]/g, "");
+  return t;
+}
+function answerSetFor(q){
+  if(q._answerSet) return q._answerSet;
+  var raw = [q.a].concat(q.alts||[]).concat(q.also||[]);
+  if(q.kana) raw.push(q.kana);
+  var set = {};
+  raw.forEach(function(s){ set[normalizeAnswer(s)] = true; });
+  q._answerSet = set;
+  return set;
+}
+function gradeText(userInput, q){
+  var norm = normalizeAnswer(userInput);
+  if(!norm) return false;
+  return !!answerSetFor(q)[norm];
+}
+function gradeNum(userInput, q){
+  var t = String(userInput).normalize("NFKC");
+  t = t.replace(/[^0-9.\-]/g, "");
+  if(t==="" || t==="-" ) return false;
+  var v = parseFloat(t);
+  if(isNaN(v)) return false;
+  return Math.abs(v - q.a) < 0.001;
+}
+function gradeAnswer(userInput, q){
+  if(q.type==="num") return gradeNum(userInput, q);
+  if(q.type==="text" || q.type==="choice") return gradeText(userInput, q);
+  return userInput === q.a; // pick / circuit
+}
+
+function shuffle(arr){
+  var a = arr.slice();
+  for(var i=a.length-1;i>0;i--){
+    var j = Math.floor(Math.random()*(i+1));
+    var t=a[i]; a[i]=a[j]; a[j]=t;
+  }
+  return a;
+}
+function pickN(arr, n){ return shuffle(arr).slice(0, n); }
+
+function buildChoiceOptions(q){
+  var pool = [];
+  ALL_QUESTIONS.forEach(function(item){
+    if(item.g===q.g && item.a!==q.a && pool.indexOf(item.a)===-1) pool.push(item.a);
+  });
+  (FALLBACK_POOL[q.g]||[]).forEach(function(v){
+    if(v!==q.a && pool.indexOf(v)===-1) pool.push(v);
+  });
+  var distractors = pickN(pool, 3);
+  return shuffle(distractors.concat([q.a]));
+}
+
+/* ============================================================
+   回路図SVG生成
+============================================================ */
+function parseKind(code){
+  if(code==="1") return { count:1, series:1 };
+  if(code[0]==="s") return { count:1, series: parseInt(code.slice(1),10) };
+  if(code[0]==="p") return { count: parseInt(code.slice(1),10), series:1 };
+  return { count:1, series:1 };
+}
+
+function svgLine(x1,y1,x2,y2){ return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke-width="2.4" stroke-linecap="round"></line>'; }
+function svgDot(x,y){ return '<circle class="node" cx="'+x+'" cy="'+y+'" r="2.6" fill="currentColor"></circle>'; }
+
+function symbolBulb(cx, cy, horizontal){
+  var r = 8;
+  var s = '<circle class="bulb" cx="'+cx+'" cy="'+cy+'" r="'+r+'" stroke-width="2"></circle>';
+  var k = r*0.62;
+  s += '<line x1="'+(cx-k)+'" y1="'+(cy-k)+'" x2="'+(cx+k)+'" y2="'+(cy+k)+'" stroke-width="1.6"></line>';
+  s += '<line x1="'+(cx-k)+'" y1="'+(cy+k)+'" x2="'+(cx+k)+'" y2="'+(cy-k)+'" stroke-width="1.6"></line>';
+  return s;
+}
+function symbolBattery(cx, cy){
+  // 横向きの配線を縦の目盛りが横切る形（+は長い細線、-は短い太線）
+  var longH = 10, shortH = 6.5, gap = 3.6;
+  var s = "";
+  s += svgLine(cx-gap, cy-longH, cx-gap, cy+longH);
+  s += '<line x1="'+(cx+gap)+'" y1="'+(cy-shortH)+'" x2="'+(cx+gap)+'" y2="'+(cy+shortH)+'" stroke-width="5" stroke-linecap="round"></line>';
+  return s;
+}
+
+// 1つの部品グループ（豆電球 or かん電池）を、辺(edgeY)〜中央線(innerY)の間に描く。
+// 実際の教科書のように、四角形の左右の辺（x0,x1の縦線）をそのままバス線として使い、
+// count===1なら辺(edgeY)の上に一直線で描き、count>1なら複数本の横線を均等な間隔で並べる。
+function drawComponentRail(x0, x1, edgeY, innerY, kind, symbolFn){
+  var svg = "";
+  var n = kind.count;
+  var ns = kind.series;
+  if(n === 1){
+    svg += svgLine(x0, edgeY, x1, edgeY);
+    for(var i=0;i<ns;i++){
+      var cx = x0 + (x1-x0) * ((i+1)/(ns+1));
+      svg += symbolFn(cx, edgeY);
+    }
+  } else {
+    for(var b=0;b<n;b++){
+      var by = edgeY + (innerY-edgeY) * ((b+1)/(n+1));
+      svg += svgLine(x0, by, x1, by);
+      for(var s=0;s<ns;s++){
+        var cx2 = x0 + (x1-x0) * ((s+1)/(ns+1));
+        svg += symbolFn(cx2, by);
+      }
+    }
+  }
+  return svg;
+}
+
+// そのグループの一番外側（辺に一番近い枝）のY座標。count===1なら辺そのもの。
+function outerBranchY(edgeY, innerY, count){
+  if(count === 1) return edgeY;
+  return edgeY + (innerY-edgeY) * (1/(count+1));
+}
+
+function generateCircuitSVG(spec){
+  var W=190, H=170, L=26, R=164, TOP=20, BOT=150, MID=85;
+  var bat = parseKind(spec.bat);
+  var bulb = parseKind(spec.bulb);
+  // 縦の左右の辺は、実際に部品がある範囲だけを結ぶ（並列で枝が内側にある分だけ短くし、余分な飛び出しをなくす）
+  var topY = outerBranchY(TOP, MID, bulb.count);
+  var botY = outerBranchY(BOT, MID, bat.count);
+  var svg = '<svg viewBox="0 0 '+W+' '+H+'" width="150" height="'+Math.round(150*H/W)+'">';
+  svg += svgLine(L, topY, L, botY); // 左側（そのままバス線を兼ねる）
+  svg += svgLine(R, topY, R, botY); // 右側（そのままバス線を兼ねる）
+  svg += drawComponentRail(L, R, TOP, MID, bulb, symbolBulb);  // 上半分：豆電球
+  svg += drawComponentRail(L, R, BOT, MID, bat, symbolBattery); // 下半分：かん電池
+  svg += '</svg>';
+  return svg;
+}
+
+/* ============================================================
+   表の描画
+============================================================ */
+function renderTable(tableKey){
+  var t = SOLUBILITY[tableKey];
+  if(!t) return "";
+  var temps = Object.keys(t.data).map(Number).sort(function(a,b){return a-b;});
+  var html = '<div class="qtable-wrap"><table class="qtable"><thead><tr><th>水温[℃]</th>';
+  temps.forEach(function(temp){ html += "<th>"+temp+"</th>"; });
+  html += '</tr></thead><tbody><tr><th>'+t.name+'['+t.unit+']</th>';
+  temps.forEach(function(temp){ html += "<td>"+t.data[temp]+"</td>"; });
+  html += "</tr></tbody></table></div>";
+  return html;
+}
+
+/* ============================================================
+   STATE / STORAGE（きろくは common.js の KQHub に一本化）
+============================================================ */
+var SUBJECT = "rika";
+function fullKey(id){ return SUBJECT + ":" + id; }
+function pad2(n){ return n<10 ? "0"+n : ""+n; }
+function dateKey(d){ return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()); }
+function todayKey(){ return dateKey(new Date()); }
+function last7Days(){
+  var out = [], now = new Date();
+  for(var i=6;i>=0;i--){ var d = new Date(now); d.setDate(now.getDate()-i); out.push(d); }
+  return out;
+}
+function thisWeekTotals(){
+  var now = new Date(); var day = now.getDay();
+  var diffToMonday = (day===0) ? -6 : (1-day);
+  var monday = new Date(now); monday.setDate(now.getDate()+diffToMonday);
+  var total=0, correct=0;
+  for(var i=0;i<7;i++){
+    var d = new Date(monday); d.setDate(monday.getDate()+i);
+    if(d > now) break;
+    var e = KQHub.getStatsFor(d, SUBJECT);
+    total+=e.total; correct+=e.correct;
+  }
+  return { total:total, correct:correct };
+}
+function recordAnswer(id, correct){
+  KQHub.recordAnswer(SUBJECT, fullKey(id), correct);
+}
+function weakCountForUnits(unitIds){
+  var keys = [];
+  UNITS.forEach(function(u){
+    if(unitIds.indexOf(u.id)<0) return;
+    u.questions.forEach(function(q){ keys.push(fullKey(q.id)); });
+  });
+  return KQHub.countWeakFresh(keys);
+}
+
+/* ============================================================
+   DOM
+============================================================ */
+var $ = function(id){ return document.getElementById(id); };
+var unitList = $("unitList");
+var statToday = $("statToday"), statWeek = $("statWeek"), weekChart = $("weekChart");
+var selectAllBtn = $("selectAllBtn"), selectNoneBtn = $("selectNoneBtn");
+var catCard = $("catCard"), catChips = $("catChips");
+var weakBtn = $("weakBtn"), weakBadge = $("weakBadge");
+var startBtn = $("startBtn");
+
+var screenHome = $("screen-home"), screenQuiz = $("screen-quiz"), screenResult = $("screen-result");
+
+var progressFill = $("progressFill"), progressNum = $("progressNum");
+var qCatTag = $("qCatTag"), qText = $("qText");
+var qTableWrap = $("qTableWrap"), qCircuitWrap = $("qCircuitWrap");
+var choiceGrid = $("choiceGrid");
+var writeBox = $("writeBox"), writeInput = $("writeInput"), unitSuffix = $("unitSuffix");
+var checkBtn = $("checkBtn");
+var answerPanel = $("answerPanel"), verdictText = $("verdictText"), ansText = $("ansText"), ansAlso = $("ansAlso"), ansExp = $("ansExp");
+var nextBtn = $("nextBtn"), quitBtn = $("quitBtn");
+
+var resultScore = $("resultScore"), resultMsg = $("resultMsg"), reviewList = $("reviewList");
+var retryBtn = $("retryBtn"), homeBtn = $("homeBtn");
+
+/* ============================================================
+   HOME SCREEN
+============================================================ */
+var selectedUnits = {}; // id -> bool
+var activeCats = [];
+var useWeakOnly = false;
+
+var DOW_LABEL = ["日","月","火","水","木","金","土"];
+function refreshGlobalStats(){
+  var todayEntry = KQHub.getTodayStats()[SUBJECT] || {total:0, correct:0};
+  statToday.textContent = todayEntry.correct + "/" + todayEntry.total;
+  var week = thisWeekTotals();
+  statWeek.textContent = week.correct + "/" + week.total;
+
+  var days = last7Days();
+  var todayStr = todayKey();
+  var maxTotal = 1;
+  days.forEach(function(d){ var e = KQHub.getStatsFor(d, SUBJECT); if(e.total>maxTotal) maxTotal = e.total; });
+  weekChart.innerHTML = "";
+  days.forEach(function(d){
+    var key = dateKey(d);
+    var e = KQHub.getStatsFor(d, SUBJECT);
+    var isToday = key === todayStr;
+    var pct = e.total>0 ? Math.max(10, Math.round(e.total/maxTotal*100)) : 0;
+    var col = document.createElement("div");
+    col.className = "col" + (isToday ? " today" : "");
+    var track = document.createElement("div"); track.className = "bar-track";
+    var fill = document.createElement("div");
+    fill.className = "bar-fill" + (e.total>0 ? (isToday ? " today" : " has-data") : "");
+    fill.style.height = pct + "%";
+    fill.title = key + "：" + e.correct + "/" + e.total + "問正解";
+    track.appendChild(fill);
+    var dow = document.createElement("div"); dow.className = "dow"; dow.textContent = DOW_LABEL[d.getDay()];
+    col.appendChild(track); col.appendChild(dow);
+    weekChart.appendChild(col);
+  });
+}
+
+function renderUnitList(){
+  unitList.innerHTML = "";
+  var weakSummary = {};
+  UNITS.forEach(function(u){
+    var wf = weakCountForUnits([u.id]);
+    var w = wf.weak;
+    weakSummary[u.id] = w;
+    var row = document.createElement("label");
+    row.className = "unit-row";
+    row.innerHTML =
+      '<input type="checkbox" data-unit="'+u.id+'">'+
+      '<span class="body">'+
+        '<span class="name">'+u.name+'</span>'+
+        '<span class="meta"><span>全'+u.questions.length+'問</span>'+
+          (w>0 ? '<span class="weak-flag">にがて '+w+'問</span>' : '')+
+          (wf.fresh>0 ? '<span>未挑戦 '+wf.fresh+'問</span>' : '')+
+        '</span>'+
+      '</span>';
+    var cb = row.querySelector("input");
+    cb.checked = !!selectedUnits[u.id];
+    cb.addEventListener("change", function(){
+      selectedUnits[u.id] = cb.checked;
+      onSelectionChange();
+    });
+    unitList.appendChild(row);
+  });
+  // 玄関（index.html）が「今日のおすすめ」を出すときに参照する軽いキャッシュ
+  try{ localStorage.setItem("kq-rika-weak-summary-v1", JSON.stringify(weakSummary)); }catch(e){}
+}
+
+function getSelectedUnitIds(){
+  return UNITS.filter(function(u){ return selectedUnits[u.id]; }).map(function(u){ return u.id; });
+}
+function getSelectedPool(){
+  var ids = getSelectedUnitIds();
+  var pool = [];
+  UNITS.forEach(function(u){
+    if(ids.indexOf(u.id)>=0) pool = pool.concat(u.questions);
+  });
+  return pool;
+}
+
+function onSelectionChange(){
+  var ids = getSelectedUnitIds();
+  startBtn.disabled = ids.length===0;
+  activeCats = [];
+  if(ids.length===1){
+    catCard.hidden = false;
+    var cats = CATS[ids[0]];
+    activeCats = Object.keys(cats);
+    renderCatChips(ids[0]);
+  } else {
+    catCard.hidden = true;
+  }
+  refreshWeakBadge();
+}
+
+function renderCatChips(unitId){
+  var cats = CATS[unitId];
+  var pool = getSelectedPool();
+  catChips.innerHTML = "";
+  Object.keys(cats).forEach(function(key){
+    var count = pool.filter(function(q){return q.cat===key;}).length;
+    if(count===0) return;
+    var btn = document.createElement("button");
+    btn.className = "chip"; btn.type = "button";
+    btn.setAttribute("aria-pressed", activeCats.indexOf(key)>=0 ? "true":"false");
+    btn.innerHTML = cats[key] + ' <span class="cnt">' + count + "</span>";
+    btn.addEventListener("click", function(){
+      var idx = activeCats.indexOf(key);
+      if(idx>=0){ if(activeCats.length>1) activeCats.splice(idx,1); }
+      else { activeCats.push(key); }
+      renderCatChips(unitId);
+    });
+    catChips.appendChild(btn);
+  });
+}
+
+function refreshWeakBadge(){
+  var ids = getSelectedUnitIds();
+  var wf = ids.length ? weakCountForUnits(ids) : {weak:0, fresh:0};
+  weakBadge.textContent = "にがて"+wf.weak+"問・未挑戦"+wf.fresh+"問";
+  weakBtn.disabled = ids.length===0;
+}
+
+selectAllBtn.addEventListener("click", function(){
+  UNITS.forEach(function(u){ selectedUnits[u.id] = true; });
+  renderUnitList();
+  onSelectionChange();
+});
+selectNoneBtn.addEventListener("click", function(){
+  UNITS.forEach(function(u){ selectedUnits[u.id] = false; });
+  renderUnitList();
+  onSelectionChange();
+});
+
+weakBtn.addEventListener("click", function(){
+  if(weakBtn.disabled) return;
+  useWeakOnly = true;
+  beginQuiz();
+});
+startBtn.addEventListener("click", function(){
+  useWeakOnly = false;
+  beginQuiz();
+});
+
+/* ============================================================
+   QUIZ FLOW
+============================================================ */
+var quizQueue = [], quizIndex = 0, quizResults = [];
+var currentChoices = [];
+var answered = false;
+
+function beginQuiz(){
+  var pool;
+  if(useWeakOnly){
+    pool = getSelectedPool();
+    var n0 = Math.min(10, pool.length);
+    quizQueue = KQHub.weightedSample(pool, function(q){ return fullKey(q.id); }, n0);
+    quizIndex = 0;
+    quizResults = [];
+    screenHome.hidden = true;
+    screenResult.hidden = true;
+    screenQuiz.hidden = false;
+    renderQuestion();
+    return;
+  } else {
+    var basePool = getSelectedPool();
+    var ids2 = getSelectedUnitIds();
+    if(ids2.length===1 && activeCats.length){
+      pool = basePool.filter(function(q){ return activeCats.indexOf(q.cat)>=0; });
+    } else {
+      pool = basePool;
+    }
+  }
+  if(pool.length===0) pool = getSelectedPool();
+  var n = Math.min(10, pool.length);
+  quizQueue = pickN(pool, n);
+  quizIndex = 0;
+  quizResults = [];
+  screenHome.hidden = true;
+  screenResult.hidden = true;
+  screenQuiz.hidden = false;
+  renderQuestion();
+}
+
+function unitLabel(unitId){
+  var u = UNITS.filter(function(x){return x.id===unitId;})[0];
+  return u ? u.name : unitId;
+}
+
+function renderQuestion(){
+  var q = quizQueue[quizIndex];
+  answered = false;
+  progressNum.textContent = (quizIndex+1)+"/"+quizQueue.length;
+  progressFill.style.width = ((quizIndex)/quizQueue.length*100)+"%";
+  qCatTag.textContent = (CATS[q._unit] && CATS[q._unit][q.cat]) || q.cat;
+  qText.textContent = q.q;
+
+  answerPanel.hidden = true;
+  nextBtn.hidden = true;
+  checkBtn.hidden = true;
+  choiceGrid.hidden = true;
+  choiceGrid.innerHTML = "";
+  writeBox.hidden = true;
+  qTableWrap.hidden = true;
+  qTableWrap.innerHTML = "";
+  qCircuitWrap.hidden = true;
+  qCircuitWrap.innerHTML = "";
+
+  if(q.table){
+    qTableWrap.hidden = false;
+    qTableWrap.innerHTML = renderTable(q.table);
+  }
+  if(q.type==="circuit"){
+    qCircuitWrap.hidden = false;
+    var row = document.createElement("div"); row.className = "circuit-row";
+    q.circuits.forEach(function(c){
+      var box = document.createElement("div"); box.className = "circuit-box";
+      box.innerHTML = '<div class="circuit-label">'+(c.label||"")+'</div>' + generateCircuitSVG(c);
+      row.appendChild(box);
+    });
+    qCircuitWrap.appendChild(row);
+  }
+
+  if(q.type==="pick" || q.type==="circuit"){
+    choiceGrid.hidden = false;
+    renderChoiceButtons(q.pick, function(choiceText, btnEl){
+      onAnswerChosen(choiceText, btnEl);
+    });
+  } else if(q.type==="choice"){
+    choiceGrid.hidden = false;
+    currentChoices = buildChoiceOptions(q);
+    renderChoiceButtons(currentChoices, function(choiceText, btnEl){
+      onAnswerChosen(choiceText, btnEl);
+    });
+  } else {
+    // text / num
+    writeBox.hidden = false;
+    checkBtn.hidden = false;
+    writeInput.value = "";
+    writeInput.readOnly = false;
+    writeInput.inputMode = q.type==="num" ? "decimal" : "text";
+    unitSuffix.hidden = !(q.type==="num" && q.unit);
+    if(q.type==="num" && q.unit) unitSuffix.textContent = "単位（"+q.unit+"）はあってもなくても正解です";
+    setTimeout(function(){ writeInput.focus(); scrollQuestionIntoView(); }, 50);
+  }
+}
+
+function scrollQuestionIntoView(){
+  var card = document.querySelector(".quiz-card");
+  if(card && card.scrollIntoView) card.scrollIntoView({block:"start", behavior:"smooth"});
+}
+
+function renderChoiceButtons(options, onClick){
+  var letters = ["A","B","C","D"];
+  options.forEach(function(choiceText, i){
+    var btn = document.createElement("button");
+    btn.className = "choice-btn"; btn.type = "button";
+    btn.innerHTML = '<span class="idx">'+letters[i]+'</span><span>'+choiceText+"</span>";
+    btn.addEventListener("click", function(){ onClick(choiceText, btn); });
+    choiceGrid.appendChild(btn);
+  });
+}
+
+function onAnswerChosen(choiceText, btnEl){
+  if(answered) return;
+  answered = true;
+  var q = quizQueue[quizIndex];
+  var correct = choiceText === q.a;
+  Array.from(choiceGrid.children).forEach(function(btn){
+    btn.disabled = true;
+    var txt = btn.querySelector("span:last-child").textContent;
+    if(txt === q.a){ btn.classList.add("correct"); }
+    else if(btn===btnEl){ btn.classList.add("wrong"); }
+    else { btn.classList.add("dim"); }
+  });
+  finishQuestion(q, correct, choiceText);
+}
+
+checkBtn.addEventListener("click", function(){ submitWrittenAnswer(); });
+writeInput.addEventListener("keydown", function(e){
+  if(e.isComposing || e.keyCode===229) return;
+  if(e.key==="Enter"){
+    e.preventDefault();
+    if(!answered) submitWrittenAnswer();
+    else goNext();
+  }
+});
+function submitWrittenAnswer(){
+  if(answered) return;
+  answered = true;
+  var q = quizQueue[quizIndex];
+  var userVal = writeInput.value;
+  var correct = gradeAnswer(userVal, q);
+  writeInput.readOnly = true;
+  checkBtn.hidden = true;
+  finishQuestion(q, correct, userVal);
+}
+
+function finishQuestion(q, correct, userAnswer){
+  recordAnswer(q.id, correct);
+  quizResults.push({ q:q, correct:correct, userAnswer: userAnswer===undefined?"":String(userAnswer) });
+  progressFill.style.width = ((quizIndex+1)/quizQueue.length*100)+"%";
+
+  answerPanel.hidden = false;
+  answerPanel.className = "answer-panel " + (correct ? "ok":"ng");
+  verdictText.textContent = correct ? "⭕ せいかい！" : "❌ ざんねん！";
+  ansText.textContent = (q.type==="num" ? q.a + (q.unit||"") : q.a);
+
+  var extra = (q.also && q.also.length) ? q.also : (q.alts && q.alts.length ? q.alts : null);
+  if(extra){
+    ansAlso.hidden = false;
+    ansAlso.textContent = extra.join("・") + " でも正解です";
+  } else {
+    ansAlso.hidden = true;
+  }
+  if(q.exp){
+    ansExp.hidden = false;
+    ansExp.textContent = q.exp;
+  } else {
+    ansExp.hidden = true;
+  }
+  nextBtn.hidden = false;
+}
+
+nextBtn.addEventListener("click", goNext);
+function goNext(){
+  quizIndex++;
+  if(quizIndex >= quizQueue.length) showResult();
+  else renderQuestion();
+}
+
+quitBtn.addEventListener("click", function(){
+  screenQuiz.hidden = true;
+  screenHome.hidden = false;
+  renderUnitList();
+  onSelectionChange();
+  refreshGlobalStats();
+});
+
+/* ============================================================
+   RESULT
+============================================================ */
+function showResult(){
+  screenQuiz.hidden = true;
+  screenResult.hidden = false;
+
+  var correctCount = quizResults.filter(function(r){return r.correct;}).length;
+  resultScore.textContent = correctCount;
+
+  var msgs;
+  if(correctCount===quizResults.length) msgs = "パーフェクト！すごい！🎉";
+  else if(correctCount>=quizResults.length*0.7) msgs = "よくできました！その調子！";
+  else if(correctCount>=quizResults.length*0.4) msgs = "もう少し！にがてを復習しよう";
+  else msgs = "だいじょうぶ、くり返せば覚えるよ";
+  resultMsg.textContent = msgs;
+
+  reviewList.innerHTML = "";
+  quizResults.forEach(function(r){
+    var div = document.createElement("div");
+    div.className = "review-item " + (r.correct?"ok":"ng");
+    var ansShown = (r.q.type==="num") ? r.q.a + (r.q.unit||"") : r.q.a;
+    var extra = "";
+    if(!r.correct && r.userAnswer) extra = '（あなたの答え：'+escapeHtml(r.userAnswer)+'）';
+    div.innerHTML =
+      '<span class="mark">'+(r.correct?"⭕":"❌")+'</span>'+
+      '<span class="body">'+
+        '<span class="q">'+escapeHtml(r.q.q)+'</span>'+
+        '<span class="a">こたえ：<b>'+escapeHtml(String(ansShown))+'</b>'+extra+'</span>'+
+      '</span>';
+    reviewList.appendChild(div);
+  });
+
+  refreshWeakBadge();
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, function(c){
+    return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];
+  });
+}
+
+retryBtn.addEventListener("click", function(){
+  useWeakOnly = false;
+  beginQuiz();
+});
+homeBtn.addEventListener("click", function(){
+  screenResult.hidden = true;
+  screenHome.hidden = false;
+  renderUnitList();
+  onSelectionChange();
+  refreshGlobalStats();
+});
+
+/* ============================================================
+   BOOT
+============================================================ */
+renderUnitList();
+onSelectionChange();
+refreshGlobalStats();
+
+// 玄関からの「今日のおすすめ」ワンタップ起動
+// ?start=weak&units=u01,u02 のように渡された場合、その回を選んで即にがて特訓を開始する
+(function applyDeepLinkStart(){
+  try{
+    var params = { get: function(n){ return KQHub.getParam(n); } };
+    if(params.get("start") !== "weak") return;
+    var unitsParam = params.get("units");
+    var ids = unitsParam ? unitsParam.split(",") : UNITS.map(function(u){ return u.id; });
+    var found = false;
+    UNITS.forEach(function(u){
+      var on = ids.indexOf(u.id) >= 0;
+      selectedUnits[u.id] = on;
+      if(on) found = true;
+    });
+    if(!found) return;
+    renderUnitList();
+    onSelectionChange();
+    useWeakOnly = true;
+    beginQuiz();
+  }catch(e){}
+})();
+
+})();
+</script>
+
+</body></html>

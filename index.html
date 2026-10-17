@@ -1,0 +1,1124 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>きょうかクイズ 玄関</title>
+<style>
+  :root{
+    --bg:#f6f4ef; --paper:#ffffff; --ink:#2b2a27; --ink-soft:#6b6a66;
+    --line:#e3e0d8; --shadow:0 10px 24px -12px rgba(43,42,39,0.18);
+    --ok:#2f7d4f; --ok-bg:#e7f4ec; --ng:#c0472e; --ng-bg:#fbe9e5;
+
+    --rika-bg:#faeeda; --rika-text:#633806;
+    --shakai-bg:#eaf3de; --shakai-text:#27500a;
+    --kokugo-bg:#fcebeb; --kokugo-text:#791f1f;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; }
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic",sans-serif;
+    line-height:1.55; padding:18px 16px 40px;
+  }
+  h1,h2{ font-family:'Zen Maru Gothic','Zen Kaku Gothic New',sans-serif; margin:0; }
+  .wrap{ max-width:480px; margin:0 auto; display:flex; flex-direction:column; gap:16px; }
+
+  .kicker{ font-size:12px; letter-spacing:.08em; color:var(--ink-soft); font-weight:700; }
+  .title{ font-size:22px; font-weight:900; margin-top:2px; }
+
+  .card{ background:var(--paper); border:1px solid var(--line); border-radius:20px; padding:18px 20px; box-shadow:var(--shadow); }
+  .section-label{ font-size:12px; font-weight:900; color:var(--ink-soft); letter-spacing:.04em; margin-bottom:10px; }
+
+  .stat-row{ display:flex; gap:10px; }
+  .stat{ flex:1; background:var(--bg); border:1px solid var(--line); border-radius:14px; padding:12px 8px; text-align:center; }
+  .stat .n{ font-size:20px; font-weight:900; font-variant-numeric:tabular-nums; }
+  .stat .l{ font-size:11px; color:var(--ink-soft); margin-top:2px; }
+  .subj-row{ margin-top:10px; }
+  .subj-row .stat .n{ font-size:18px; }
+  .subj-row .stat .l{ font-size:12px; font-weight:700; }
+
+  .subject-grid{ display:flex; flex-direction:column; gap:10px; }
+  .subject-btn{
+    display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+    border:none; border-radius:18px; padding:16px 18px; cursor:pointer;
+    font-family:inherit; text-decoration:none; position:relative;
+  }
+  .subject-btn.rika{ background:var(--rika-bg); color:var(--rika-text); }
+  .subject-btn.shakai{ background:var(--shakai-bg); color:var(--shakai-text); }
+  .subject-btn.kokugo{ background:var(--kokugo-bg); color:var(--kokugo-text); }
+  .subject-btn .emoji{ font-size:28px; flex:none; }
+  .subject-btn .body{ flex:1; min-width:0; }
+  .subject-btn .name{ font-weight:900; font-size:17px; }
+  .subject-btn .sub{ font-size:12px; opacity:.8; margin-top:2px; }
+  .subject-btn .done-badge{
+    flex:none; font-size:12px; font-weight:900; background:rgba(255,255,255,.75);
+    border-radius:999px; padding:5px 10px; white-space:nowrap;
+  }
+  .subject-btn .chevron{ flex:none; font-size:20px; opacity:.6; }
+
+  .reco-card{ display:flex; flex-direction:column; gap:10px; }
+  .reco-item{
+    display:flex; align-items:center; gap:12px; border:1.5px solid var(--line);
+    border-radius:16px; padding:12px 14px;
+  }
+  .reco-item .emoji{ font-size:22px; flex:none; }
+  .reco-item .body{ flex:1; min-width:0; }
+  .reco-item .label{ display:block; font-size:11.5px; color:var(--ink-soft); font-weight:700; }
+  .reco-item .text{ font-size:14px; font-weight:700; margin-top:1px; }
+  .reco-item .go-btn{
+    flex:none; appearance:none; border:none; border-radius:12px; padding:10px 14px;
+    font-family:inherit; font-size:13px; font-weight:900; cursor:pointer;
+    background:var(--ink); color:#fff; text-decoration:none;
+  }
+
+  .star-card{ background:#fffbea; border-color:#f1e1a6; }
+  .star-top{ display:flex; gap:10px; }
+  .star-box{ flex:1; background:#fff; border:1px solid #f1e1a6; border-radius:14px; padding:10px 8px; text-align:center; }
+  .star-box .n{ font-size:22px; font-weight:900; color:#b7791f; font-variant-numeric:tabular-nums; }
+  .star-box .l{ font-size:11px; color:var(--ink-soft); margin-top:2px; }
+  .star-chips{ display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+  .star-chip{ font-size:11.5px; font-weight:700; background:#fff3c4; color:#7a5200; border-radius:999px; padding:3px 10px; }
+  .star-hints{ margin-top:10px; display:flex; flex-direction:column; gap:4px; }
+  .star-hint{ font-size:12.5px; font-weight:700; color:var(--ink); }
+  .star-hint small{ font-weight:400; color:var(--ink-soft); }
+  .star-hint.done{ color:var(--ink-soft); font-weight:400; }
+
+
+  button.star-box{ font-family:inherit; cursor:pointer; color:inherit; }
+  .star-box .tap{ font-size:10.5px; color:#b7791f; font-weight:700; margin-top:3px; }
+  .badge-panel{ margin-top:12px; border-top:1px dashed #f1e1a6; padding-top:12px; }
+  .badge-panel[hidden]{ display:none; }
+  .badge-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+  .badge{ border-radius:16px; padding:10px 8px; text-align:center; background:linear-gradient(160deg,#fff7c9,#ffe0f0); border:2px solid #ffd45e; }
+  .badge .be{ font-size:34px; line-height:1.1; }
+  .badge .bn{ font-size:12px; font-weight:900; margin-top:2px; }
+  .badge .bs{ font-size:11px; color:#7a5200; font-weight:700; }
+  .badge .bd{ font-size:10.5px; color:var(--ink-soft); }
+  .badge .bt{ margin-top:5px; font-size:11.5px; font-weight:900; background:#fff; border:1.5px dashed #e07a9b; color:#a8305a; border-radius:10px; padding:4px 6px; word-break:break-all; }
+  .badge.locked{ opacity:.45; filter:grayscale(.85); background:#f4f2ec; border:2px dashed var(--line); }
+  .badge.locked .be{ opacity:.7; }
+  .celebrate-ov{ position:fixed; inset:0; background:rgba(43,42,39,.55); display:flex; align-items:center; justify-content:center; padding:20px; z-index:50; }
+  .celebrate-box{ background:linear-gradient(160deg,#fffbea,#ffe9f4); border:3px solid #ffd45e; border-radius:28px; padding:26px 22px 22px; max-width:340px; width:100%; text-align:center; box-shadow:0 20px 50px -10px rgba(0,0,0,.4); }
+  .celebrate-box .ce{ font-size:72px; line-height:1.1; }
+  .celebrate-box .ct{ font-size:22px; font-weight:900; margin-top:6px; color:#b7791f; font-family:'Zen Maru Gothic',sans-serif; }
+  .celebrate-box .cn{ font-size:15px; font-weight:700; margin-top:4px; }
+  .celebrate-box .ticket{ margin-top:14px; background:#fff; border:2.5px dashed #e07a9b; border-radius:16px; padding:12px; }
+  .celebrate-box .ticket .tl{ font-size:12px; font-weight:900; color:#a8305a; }
+  .celebrate-box .ticket .tx{ font-size:19px; font-weight:900; margin:4px 0; word-break:break-all; }
+  .celebrate-box .ticket .ts{ font-size:12px; color:var(--ink-soft); font-weight:700; }
+  .celebrate-box .cdate{ font-size:11.5px; color:var(--ink-soft); margin-top:8px; }
+  .celebrate-box .cbtn{ margin-top:16px; appearance:none; border:none; border-radius:14px; padding:12px 28px; font-family:inherit; font-size:16px; font-weight:900; background:#f5b301; color:#fff; cursor:pointer; }
+
+
+  /* ---- シール帳 ---- */
+  .sticker-hint{ margin-top:8px; font-size:12.5px; font-weight:700; color:var(--ink); line-height:1.7; }
+  .sticker-hint small{ font-weight:400; color:var(--ink-soft); }
+  .sticker-hint span.it{ display:inline-block; margin-right:8px; white-space:nowrap; }
+  .sticker-card{ background:#fbf8ff; border-color:#e3d8f3; }
+  .sk-sum{ font-size:12.5px; font-weight:700; color:#5a4a7a; margin-bottom:10px; }
+  .sk-tabs{ display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+  .sk-tab{ appearance:none; font-family:inherit; cursor:pointer; border:2px solid #e3d8f3; background:#fff; color:var(--ink); border-radius:12px; padding:6px 2px; text-align:center; line-height:1.25; min-width:0; }
+  .sk-tab .tn{ display:block; font-size:12.5px; font-weight:900; white-space:nowrap; }
+  .sk-tab .tc{ display:block; font-size:11px; color:var(--ink-soft); font-weight:700; font-variant-numeric:tabular-nums; }
+  .sk-tab[aria-selected="true"]{ border-color:#8a63d2; background:#f1eaff; }
+  .sk-tab[data-s="kira"][aria-selected="true"]{ border-color:#e5a812; background:#fff6d6; }
+  .sk-tab.has-new::after{ content:""; display:inline-block; width:7px; height:7px; border-radius:50%; background:#ff5c7a; margin-left:3px; vertical-align:middle; }
+  .sk-prog{ margin:10px 0 8px; font-size:12.5px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums; }
+  .sk-prog small{ font-weight:400; color:var(--ink-soft); white-space:nowrap; }
+  .sk-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(52px,1fr)); gap:8px; min-height:56px; }
+  .sk-cell{ position:relative; appearance:none; border:none; background:none; padding:0; margin:0; cursor:pointer; aspect-ratio:1/1; display:block; min-width:0; border-radius:50%; font-family:inherit; }
+  .sk-cell:focus-visible{ outline:3px solid #8a63d2; outline-offset:2px; }
+  .sk-cell .sk-ph{ position:absolute; inset:3px; border-radius:50%; background:#ece7f3; }
+  .sk-cell svg{ position:relative; width:100%; height:100%; display:block; }
+  .sk-cell.locked svg, .sk-big.locked svg{ filter:grayscale(1) brightness(.34) contrast(.7); opacity:.8; }
+  .sk-cell .dup{ position:absolute; right:-3px; top:-3px; min-width:20px; height:20px; padding:0 5px; border-radius:10px; background:#ff6f91; color:#fff; font-size:11px; font-weight:900; line-height:20px; text-align:center; border:2px solid #fff; font-variant-numeric:tabular-nums; z-index:1; }
+  .sk-cell .newb{ position:absolute; left:-4px; bottom:-2px; padding:0 5px; height:18px; border-radius:9px; background:#ffd23f; color:#7a4b00; font-size:10px; font-weight:900; line-height:18px; border:2px solid #fff; z-index:1; }
+
+  .sk-ov{ position:fixed; inset:0; background:rgba(43,32,70,.62); display:flex; align-items:center; justify-content:center; padding:16px; z-index:60; overflow:auto; }
+  .sk-box{ background:linear-gradient(160deg,#fffdf4,#f6ecff); border:3px solid #cdb6f2; border-radius:26px; padding:20px 16px 18px; width:100%; max-width:340px; text-align:center; box-shadow:0 20px 50px -10px rgba(0,0,0,.45); margin:auto; }
+  .sk-title{ font-family:'Zen Maru Gothic',sans-serif; font-size:21px; font-weight:900; color:#6b3fc0; }
+  .sk-step{ font-size:12px; color:var(--ink-soft); font-weight:700; margin-top:2px; min-height:18px; }
+  .sk-stage{ position:relative; width:200px; height:200px; max-width:62vw; max-height:62vw; margin:12px auto 6px; }
+  .sk-under{ position:absolute; inset:0; }
+  .sk-under svg{ width:100%; height:100%; display:block; }
+  .sk-cover{ position:absolute; inset:-8px; border:none; border-radius:28px; cursor:pointer; font-family:inherit; color:#fff;
+    background:linear-gradient(135deg,var(--c1),var(--c2)); box-shadow:0 8px 18px -6px rgba(0,0,0,.45), inset 0 0 0 3px rgba(255,255,255,.55);
+    transform-origin:0% 100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; }
+  .sk-cover::before{ content:""; position:absolute; inset:18px; border-radius:50%; border:3px dashed rgba(255,255,255,.85); }
+  .sk-cover::after{ content:""; position:absolute; left:0; top:0; right:0; bottom:0; border-radius:28px; background:linear-gradient(120deg,rgba(255,255,255,.5) 0,rgba(255,255,255,0) 40%); pointer-events:none; }
+  .sk-cover .q{ font-size:58px; font-weight:900; line-height:1; text-shadow:0 2px 0 rgba(0,0,0,.18); position:relative; z-index:1; }
+  .sk-cover .tp{ font-size:13px; font-weight:900; position:relative; z-index:1; text-shadow:0 1px 0 rgba(0,0,0,.2); }
+  .sk-stage.peeled .sk-cover{ animation:skPeel .6s ease-in forwards; pointer-events:none; }
+  .sk-stage.peeled .sk-under svg{ animation:skPop .55s cubic-bezier(.2,1.4,.4,1) both; }
+  .sk-sfx{ position:absolute; left:50%; top:-6px; transform:translateX(-50%); font-size:26px; font-weight:900; color:#ff5c7a; opacity:0; pointer-events:none; z-index:3; text-shadow:0 2px 0 #fff; }
+  .sk-stage.peeled .sk-sfx{ animation:skSfx .8s ease-out both; }
+  /* NEW（未所持の柄）のときだけ「キラッ」: 台紙がまぶしく光ってから剥がれ、シールに光が走り、星がはじける */
+  .sk-kira{ position:absolute; inset:-14px; pointer-events:none; z-index:4; display:none; }
+  .sk-stage.is-new .sk-kira{ display:block; }
+  .sk-kira .glow{ position:absolute; inset:0; border-radius:50%; background:radial-gradient(circle,rgba(255,255,255,.95) 0,rgba(255,236,150,.75) 35%,rgba(255,236,150,0) 70%); opacity:0; }
+  .sk-kira .clip{ position:absolute; inset:14px; border-radius:50%; overflow:hidden; }
+  .sk-kira .shine{ position:absolute; top:-10%; bottom:-10%; left:0; width:34%; background:linear-gradient(100deg,rgba(255,255,255,0) 0,rgba(255,255,255,.9) 50%,rgba(255,255,255,0) 100%); transform:translateX(-120%) skewX(-18deg); opacity:0; mix-blend-mode:screen; }
+  .sk-kira .st{ position:absolute; font-size:22px; line-height:1; color:#ffc400; opacity:0; text-shadow:0 0 6px #fff,0 0 12px #ffe27a; }
+  .sk-kira .st:nth-child(3){ left:4%; top:12%; } .sk-kira .st:nth-child(4){ right:2%; top:6%; font-size:28px; } .sk-kira .st:nth-child(5){ right:8%; bottom:12%; }
+  .sk-kira .st:nth-child(6){ left:6%; bottom:8%; font-size:18px; } .sk-kira .st:nth-child(7){ left:46%; top:-6%; font-size:20px; }
+  .sk-stage.is-new.peeled .sk-kira .glow{ animation:skGlow 1s ease-out both; }
+  .sk-stage.is-new.peeled .sk-kira .shine{ animation:skShine .9s ease-in-out .15s both; }
+  .sk-stage.is-new.peeled .sk-kira .st{ animation:skTwinkle .9s ease-out both; }
+  .sk-stage.is-new.peeled .sk-kira .st:nth-child(4){ animation-delay:.12s; } .sk-stage.is-new.peeled .sk-kira .st:nth-child(5){ animation-delay:.22s; }
+  .sk-stage.is-new.peeled .sk-kira .st:nth-child(6){ animation-delay:.3s; } .sk-stage.is-new.peeled .sk-kira .st:nth-child(7){ animation-delay:.18s; }
+  .sk-stage.is-new.peeled .sk-cover{ animation:skPeelNew .7s ease-in forwards; }
+  .sk-stage.is-new.peeled .sk-under svg{ animation:skPop .55s cubic-bezier(.2,1.4,.4,1) both, skFlash 1s ease-out both; }
+  @keyframes skGlow{ 0%{opacity:0;transform:scale(.5)} 30%{opacity:1;transform:scale(1.05)} 100%{opacity:0;transform:scale(1.35)} }
+  @keyframes skShine{ 0%{opacity:0;transform:translateX(-120%) skewX(-18deg)} 20%{opacity:1} 100%{opacity:0;transform:translateX(330%) skewX(-18deg)} }
+  @keyframes skTwinkle{ 0%{opacity:0;transform:scale(.2) rotate(0)} 35%{opacity:1;transform:scale(1.25) rotate(60deg)} 100%{opacity:0;transform:scale(.7) rotate(140deg)} }
+  @keyframes skPeelNew{ 0%{transform:none;opacity:1;filter:brightness(1)} 20%{transform:rotate(-6deg);opacity:1;filter:brightness(1.7) saturate(1.2)} 35%{transform:rotate(-9deg) translate(-6px,-4px);opacity:1;filter:brightness(1.2)} 100%{transform:translate(96px,-130px) rotate(32deg) scale(.85);opacity:0;filter:brightness(1)} }
+  @keyframes skFlash{ 0%,20%{filter:brightness(1.8) drop-shadow(0 0 10px #fff3a8)} 100%{filter:none} }
+  @keyframes skPeel{ 0%{transform:none;opacity:1} 30%{transform:rotate(-9deg) translate(-6px,-4px);opacity:1} 100%{transform:translate(96px,-130px) rotate(32deg) scale(.85);opacity:0} }
+  @keyframes skPop{ 0%{transform:scale(.55) rotate(-8deg);opacity:.2} 100%{transform:none;opacity:1} }
+  @keyframes skSfx{ 0%{opacity:0;transform:translateX(-50%) scale(.6)} 25%{opacity:1;transform:translateX(-50%) scale(1.15)} 100%{opacity:0;transform:translateX(-50%) translateY(-14px) scale(1)} }
+  .sk-result{ margin-top:6px; min-height:84px; }
+  .sk-result[hidden]{ display:block; visibility:hidden; }
+  .sk-result.show{ animation:skFade .4s ease .25s both; }
+  @keyframes skFade{ from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+  .sk-name{ font-size:16px; font-weight:900; margin-top:2px; }
+  .sk-tag{ display:inline-block; margin-top:6px; padding:3px 14px; border-radius:999px; font-size:14px; font-weight:900; }
+  .sk-tag.new{ background:#ffd23f; color:#7a4b00; }
+  .sk-tag.dup{ background:#ffe0ea; color:#b0305a; }
+  .sk-btn{ margin-top:12px; appearance:none; border:none; border-radius:14px; padding:12px 28px; font-family:inherit; font-size:16px; font-weight:900; background:#8a63d2; color:#fff; cursor:pointer; }
+  .sk-bulk-note{ white-space:pre-line; font-size:13px; font-weight:700; color:#5a4a7a; margin-top:4px; }
+  .sk-bulk-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(52px,1fr)); gap:8px; margin:12px 0 2px; max-height:46vh; overflow:auto; padding:6px 4px; background:rgba(255,255,255,.6); border-radius:14px; }
+  .sk-big{ width:min(62vw,240px); height:min(62vw,240px); margin:10px auto 4px; }
+  .sk-big svg{ width:100%; height:100%; display:block; }
+  @media (prefers-reduced-motion: reduce){
+    .sk-stage.peeled .sk-cover{ animation:none; display:none; }
+    .sk-stage.peeled .sk-under svg, .sk-stage.peeled .sk-sfx{ animation:none; }
+    .sk-stage.peeled .sk-sfx{ display:none; }
+    /* 簡略化: 動かさず、やわらかい金色のふちと★だけ静かに出す */
+    .sk-stage.is-new.peeled .sk-cover{ animation:none; display:none; }
+    .sk-stage.is-new.peeled .sk-under svg{ animation:none; filter:drop-shadow(0 0 8px #ffd84a); }
+    .sk-stage.is-new.peeled .sk-kira .glow, .sk-stage.is-new.peeled .sk-kira .shine{ animation:none; opacity:0; }
+    .sk-stage.is-new.peeled .sk-kira .st{ animation:none; opacity:.9; }
+    .sk-stage.is-new.peeled .sk-kira .st:nth-child(n+5){ display:none; }
+    .sk-result.show{ animation:none; }
+  }
+
+  .foot-note{ text-align:center; font-size:11px; color:var(--ink-soft); padding-top:2px; }
+
+  /* きろくをよみこむ（おうちの人用・目立たない） */
+  .xfer{ margin:14px 4px 0; font-size:12px; color:var(--ink-soft); }
+  .xfer summary{ cursor:pointer; padding:6px 2px; }
+  .xfer textarea{ width:100%; box-sizing:border-box; min-height:84px; margin:6px 0; padding:8px; border:1px solid var(--line); border-radius:10px; font:12px/1.4 monospace; background:var(--paper); color:var(--ink); }
+  .xfer button{ font:inherit; font-weight:700; padding:8px 14px; border-radius:10px; border:1px solid var(--line); background:var(--paper); color:var(--ink); cursor:pointer; margin-right:6px; }
+  .xfer button.danger{ background:#fff0ee; border-color:#e5a39b; color:#8a2a1c; }
+  .xfer .msg{ margin:6px 0; line-height:1.6; }
+  .xfer .msg.err{ color:#a3281a; font-weight:700; }
+  .xfer .msg.ok{ color:#1d6b3a; font-weight:700; }
+  .xfer .confirm{ border:1px solid #e5a39b; background:#fff8f6; border-radius:12px; padding:10px 12px; margin:8px 0; line-height:1.7; color:var(--ink); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">教科クイズ</div>
+    <div class="title">きょうかクイズ 玄関</div>
+  </header>
+
+  <div class="card">
+    <div class="section-label">今日のようす（3教科合計）</div>
+    <div class="stat-row">
+      <div class="stat"><div class="n" id="statTodayTotal">0問</div><div class="l">今日解いた数</div></div>
+      <div class="stat"><div class="n" id="statTodayAcc">–</div><div class="l">正答率</div></div>
+    </div>
+    <div class="stat-row subj-row">
+      <div class="stat kokugo"><div class="n" id="statTodayKokugo">0問</div><div class="l">📙 国語</div></div>
+      <div class="stat rika"><div class="n" id="statTodayRika">0問</div><div class="l">📘 理科</div></div>
+      <div class="stat shakai"><div class="n" id="statTodayShakai">0問</div><div class="l">📗 社会</div></div>
+    </div>
+  </div>
+
+  <div class="card star-card" id="starCard">
+    <div class="section-label">★ スター</div>
+    <div class="star-top">
+      <div class="star-box"><div class="n" id="starToday">★0</div><div class="l">きょうの★</div></div>
+      <button type="button" class="star-box" id="badgeToggle" aria-expanded="false" aria-controls="badgePanel"><div class="n" id="starTotal">★0</div><div class="l">これまでの★ごうけい</div><div class="tap" id="badgeTap">🏅 バッジを見る ▾</div></button>
+    </div>
+    <div class="badge-panel" id="badgePanel" hidden>
+      <div class="section-label">🏅 ★バッジ</div>
+      <div class="badge-grid" id="badgeGrid"></div>
+    </div>
+    <div class="star-chips" id="starChips"></div>
+    <div class="star-hints" id="starHints"></div>
+    <div class="sticker-hint" id="stickerHint"></div>
+  </div>
+
+  <div class="card sticker-card" id="stickerCard">
+    <div class="section-label">🐱 シール帳</div>
+    <div class="sk-sum" id="skSum"></div>
+    <div class="sk-tabs" id="skTabs" role="tablist" aria-label="シール帳の教科"></div>
+    <div class="sk-prog" id="skProg"></div>
+    <div class="sk-grid" id="skGrid" role="tabpanel"></div>
+  </div>
+
+  <div class="card">
+    <div class="section-label">今日のおすすめ（タップしてすぐ始める）</div>
+    <div class="reco-card" id="recoList"></div>
+  </div>
+
+  <div class="card">
+    <div class="section-label">きょうかをえらぶ</div>
+    <div class="subject-grid" id="subjectGrid"></div>
+  </div>
+
+    <details class="xfer" id="xferCard">
+    <summary>おうちの人用：きろくをよみこむ</summary>
+    <p>古いバージョンで「きろくを書き出す」でコピーしたテキストを、ここにはりつけてください。</p>
+    <textarea id="xferInput" aria-label="書き出したきろくのテキスト" placeholder="KQ1:..." spellcheck="false" autocomplete="off"></textarea>
+    <div><button type="button" id="xferCheck">しらべる</button></div>
+    <div class="msg" id="xferMsg" role="status" aria-live="polite"></div>
+    <div class="confirm" id="xferConfirm" hidden>
+      <div id="xferCompare"></div>
+      <div><strong>いまのきろくは消えて、よみこんだきろくに入れかわります。</strong>よろしいですか？</div>
+      <div style="margin-top:8px"><button type="button" class="danger" id="xferApply">上書きする</button><button type="button" id="xferCancel">やめる</button></div>
+    </div>
+  </details>
+
+  <p class="foot-note">成績はこの端末のブラウザに保存されます（やった問題数は、おうちの人にも届きます）</p>
+</div>
+
+<script>window.KQ_STATIC=true;window.KQ_PAGE="index";window.KQ_REPORT_URL="https://script.google.com/macros/s/AKfycby687LvFEfQsD0mvNnzUHikwb67ZGJ7fzP9yeC81q5SbpD043nhpPnTEmRS_3NTuwZw0w/exec";</script>
+<script src="common.js"></script>
+<script src="transfer.js"></script>
+<script src="stars.js"></script>
+<script src="stickers-award.js"></script>
+<script src="stickers.js"></script>
+<script src="shakai-rounds.js"></script>
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   予習シリーズ「回」↔ 各アプリの単元ID の対応表
+   （5・10・15回などの総合回は各アプリに専用単元がないため、
+    そもそもここに載っていない回は自動的に対象外になる）
+============================================================ */
+var RIKA_ROUND_TO_UNIT = { 1:"u01", 2:"u02", 3:"u03", 4:"u04", 6:"u06" };
+var KOKUGO_ROUND_TO_UNIT = {
+  1:"wago1", 2:"kanyoku1", 3:"sanji1", 4:"dokun1",
+  6:"wago2", 7:"kanyoku2", 8:"douon1", 9:"dokun2",
+  11:"wago3", 12:"kotowaza1", 13:"ruigigo1", 14:"taigigo1"
+};
+
+/* ============================================================
+   テスト日程と「今週の回」（宿題スケジューラー homework-scheduler.html の
+   TEST_SCHEDULE / LESSON_ANCHOR_FRI と同じ考え方。第1段階は第15回まで。
+   12月下旬以降の冬期講習で回の番号がずれるため、第16回以降は
+   冬期講習の日程が分かってから追記する。）
+============================================================ */
+var LESSON_ANCHOR_FRI = "2026-09-25"; // 第5回の金曜（基準日）
+var LESSON_ANCHOR_NUM = 5;
+
+/* ---- テスト日程表（理科・社会・国語のおすすめがここの「範囲の回」を見る）----
+   書き方（1行1テスト。日付の古い順でなくてもよい）:
+     { date:"YYYY-MM-DD", name:"テスト名（任意。おすすめの表示に出る）", rounds:[6,7] }   // 指定した回だけ
+     { date:"YYYY-MM-DD", name:"…", type:"kumiwake", throughRound:10 }                    // 第1回〜第10回の全部
+   type を省略すると rounds の回だけが範囲。日付が今日以降で最も近いテストが対象になり、
+   テストまで TEST_REMIND_DAYS 日以内になったら、その範囲から各教科のおすすめを出す。
+   表が空、または今日以降のテストが無い／7日より先のときは、従来のおすすめ（今週習った回・にがて）のまま。
+   ※下の行は宿題スケジューラーの日程をそのまま写したもの。日程が変わったらここを書き換える。 */
+var TEST_REMIND_DAYS = 7;
+var TEST_SCHEDULE = [
+  { date:"2026-10-04", type:"kumiwake", throughRound:5 },
+  { date:"2026-10-17", type:"karite",   rounds:[6,7] },
+  { date:"2026-10-31", type:"karite",   rounds:[8,9] },
+  { date:"2026-11-08", type:"kumiwake", throughRound:10 },
+  { date:"2026-11-21", type:"karite",   rounds:[11,12] },
+  { date:"2026-12-05", type:"karite",   rounds:[13,14] },
+  { date:"2026-12-13", type:"kumiwake", throughRound:15 },
+  { date:"2027-01-16", type:"karite",   rounds:[16,17,18] },
+  { date:"2027-01-24", type:"kumiwake", throughRound:19 }
+];
+
+function pad2(n){ return n<10 ? "0"+n : ""+n; }
+function dateKey(d){ return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()); }
+function todayKey(){ return dateKey(new Date()); }
+function parseDate(s){ var p = s.split("-").map(Number); return new Date(p[0], p[1]-1, p[2]); }
+function addDays(d, n){ var r = new Date(d); r.setDate(r.getDate()+n); return r; }
+function daysBetween(a, b){ return Math.round((b - a) / 86400000); }
+
+function mostRecentWeekday(today, targetWd){
+  var d = new Date(today);
+  while(d.getDay() !== targetWd) d = addDays(d, -1);
+  return d;
+}
+// dはWed(3)またはFri(5)であること。基準金曜からのズレで回数を計算する。
+function lessonNumberForDate(d){
+  var wd = d.getDay();
+  var fri = (wd === 3) ? addDays(d, -5) : d;
+  var diffDays = daysBetween(parseDate(LESSON_ANCHOR_FRI), fri);
+  if(diffDays % 7 !== 0) return null;
+  var n = LESSON_ANCHOR_NUM + diffDays / 7;
+  return n >= 1 ? n : null;
+}
+// 理科は水曜（算数理科）、国語は金曜（国語社会）に習う
+function latestTaughtRound(weekday){
+  var today = new Date();
+  var d = mostRecentWeekday(today, weekday);
+  return lessonNumberForDate(d);
+}
+
+function nextTest(){
+  var today = todayKey();
+  var upcoming = TEST_SCHEDULE.filter(function(t){ return t.date >= today; });
+  upcoming.sort(function(a,b){ return a.date < b.date ? -1 : 1; });
+  return upcoming[0] || null;
+}
+// テストまでの日数（今日=0）。TEST_REMIND_DAYS 日以内ならそのテストを返す（無ければ null）
+function testWithinWindow(){
+  var test = nextTest();
+  if(!test) return null;
+  var d = daysBetween(parseDate(todayKey()), parseDate(test.date));
+  return (d >= 0 && d <= TEST_REMIND_DAYS) ? { test:test, days:d } : null;
+}
+function testLabel(w){
+  return "テストまであと"+w.days+"日" + (w.test.name ? "（"+w.test.name+"）" : "");
+}
+function testRounds(test){
+  if(!test) return [];
+  if(test.type === "kumiwake"){
+    var out = [];
+    for(var i=1;i<=test.throughRound;i++) out.push(i);
+    return out;
+  }
+  return test.rounds.slice();
+}
+
+function readCache(key){
+  try{
+    var raw = localStorage.getItem(key);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return null;
+}
+
+/* ---- 理科・国語共通：回のリストからユニットIDを求め、その中から
+       にがてが多い（キャッシュ上の重み優先。無ければ最初のもの）を選ぶ ---- */
+function pickUnitsForRounds(rounds, roundMap){
+  var ids = [];
+  rounds.forEach(function(r){
+    if(roundMap[r] && ids.indexOf(roundMap[r])<0) ids.push(roundMap[r]);
+  });
+  return ids;
+}
+function pickWorstUnit(unitIds, weakSummaryKey){
+  if(!unitIds.length) return null;
+  var summary = readCache(weakSummaryKey) || {};
+  var best = unitIds[0], bestW = summary[best] || 0;
+  unitIds.forEach(function(id){
+    var w = summary[id] || 0;
+    if(w > bestW){ bestW = w; best = id; }
+  });
+  return best;
+}
+
+/* ============================================================
+   教科ごとの「今日のおすすめ」を決める
+============================================================ */
+function recoForRika(){
+  var tw = testWithinWindow();
+  if(tw){
+    var ids = pickUnitsForRounds(testRounds(tw.test), RIKA_ROUND_TO_UNIT);
+    if(ids.length){
+      return { emoji:"🔥", label:testLabel(tw), text:"テスト範囲をまとめてにがて特訓",
+        href:KQHub.pageUrl("rika",{start:"weak",units:ids.join(",")}) };
+    }
+  }
+  var round = latestTaughtRound(3); // 水＝算数理科
+  if(round && RIKA_ROUND_TO_UNIT[round]){
+    var unit = RIKA_ROUND_TO_UNIT[round];
+    return { emoji:"🔥", label:"今週習った回", text:"第"+round+"回をにがて特訓",
+      href:KQHub.pageUrl("rika",{start:"weak",units:unit}) };
+  }
+  // 今週の回がまだ無い場合は、これまでに習った回の中でにがてが多い単元
+  var taughtIds = Object.keys(RIKA_ROUND_TO_UNIT).map(Number).filter(function(r){ return r<=(round||0); })
+    .map(function(r){ return RIKA_ROUND_TO_UNIT[r]; });
+  var worst = pickWorstUnit(taughtIds.length?taughtIds:Object.keys(RIKA_ROUND_TO_UNIT).map(function(r){return RIKA_ROUND_TO_UNIT[r];}), "kq-rika-weak-summary-v1");
+  if(worst) return { emoji:"🔥", label:"にがてが多い単元", text:"にがて特訓で復習しよう",
+    href:KQHub.pageUrl("rika",{start:"weak",units:worst}) };
+  return { emoji:"📘", label:"理科", text:"理科クイズをひらく", href:KQHub.pageUrl("rika") };
+}
+
+function recoForKokugo(){
+  var tw = testWithinWindow();
+  if(tw){
+    var ids = pickUnitsForRounds(testRounds(tw.test), KOKUGO_ROUND_TO_UNIT);
+    if(ids.length){
+      return { emoji:"🔥", label:testLabel(tw), text:"テスト範囲をまとめてにがて特訓",
+        href:KQHub.pageUrl("kokugo",{start:"weak",units:ids.join(",")}) };
+    }
+  }
+  var round = latestTaughtRound(5); // 金＝国語社会
+  if(round && KOKUGO_ROUND_TO_UNIT[round]){
+    var unit = KOKUGO_ROUND_TO_UNIT[round];
+    return { emoji:"🔥", label:"今週習った回", text:"第"+round+"回をにがて特訓",
+      href:KQHub.pageUrl("kokugo",{start:"weak",units:unit}) };
+  }
+  var taughtIds = Object.keys(KOKUGO_ROUND_TO_UNIT).map(Number).filter(function(r){ return r<=(round||0); })
+    .map(function(r){ return KOKUGO_ROUND_TO_UNIT[r]; });
+  var worst = pickWorstUnit(taughtIds.length?taughtIds:Object.keys(KOKUGO_ROUND_TO_UNIT).map(function(r){return KOKUGO_ROUND_TO_UNIT[r];}), "kq-kokugo-weak-summary-v1");
+  if(worst) return { emoji:"🔥", label:"にがてが多い単元", text:"にがて特訓で復習しよう",
+    href:KQHub.pageUrl("kokugo",{start:"weak",units:worst}) };
+  return { emoji:"📙", label:"国語", text:"国語クイズをひらく", href:KQHub.pageUrl("kokugo") };
+}
+
+// 社会：回⇔単元の対応は shakai-rounds.js（SHAKAI_ROUND_TABLE）。
+// テストが近ければ範囲の回の単元をまとめてにがて特訓、そうでなければ従来どおり「にがてが多い地方」。
+var SHAKAI_REGION_NAMES = {
+  chubu:"中部地方", kanto:"関東地方", hokkaido_tohoku:"北海道・東北地方",
+  kinki:"近畿地方", chugoku_shikoku:"中国・四国地方", kyushu_okinawa:"九州・沖縄地方", round9:"第9回 山と川がうみだす地形"
+};
+function recoForShakai(){
+  var tw = testWithinWindow();
+  var SR = window.KQShakaiRounds;
+  if(tw && SR){
+    var rounds = testRounds(tw.test);
+    if(SR.unitsForRounds(rounds).length){
+      return { emoji:"🔥", label:testLabel(tw), text:"テスト範囲をまとめてにがて特訓",
+        href:KQHub.pageUrl("shakai",{start:"weak",rounds:rounds.join(",")}) };
+    }
+  }
+  var summary = readCache("kq-shakai-weak-summary-v1");
+  if(summary){
+    var best = null, bestW = -1;
+    Object.keys(summary).forEach(function(id){
+      if(summary[id] > bestW){ bestW = summary[id]; best = id; }
+    });
+    if(best){
+      return { emoji:"🔥", label:"にがてが多い地方", text:(SHAKAI_REGION_NAMES[best]||best)+"をにがて特訓",
+        href:KQHub.pageUrl("shakai",{start:"weak",region:best}) };
+    }
+  }
+  return { emoji:"📗", label:"社会", text:"地方をえらんで始めよう", href:KQHub.pageUrl("shakai") };
+}
+
+/* ============================================================
+   画面描画
+============================================================ */
+function renderTodayStats(){
+  var stats = KQHub.getTodayStats();
+  var total = 0, correct = 0;
+  ["rika","shakai","kokugo"].forEach(function(s){
+    var e = stats[s];
+    if(e){ total += e.total; correct += e.correct; }
+  });
+  document.getElementById("statTodayTotal").textContent = total + "問";
+  [["Kokugo","kokugo"],["Rika","rika"],["Shakai","shakai"]].forEach(function(x){
+    var el = document.getElementById("statToday"+x[0]);
+    if(el) el.textContent = ((stats[x[1]] && stats[x[1]].total) || 0) + "問";
+  });
+  document.getElementById("statTodayAcc").textContent = total>0 ? Math.round(correct/total*100)+"%" : "–";
+}
+
+function renderSubjects(){
+  var grid = document.getElementById("subjectGrid");
+  var subjects = [
+    { key:"rika", cls:"rika", emoji:"📘", name:"理科", sub:"回路・実験・自然のふしぎ", href:KQHub.pageUrl("rika") },
+    { key:"shakai", cls:"shakai", emoji:"📗", name:"社会", sub:"日本地方たんけんクイズ", href:KQHub.pageUrl("shakai") },
+    { key:"kokugo", cls:"kokugo", emoji:"📙", name:"国語", sub:"ことば・ことわざ・慣用句", href:KQHub.pageUrl("kokugo") }
+  ];
+  grid.innerHTML = "";
+  subjects.forEach(function(s){
+    var done = KQHub.isDoneToday(s.key);
+    var a = document.createElement("a");
+    a.className = "subject-btn " + s.cls;
+    a.href = s.href;
+    a.target = "_top";
+    a.innerHTML =
+      '<span class="emoji">'+s.emoji+'</span>'+
+      '<span class="body">'+
+        '<span class="name">'+s.name+'</span>'+
+        '<span class="sub">'+s.sub+'</span>'+
+      '</span>'+
+      (done ? '<span class="done-badge">今日やった ✅</span>' : '')+
+      '<span class="chevron">›</span>';
+    grid.appendChild(a);
+  });
+}
+
+function renderRecommendations(){
+  var list = document.getElementById("recoList");
+  var items = [ recoForRika(), recoForShakai(), recoForKokugo() ];
+  list.innerHTML = "";
+  items.forEach(function(item){
+    var row = document.createElement("div");
+    row.className = "reco-item";
+    row.innerHTML =
+      '<span class="emoji">'+item.emoji+'</span>'+
+      '<span class="body">'+
+        '<span class="label">'+item.label+'</span>'+
+        '<span class="text">'+item.text+'</span>'+
+      '</span>'+
+      '<a class="go-btn" target="_top" href="'+item.href+'">はじめる</a>';
+    list.appendChild(row);
+  });
+}
+
+/* ---- ★（計算は stars.js。日別記録から毎回数え直す） ---- */
+function renderStars(){
+  var S = window.KQStars;
+  if(!S) return; // stars.js が読めなくても玄関のほかの表示は壊さない
+  var daily = S.readDaily();
+  var key = todayKey();
+  var day = daily[key] || {};
+  var t = S.todayStars(daily, key);
+  document.getElementById("starToday").textContent = "★" + t.total;
+  document.getElementById("starTotal").textContent = "★" + S.totalStars(daily);
+
+  var chips = document.getElementById("starChips");
+  chips.innerHTML = "";
+  function chip(text){
+    var c = document.createElement("span");
+    c.className = "star-chip"; c.textContent = "★ " + text;
+    chips.appendChild(c);
+  }
+  if(t.all3) chip("3きょうかそろい");
+  S.SUBJECTS.forEach(function(s){
+    if(t.volume[s]) chip(S.SUBJECT_NAMES[s] + " 50問");
+    if(t.accuracy[s]) chip(S.SUBJECT_NAMES[s] + " せいかい90%");
+  });
+  if(!t.total){
+    var none = document.createElement("span");
+    none.className = "star-hint done"; none.textContent = "きょうはまだ★なし。のこりをチェック！";
+    chips.appendChild(none);
+  }
+
+  var h = S.hintsForDay(day);
+  var box = document.getElementById("starHints");
+  box.innerHTML = "";
+  var emojis = { rika:"📘", shakai:"📗", kokugo:"📙" };
+  function line(html, cls){
+    var d = document.createElement("div");
+    d.className = "star-hint" + (cls ? " "+cls : ""); d.innerHTML = html;
+    box.appendChild(d);
+  }
+  S.SUBJECTS.forEach(function(s){
+    var x = h[s], nm = emojis[s] + " " + S.SUBJECT_NAMES[s];
+    if(x){
+      line(nm + "　あと" + x.remaining + "問で★" + (x.needAllCorrect ? " <small>(ぜんぶ正かいで)</small>" : ""));
+    }else{
+      line(nm + "　きょうの★はぜんぶゲット！", "done");
+    }
+  });
+  if(h.all3) line("⭐ 3きょうかそろい★まで　あと" + h.all3.remaining + "問 <small>(各30問)</small>");
+}
+
+/* ============================================================
+   節目バッジ＋ごほうび券（アプリ内完結。★の交換・消費はしない）
+   ★そのものは stars.js が日別記録から毎回数える（減らない累計）。
+   ここは「どの節目まで届いたか」の表示と、お祝いを1回だけ出す処理。
+============================================================ */
+
+/* ---- 親が書く「ごほうび券」の文言（ここだけ編集すればOK）----
+   節目の★数: '現実のごほうび' の形で書く。空文字 '' のままなら、お祝いだけ出る（券は出ない）。
+   書き方の例（コピーして '' の中に書き換える）:
+     10:  '好きなアイスを1個',
+     25:  '週末に公園で1時間あそぶ',
+     50:  '好きな本を1さつ',
+     100: 'ゆうごはんのメニューを決める権利',
+   ※文字だけが表示されます（HTMLは使えません）。 */
+var REWARD_TABLE = {
+  1:   '',
+  10:  '',
+  25:  '',
+  50:  '',
+  100: '',
+  150: '',
+  200: '',
+  300: ''
+};
+
+var BADGE_DEFS = {
+  1:   { emoji:"🌟", name:"はじめての★" },
+  10:  { emoji:"🐣", name:"★10こ" },
+  25:  { emoji:"🌈", name:"★25こ" },
+  50:  { emoji:"🚀", name:"★50こ" },
+  100: { emoji:"🏆", name:"★100こ" },
+  150: { emoji:"🦄", name:"★150こ" },
+  200: { emoji:"👑", name:"★200こ" },
+  300: { emoji:"🎖️", name:"★300こ" }
+};
+var MILESTONES = [1, 10, 25, 50, 100, 150, 200, 300];
+var BADGES_SEEN_KEY = "kq-hub-v1-badges-seen";
+
+// 到達済みの節目（昇順）
+function reachedMilestones(total){
+  return MILESTONES.filter(function(m){ return total >= m; });
+}
+// 到達済みのうち最大の節目（無ければ 0）
+function maxReached(total){
+  var r = reachedMilestones(total);
+  return r.length ? r[r.length-1] : 0;
+}
+// 次の節目（全部到達なら null）
+function nextMilestone(total){
+  for(var i=0;i<MILESTONES.length;i++){ if(total < MILESTONES[i]) return MILESTONES[i]; }
+  return null;
+}
+// 保存値（文字列/null）を「見せた最大節目」に。壊れ・負・節目以外は null（＝初回扱い）
+function parseSeen(raw){
+  if(raw === null || raw === undefined || raw === "") return null;
+  var n = Number(raw);
+  if(!isFinite(n) || n < 0 || Math.floor(n) !== n) return null;
+  return n;
+}
+/* お祝い判定。raw=保存されていた値。
+   戻り値 { celebrate: 節目|null, newSeen: 保存すべき値|null }
+   - 見せた最大節目より上に届いていれば、跨いだ数に関わらず「最大の1つ」だけ。
+   - 初回/保存失敗（raw が null）も同じ：到達済みの最大の1つだけお祝いして以後に備える。
+   - 見せた値より小さくは書き戻さない。 */
+function decideCelebration(total, raw){
+  var seen = parseSeen(raw);
+  var top = maxReached(total);
+  if(top > (seen === null ? 0 : seen)) return { celebrate:top, newSeen:top };
+  return { celebrate:null, newSeen:seen };
+}
+// 各節目に初めて届いた日（日別記録の累計から導く。保存は増やさない）
+function reachDates(daily){
+  var out = {}, cum = 0, S = window.KQStars;
+  if(!S) return out;
+  Object.keys(daily || {}).sort().forEach(function(d){
+    cum += S.starsForDay(daily[d]).total;
+    MILESTONES.forEach(function(m){ if(out[m] === undefined && cum >= m) out[m] = d; });
+  });
+  return out;
+}
+function jpDate(key){
+  var p = (key || "").split("-");
+  return p.length === 3 ? p[0]+"年"+Number(p[1])+"月"+Number(p[2])+"日" : "";
+}
+function rewardText(m){
+  var t = REWARD_TABLE[m];
+  return (typeof t === "string") ? t.trim() : "";
+}
+
+function renderBadgeGrid(total, dates){
+  var grid = document.getElementById("badgeGrid");
+  if(!grid) return;
+  grid.innerHTML = "";
+  MILESTONES.forEach(function(m){
+    var def = BADGE_DEFS[m], on = total >= m;
+    var el = document.createElement("div");
+    el.className = "badge" + (on ? "" : " locked");
+    el.setAttribute("data-milestone", m);
+    function add(cls, text){ var d = document.createElement("div"); d.className = cls; d.textContent = text; el.appendChild(d); return d; }
+    add("be", def.emoji);
+    add("bn", def.name);
+    if(on){
+      if(dates[m]) add("bd", jpDate(dates[m]));
+      var rw = rewardText(m);
+      if(rw) add("bt", "🎟 ごほうび券: " + rw);
+    }else{
+      add("bs", "あと★" + (m - total));
+    }
+    grid.appendChild(el);
+  });
+}
+
+function closeCelebration(){
+  var old = document.getElementById("celebrateOv");
+  if(old && old.parentNode) old.parentNode.removeChild(old);
+}
+function showCelebration(m, dateKey){
+  closeCelebration();
+  var def = BADGE_DEFS[m], rw = rewardText(m);
+  var ov = document.createElement("div");
+  ov.className = "celebrate-ov"; ov.id = "celebrateOv";
+  ov.setAttribute("role", "dialog"); ov.setAttribute("aria-modal", "true");
+  var box = document.createElement("div"); box.className = "celebrate-box";
+  function add(parent, cls, text){ var d = document.createElement("div"); d.className = cls; d.textContent = text; parent.appendChild(d); return d; }
+  add(box, "ce", def.emoji);
+  add(box, "ct", "★" + m + " たっせい！おめでとう！");
+  add(box, "cn", def.name + " バッジをゲット");
+  if(rw){
+    var tk = document.createElement("div"); tk.className = "ticket";
+    add(tk, "tl", "🎟 ごほうび券");
+    add(tk, "tx", rw);
+    add(tk, "ts", "おうちの人に見せてね");
+    box.appendChild(tk);
+  }
+  if(dateKey) add(box, "cdate", jpDate(dateKey));
+  var btn = document.createElement("button");
+  btn.type = "button"; btn.className = "cbtn"; btn.id = "celebrateClose"; btn.textContent = "やったね！";
+  btn.addEventListener("click", closeCelebration);
+  box.appendChild(btn);
+  ov.appendChild(box);
+  document.body.appendChild(ov);
+}
+
+function readSeenRaw(){
+  try{ return localStorage.getItem(BADGES_SEEN_KEY); }catch(e){ return null; }
+}
+function writeSeen(v){
+  try{ localStorage.setItem(BADGES_SEEN_KEY, String(v)); }catch(e){}
+}
+
+function renderBadges(){
+  var S = window.KQStars;
+  if(!S) return;
+  var daily = S.readDaily();
+  var total = S.totalStars(daily);
+  var dates = reachDates(daily);
+  renderBadgeGrid(total, dates);
+  var d = decideCelebration(total, readSeenRaw());
+  if(d.celebrate){
+    writeSeen(d.newSeen);
+    showCelebration(d.celebrate, dates[d.celebrate] || todayKey());
+  }
+}
+
+(function wireBadgeToggle(){
+  var btn = document.getElementById("badgeToggle");
+  if(!btn) return;
+  btn.addEventListener("click", function(){
+    var panel = document.getElementById("badgePanel");
+    var open = panel.hidden;           // 今は閉じている→開く
+    panel.hidden = !open;
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+    document.getElementById("badgeTap").textContent = open ? "🏅 バッジをとじる ▴" : "🏅 バッジを見る ▾";
+  });
+})();
+
+window.KQBadges = {
+  MILESTONES: MILESTONES, REWARD_TABLE: REWARD_TABLE,
+  reachedMilestones: reachedMilestones, maxReached: maxReached, nextMilestone: nextMilestone,
+  parseSeen: parseSeen, decideCelebration: decideCelebration, reachDates: reachDates,
+  render: renderBadges
+};
+
+renderTodayStats();
+renderStars();
+renderSubjects();
+renderRecommendations();
+// バッジで不具合が出ても、ほかの表示は壊さない（上の4つの後に実行）
+try{ renderBadges(); }catch(e){ if(window.console) console.error(e); }
+
+/* ============================================================
+   シール帳（計算は stickers-award.js、絵は stickers.js。獲得は日別記録から毎回導く）
+   既見数だけ kq-hub-v2-stickers-seen に保存し、未見＝獲得数−既見 を演出する。
+============================================================ */
+(function(){
+var A = window.KQStickerAward, K = window.KQStickers;
+var BULK_OVER = 6;                       // これを超えたら「まとめて」演出
+var ICON = { rika:"📘", shakai:"📗", kokugo:"📙", kira:"✨" };
+var COVER = { rika:["#ffd9a0","#ffb457"], shakai:["#c9e8a6","#8fd16a"], kokugo:["#ffc6c6","#ff8f9c"], kira:["#fff0a0","#ffc94a"] };
+var catalog = {}, order = {};
+if(K && K.STICKER_CATALOG){
+  K.STICKER_CATALOG.forEach(function(c){ catalog[c.id] = c; });
+}
+var curTab = "rika";
+var state = null;                        // { earned, sum, seen }
+
+function $(id){ return document.getElementById(id); }
+function sched(fn){ if(window.requestAnimationFrame) window.requestAnimationFrame(fn); else setTimeout(fn, 0); }
+function el(tag, cls, text){ var e = document.createElement(tag); if(cls) e.className = cls; if(text !== undefined) e.textContent = text; return e; }
+
+function svgOf(id, suffix){
+  var c = catalog[id];
+  if(!c) return "";
+  try{
+    var o = {}; Object.keys(c.opts).forEach(function(k){ o[k] = c.opts[k]; });
+    o.uid = id + (suffix || "");
+    return K.makeCatSticker(o);
+  }catch(e){ if(window.console) console.error(e); return ""; }
+}
+// 重いので少しずつ描く（4枚ずつ）。新しい呼び出しで古い描画は打ち切る
+function makeFiller(){
+  var tok = 0;
+  return function(items){           // items: [{host, html:function}]
+    var my = ++tok, i = 0;
+    function step(){
+      if(my !== tok) return;
+      var end = Math.min(i + 4, items.length);
+      for(; i < end; i++){ items[i].host.innerHTML = items[i].html(); }
+      if(i < items.length) sched(step);
+    }
+    sched(step);
+  };
+}
+var fillBook = makeFiller(), fillBulk = makeFiller();
+
+function compute(){
+  var daily = A.readDaily();
+  var legacyL = A.readLegacy(daily);
+  var e = A.earned(daily, { legacy: legacyL, frozen: A.readFrozen(daily, legacyL) });  // 旧ロジックで獲得済みの分は旧柄のまま（初回に1度だけ保存）
+  return { daily:daily, earned:e, sum:A.summarize(e), seen:A.readSeen() };
+}
+function ids(subject){
+  var out = [], n = A.POOL[subject];
+  for(var i=0;i<n;i++) out.push(A.idOf(subject, i));
+  return out;
+}
+
+/* ---- 玄関カードの1行ヒント ---- */
+function renderHint(daily){
+  var box = $("stickerHint");
+  if(!box) return;
+  var h = A.hintsForDay((daily || {})[todayKey()]);
+  box.innerHTML = "";
+  box.appendChild(el("span", "it", "🐱 次のシールまで"));
+  A.SUBJECTS.forEach(function(s){
+    box.appendChild(el("span", "it", ICON[s] + A.NAMES[s] + "あと" + h[s].remaining + "問"));
+  });
+  if(h.kira) box.appendChild(el("span", "it", "✨キラまで" + h.kira.remaining + "問"));
+  else box.appendChild(el("span", "it", "✨キラ もらった！"));
+}
+
+/* ---- シール帳 ---- */
+function unseenCount(subject){
+  var seen = state.seen ? state.seen[subject] || 0 : 0;
+  return Math.max(0, state.sum.counts[subject] - seen);
+}
+function renderBook(){
+  if(!A || !K) return;
+  state = compute();
+  var sum = state.sum;
+  var types = 0, poolAll = 0;
+  A.ALL.forEach(function(s){ types += sum.distinct[s]; poolAll += A.POOL[s]; });
+  $("skSum").textContent = "もらったシール " + sum.total + "まい（しゅるい " + types + "/" + poolAll + "）";
+
+  var tabs = $("skTabs");
+  tabs.innerHTML = "";
+  A.ALL.forEach(function(s){
+    var b = el("button", "sk-tab");
+    b.type = "button"; b.setAttribute("role", "tab"); b.setAttribute("data-s", s);
+    b.setAttribute("aria-selected", s === curTab ? "true" : "false");
+    b.appendChild(el("span", "tn", ICON[s] + A.NAMES[s]));
+    b.appendChild(el("span", "tc", sum.distinct[s] + "/" + A.POOL[s]));
+    b.addEventListener("click", function(){ curTab = s; renderBook(); });
+    tabs.appendChild(b);
+  });
+  renderTab();
+}
+function renderTab(){
+  var s = curTab, sum = state.sum, pool = A.POOL[s];
+  var have = sum.distinct[s], left = pool - have;
+  var prog = $("skProg");
+  prog.innerHTML = "";
+  if(left > 0){
+    prog.appendChild(document.createTextNode(A.NAMES[s] + "　" + have + "/" + pool + "　あと" + left + "まいでコンプリート "));
+  }else{
+    prog.appendChild(document.createTextNode(A.NAMES[s] + "　" + have + "/" + pool + "　コンプリート！🎉 "));
+  }
+  prog.appendChild(el("small", "", "(ぜんぶで" + sum.counts[s] + "まい)"));
+
+  var grid = $("skGrid");
+  grid.innerHTML = "";
+  var items = [];
+  ids(s).forEach(function(id){
+    var n = sum.owned[id] || 0, c = catalog[id];
+    var b = el("button", "sk-cell" + (n ? "" : " locked"));
+    b.type = "button"; b.setAttribute("data-id", id); b.setAttribute("data-n", n);
+    b.setAttribute("aria-label", n ? (c ? c.name : id) + (n > 1 ? " " + n + "まい" : "") : "まだもっていないシール");
+    var host = el("span", "sk-host"); host.style.display = "block"; host.style.width = "100%"; host.style.height = "100%";
+    host.appendChild(el("span", "sk-ph"));
+    b.appendChild(host);
+    if(n > 1) b.appendChild(el("span", "dup", "×" + n));
+    b.addEventListener("click", function(){ showZoom(id, n); });
+    grid.appendChild(b);
+    items.push({ host:host, html:function(){ return svgOf(id, ""); } });
+  });
+  fillBook(items);
+}
+
+/* ---- タップで拡大 ---- */
+function closeOv(id){ var o = $(id); if(o && o.parentNode) o.parentNode.removeChild(o); }
+function showZoom(id, n){
+  closeOv("skZoom");
+  var c = catalog[id];
+  var ov = el("div", "sk-ov"); ov.id = "skZoom"; ov.setAttribute("role", "dialog"); ov.setAttribute("aria-modal", "true");
+  var box = el("div", "sk-box");
+  var big = el("div", "sk-big" + (n ? "" : " locked"));
+  big.innerHTML = svgOf(id, "-zoom");
+  box.appendChild(big);
+  box.appendChild(el("div", "sk-name", n ? (c ? c.name : id) : "？"));
+  box.appendChild(el("div", "sk-bulk-note", n ? (n > 1 ? n + "まい もっているよ" : "1まい もっているよ") : "まだ もっていないよ。\nもんだいをといてゲット！"));
+  var btn = el("button", "sk-btn", "とじる"); btn.type = "button";
+  btn.addEventListener("click", function(){ closeOv("skZoom"); });
+  box.appendChild(btn);
+  ov.appendChild(box);
+  ov.addEventListener("click", function(e){ if(e.target === ov) closeOv("skZoom"); });
+  document.body.appendChild(ov);
+}
+
+/* ---- 新しいシールの演出 ---- */
+function finishReveal(){
+  closeOv("skReveal");
+  // 既見を更新（いまの獲得数まで）。閉じたときに保存する
+  var fresh = compute();
+  var first = state && state.pending && state.pending[0];
+  A.writeSeen(fresh.sum.counts, fresh.seen);
+  if(first) curTab = first.subject;
+  state = null;
+  renderBook();
+}
+function showBulk(list){
+  var ov = el("div", "sk-ov"); ov.id = "skReveal"; ov.setAttribute("role", "dialog"); ov.setAttribute("aria-modal", "true");
+  var box = el("div", "sk-box");
+  box.appendChild(el("div", "sk-title", list.length + "まい まとめてもらったよ！"));
+  var agg = {}, keys = [];
+  list.forEach(function(x){
+    if(!agg[x.id]){ agg[x.id] = { n:0, isNew:false, subject:x.subject }; keys.push(x.id); }
+    agg[x.id].n++; if(x.isNew) agg[x.id].isNew = true;
+  });
+  keys.sort();
+  var nNew = keys.filter(function(k){ return agg[k].isNew; }).length;
+  box.appendChild(el("div", "sk-bulk-note", "はじめてのシール " + nNew + "しゅるい ／ ダブり " + (list.length - nNew) + "まい"));
+  var grid = el("div", "sk-bulk-grid"); grid.id = "skBulkGrid";
+  var items = [];
+  keys.forEach(function(id){
+    var a = agg[id];
+    var cell = el("div", "sk-cell");
+    cell.setAttribute("data-id", id);
+    var host = el("span", "sk-host"); host.style.display = "block"; host.style.width = "100%"; host.style.height = "100%";
+    host.appendChild(el("span", "sk-ph"));
+    cell.appendChild(host);
+    if(a.isNew) cell.appendChild(el("span", "newb", "NEW"));
+    if(a.n > 1) cell.appendChild(el("span", "dup", "×" + a.n));
+    grid.appendChild(cell);
+    items.push({ host:host, html:function(){ return svgOf(id, "-b"); } });
+  });
+  box.appendChild(grid);
+  var btn = el("button", "sk-btn", "シール帳に入れる"); btn.type = "button"; btn.id = "skClose";
+  btn.addEventListener("click", finishReveal);
+  box.appendChild(btn);
+  ov.appendChild(box);
+  document.body.appendChild(ov);
+  fillBulk(items);
+}
+function showSequence(list){
+  var ov = el("div", "sk-ov"); ov.id = "skReveal"; ov.setAttribute("role", "dialog"); ov.setAttribute("aria-modal", "true");
+  var box = el("div", "sk-box");
+  ov.appendChild(box);
+  document.body.appendChild(ov);
+  var i = 0;
+  function step(){
+    var x = list[i], c = catalog[x.id];
+    box.innerHTML = "";
+    box.appendChild(el("div", "sk-title", "シールをもらったよ！"));
+    box.appendChild(el("div", "sk-step", list.length > 1 ? (i+1) + " / " + list.length + "まい目" : ""));
+    var stage = el("div", "sk-stage"); stage.id = "skStage";
+    var under = el("div", "sk-under"); under.setAttribute("aria-hidden", "true");
+    under.innerHTML = svgOf(x.id, "-rv" + i);
+    stage.appendChild(under);
+    var cover = el("button", "sk-cover"); cover.type = "button"; cover.id = "skPeel";
+    cover.setAttribute("aria-label", "シールをはがす");
+    cover.style.setProperty("--c1", COVER[x.subject][0]); cover.style.setProperty("--c2", COVER[x.subject][1]);
+    cover.appendChild(el("span", "q", "？"));
+    cover.appendChild(el("span", "tp", "タップしてはがそう"));
+    stage.appendChild(cover);
+    stage.appendChild(el("div", "sk-sfx", "ぺりっ！"));
+    if(x.isNew){                      // 未所持の柄だけ「キラッ」と光る（ダブりは光らない）
+      stage.classList.add("is-new");
+      var kr = el("div", "sk-kira"); kr.setAttribute("aria-hidden", "true");
+      kr.appendChild(el("span", "glow")); var cl = el("span", "clip"); cl.appendChild(el("span", "shine")); kr.appendChild(cl);
+      for(var q = 0; q < 5; q++) kr.appendChild(el("span", "st", "✦"));
+      stage.appendChild(kr);
+    }
+    box.appendChild(stage);
+    var res = el("div", "sk-result"); res.id = "skResult"; res.hidden = true;
+    res.appendChild(el("div", "sk-name", c ? c.name : x.id));
+    res.appendChild(el("div", "sk-tag " + (x.isNew ? "new" : "dup"), x.isNew ? "NEW!" : "ダブり×" + x.nth));
+    var last = (i === list.length - 1);
+    var nb = el("button", "sk-btn", last ? "シール帳に入れる" : "つぎへ"); nb.type = "button"; nb.id = last ? "skClose" : "skNext";
+    nb.addEventListener("click", function(){ if(last) finishReveal(); else { i++; step(); } });
+    res.appendChild(document.createElement("div")).appendChild(nb);
+    box.appendChild(res);
+    cover.addEventListener("click", function(){
+      if(stage.classList.contains("peeled")) return;
+      stage.classList.add("peeled");
+      under.removeAttribute("aria-hidden");
+      res.hidden = false; res.classList.add("show");
+      nb.focus && nb.focus({ preventScroll:true });
+    });
+  }
+  step();
+}
+function checkNew(){
+  if(!A || !K || $("skReveal")) return;
+  var cur = compute();
+  var list = A.unseen(cur.earned, cur.seen);
+  if(!list.length) return;
+  state = cur; state.pending = list;
+  if(list.length > BULK_OVER) showBulk(list); else showSequence(list);
+}
+
+function refresh(){
+  var daily = A ? A.readDaily() : {};
+  renderHint(daily);
+  renderBook();
+  try{ checkNew(); }catch(e){ if(window.console) console.error(e); }
+}
+
+window.KQStickerBook = { render:renderBook, renderHint:renderHint, checkNew:checkNew, refresh:refresh, BULK_OVER:BULK_OVER,
+  selectTab:function(s){ curTab = s; renderBook(); } };
+
+try{ if(A && K) refresh(); else if(A) renderHint(A.readDaily()); }catch(e){ if(window.console) console.error(e); }
+
+// 教科ページから戻ったとき（bfcache・タブ復帰）にも見る
+window.addEventListener("pageshow", function(ev){ if(ev.persisted){ try{ renderTodayStats(); renderStars(); renderSubjects(); refresh(); }catch(e){} } });
+document.addEventListener("visibilitychange", function(){
+  if(document.visibilityState === "visible"){ try{ renderTodayStats(); renderStars(); refresh(); }catch(e){} }
+});
+})();
+
+})();
+</script>
+<script>
+/* きろくのよみこみ（旧版 → この版）。検証→ページ内で確認→上書き。確認ダイアログ(confirm)は使わない */
+(function(){
+  "use strict";
+  var T = window.KQTransfer;
+  var input = document.getElementById("xferInput");
+  var msg = document.getElementById("xferMsg");
+  var box = document.getElementById("xferConfirm");
+  if(!T || !input) return;
+  var pending = null;
+  function say(text, cls){ msg.textContent = text; msg.className = "msg" + (cls ? " " + cls : ""); }
+  function fmt(s){
+    return s.days + "日分・合計" + s.total + "問" + (s.lastDay ? "（さいごの日 " + s.lastDay + "）" : "");
+  }
+  function store(){ try{ return window.localStorage; }catch(e){ return null; } }
+  document.getElementById("xferCheck").addEventListener("click", function(){
+    pending = null; box.hidden = true;
+    var r = T.decode(input.value);
+    if(!r.ok){ say("よみこめません：" + r.error, "err"); return; }
+    pending = r;
+    var cur = store() ? T.describe(store()) : { days:0, total:0, lastDay:"" };
+    document.getElementById("xferCompare").innerHTML =
+      "<div>いまのきろく：<span id=\"xferNow\"></span></div><div>よみこむきろく：<span id=\"xferNew\"></span></div>";
+    document.getElementById("xferNow").textContent = fmt(cur);
+    document.getElementById("xferNew").textContent = fmt(r.summary) + "（きろく" + r.summary.keyCount + "件）";
+    say("テキストは正しくよめました。下の内容を見て、よければ「上書きする」をおしてください。", "ok");
+    box.hidden = false;
+  });
+  document.getElementById("xferCancel").addEventListener("click", function(){
+    pending = null; box.hidden = true; say("やめました。何も変わっていません。");
+  });
+  document.getElementById("xferApply").addEventListener("click", function(){
+    if(!pending) return;
+    var st = store();
+    if(!st){ say("この端末ではきろくを保存できないため、よみこめません。", "err"); return; }
+    var n = T.apply(st, pending.keys);
+    var want = Object.keys(pending.keys).length;
+    pending = null; box.hidden = true;
+    if(n !== want){ say("一部しか書きこめませんでした（" + n + "/" + want + "件）。", "err"); return; }
+    input.value = "";
+    try{ window.KQHub.reload(); }catch(e){}
+    say("よみこみました（" + n + "件）。玄関をひらきなおします。", "ok");
+    window.setTimeout(function(){ try{ window.KQHub.go(window.KQHub.pageUrl("index")); }catch(e){} }, 600);
+  });
+})();
+</script>
+</body>
+</html>

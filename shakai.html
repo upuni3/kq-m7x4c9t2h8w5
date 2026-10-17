@@ -1,0 +1,2148 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>日本地方たんけんクイズ</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap');
+
+  :root{
+    --bg:#f6f1e4;
+    --paper:#fffdf7;
+    --ink:#2c3320;
+    --ink-soft:#5b6247;
+    --green:#5f7d43;
+    --green-deep:#3f5a2c;
+    --brown:#a9764c;
+    --brown-deep:#7c5433;
+    --accent:#e8783f;
+    --accent-deep:#c25c26;
+    --blue:#3f6fa0;
+    --ok:#3f8d4f;
+    --ok-bg:#e5f3e2;
+    --ng:#c04a3a;
+    --ng-bg:#fbe6e1;
+    --line: rgba(44,51,32,0.12);
+    --shadow: 0 10px 24px -12px rgba(60,45,20,0.28);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1b2016;
+      --paper:#242a1d;
+      --ink:#ece6d4;
+      --ink-soft:#b9c0a4;
+      --green:#8fb56b;
+      --green-deep:#a9d385;
+      --brown:#cf9c6c;
+      --brown-deep:#e3b788;
+      --accent:#f2955c;
+      --accent-deep:#ffb583;
+      --blue:#7fb0e0;
+      --ok:#7fce8f;
+      --ok-bg:#213524;
+      --ng:#e78474;
+      --ng-bg:#3a2320;
+      --line: rgba(236,230,212,0.14);
+      --shadow: 0 10px 26px -12px rgba(0,0,0,0.55);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1b2016;
+    --paper:#242a1d;
+    --ink:#ece6d4;
+    --ink-soft:#b9c0a4;
+    --green:#8fb56b;
+    --green-deep:#a9d385;
+    --brown:#cf9c6c;
+    --brown-deep:#e3b788;
+    --accent:#f2955c;
+    --accent-deep:#ffb583;
+    --blue:#7fb0e0;
+    --ok:#7fce8f;
+    --ok-bg:#213524;
+    --ng:#e78474;
+    --ng-bg:#3a2320;
+    --line: rgba(236,230,212,0.14);
+    --shadow: 0 10px 26px -12px rgba(0,0,0,0.55);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Zen Kaku Gothic New', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+    padding-inline:16px;
+    padding-block:24px;
+    min-height:100%;
+    display:flex;
+    justify-content:center;
+  }
+  .app{ width:100%; max-width:560px; display:flex; flex-direction:column; gap:16px; }
+
+  h1,h2,h3{ font-family:'Zen Maru Gothic', 'Zen Kaku Gothic New', sans-serif; margin:0; text-wrap:balance; }
+
+  .topbar{
+    display:flex; align-items:baseline; justify-content:space-between; gap:8px;
+  }
+  .topbar .kicker{
+    font-size:12px; letter-spacing:.08em; color:var(--ink-soft); font-weight:700;
+  }
+  .title{
+    font-size:22px; font-weight:900; color:var(--green-deep);
+  }
+
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:20px;
+    box-shadow:var(--shadow);
+  }
+
+  /* ---------- HOME SCREEN ---------- */
+  .home-lead{ color:var(--ink-soft); font-size:14px; line-height:1.7; }
+  .stat-row{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px;
+  }
+  .stat{
+    background:var(--bg); border:1px solid var(--line); border-radius:14px;
+    padding:10px 8px; text-align:center;
+  }
+  .stat .n{ font-size:20px; font-weight:900; font-variant-numeric:tabular-nums; color:var(--green-deep); }
+  .stat .l{ font-size:11px; color:var(--ink-soft); margin-top:2px; }
+
+  .section-label{
+    font-size:12px; font-weight:700; color:var(--ink-soft); letter-spacing:.06em;
+    margin:4px 2px 0;
+  }
+
+  .week-chart{
+    display:flex; align-items:flex-end; gap:8px; height:76px; margin-top:14px; padding:0 2px;
+  }
+  .week-chart .col{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end;
+    height:100%; gap:5px;
+  }
+  .week-chart .bar-track{
+    width:100%; max-width:26px; height:52px; display:flex; align-items:flex-end;
+    border-radius:6px; background:var(--bg); border:1px solid var(--line); overflow:hidden;
+  }
+  .week-chart .bar-fill{
+    width:100%; border-radius:5px 5px 0 0; background:var(--line); transition:height .25s ease;
+  }
+  .week-chart .bar-fill.has-data{ background:var(--green); }
+  .week-chart .bar-fill.today{ background:var(--accent); }
+  .week-chart .dow{ font-size:10.5px; color:var(--ink-soft); font-weight:700; }
+  .week-chart .col.today .dow{ color:var(--accent-deep); }
+
+  .mode-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .mode-btn{
+    appearance:none; border:2px solid var(--line); background:var(--paper);
+    border-radius:16px; padding:14px 10px; text-align:left; cursor:pointer;
+    display:flex; flex-direction:column; gap:4px; color:var(--ink);
+    font-family:inherit;
+  }
+  .mode-btn .emoji{ font-size:22px; }
+  .mode-btn .name{ font-weight:900; font-size:15px; }
+  .mode-btn .desc{ font-size:11.5px; color:var(--ink-soft); line-height:1.4; }
+  .mode-btn[aria-pressed="true"]{
+    border-color:var(--green); background:var(--ok-bg); color:var(--green-deep);
+  }
+  .mode-btn[aria-pressed="true"] .desc{ color:var(--green-deep); opacity:.8; }
+
+  .chip-wrap{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{
+    appearance:none; border:1.5px solid var(--line); background:var(--paper);
+    color:var(--ink); border-radius:999px; padding:8px 14px; font-size:13px;
+    cursor:pointer; font-weight:700; font-family:inherit;
+  }
+  .chip[aria-pressed="true"]{ background:var(--green); border-color:var(--green); color:#fff; }
+  .chip .cnt{ opacity:.7; font-weight:500; }
+
+  .weak-btn{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    width:100%; border:2px solid var(--accent); background:var(--paper);
+    border-radius:16px; padding:14px 16px; cursor:pointer; font-family:inherit;
+    color:var(--accent-deep);
+  }
+  .weak-btn strong{ font-size:15px; }
+  .weak-btn span.sub{ display:block; font-size:11.5px; color:var(--ink-soft); font-weight:500; margin-top:2px; }
+  .weak-btn .badge{
+    background:var(--accent); color:#fff; font-weight:900; font-size:13px;
+    border-radius:12px; padding:4px 10px; font-variant-numeric:tabular-nums; flex:none; text-align:center;
+  }
+  .weak-btn:disabled{ opacity:.4; cursor:not-allowed; }
+
+  .start-btn{
+    appearance:none; border:none; border-radius:16px; padding:16px;
+    background:var(--accent); color:#fff; font-family:inherit;
+    font-size:17px; font-weight:900; cursor:pointer; letter-spacing:.02em;
+    box-shadow: 0 8px 18px -6px rgba(232,120,63,0.55);
+  }
+  .start-btn:active{ transform:translateY(1px); }
+
+  /* ---------- QUIZ SCREEN ---------- */
+  .progress-row{ display:flex; align-items:center; gap:10px; }
+  .progress-track{
+    flex:1; height:8px; background:var(--line); border-radius:999px; overflow:hidden;
+  }
+  .progress-fill{ height:100%; background:var(--green); border-radius:999px; transition:width .3s ease; }
+  .progress-num{ font-size:12px; font-weight:700; color:var(--ink-soft); font-variant-numeric:tabular-nums; flex:none; }
+
+  .quiz-card{ display:flex; flex-direction:column; gap:14px; }
+  .cat-tag{
+    align-self:flex-start; font-size:11px; font-weight:900; letter-spacing:.05em;
+    color:var(--brown-deep); background:var(--bg); border:1px solid var(--line);
+    border-radius:999px; padding:4px 10px;
+  }
+  .question-text{ font-size:19px; font-weight:700; line-height:1.6; }
+
+  .choice-grid{ display:grid; grid-template-columns:1fr; gap:10px; }
+  .choice-btn{
+    appearance:none; text-align:left; border:2px solid var(--line); background:var(--paper);
+    color:var(--ink); border-radius:14px; padding:13px 16px; font-size:15.5px; font-weight:700;
+    cursor:pointer; font-family:inherit; display:flex; gap:10px; align-items:center;
+  }
+  .choice-btn .idx{
+    flex:none; width:24px; height:24px; border-radius:50%; background:var(--bg);
+    display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900;
+    color:var(--ink-soft);
+  }
+  .choice-btn:disabled{ cursor:default; }
+  .choice-btn.correct{ border-color:var(--ok); background:var(--ok-bg); color:var(--ok); }
+  .choice-btn.correct .idx{ background:var(--ok); color:#fff; }
+  .choice-btn.wrong{ border-color:var(--ng); background:var(--ng-bg); color:var(--ng); }
+  .choice-btn.wrong .idx{ background:var(--ng); color:#fff; }
+  .choice-btn.dim{ opacity:.45; }
+
+  .write-box textarea{
+    width:100%; min-height:76px; resize:vertical; border:2px solid var(--line);
+    border-radius:14px; padding:12px 14px; font-size:16px; font-family:inherit;
+    background:var(--bg); color:var(--ink);
+  }
+  .write-box textarea:focus{ outline:2px solid var(--green); outline-offset:1px; }
+
+  .reveal-btn, .next-btn{
+    appearance:none; border:none; border-radius:14px; padding:14px; font-size:15px;
+    font-weight:900; cursor:pointer; font-family:inherit; color:#fff; background:var(--blue);
+  }
+  .next-btn{ background:var(--accent); }
+
+  .answer-panel{
+    border-radius:14px; padding:14px 16px; display:flex; flex-direction:column; gap:6px;
+    animation: pop .18s ease;
+  }
+  @keyframes pop{ from{ transform:scale(.97); opacity:0;} to{ transform:scale(1); opacity:1;} }
+  .answer-panel.ok{ background:var(--ok-bg); border:2px solid var(--ok); }
+  .answer-panel.ng{ background:var(--ng-bg); border:2px solid var(--ng); }
+  .answer-panel .verdict{ font-weight:900; font-size:15px; }
+  .answer-panel.ok .verdict{ color:var(--ok); }
+  .answer-panel.ng .verdict{ color:var(--ng); }
+  .answer-panel .ans{ font-size:20px; font-weight:900; }
+  .answer-panel .kana{ font-size:12.5px; color:var(--ink-soft); }
+
+  .self-grade-row{ display:flex; gap:10px; }
+  .grade-btn{
+    flex:1; appearance:none; border:2px solid var(--line); background:var(--paper);
+    border-radius:14px; padding:14px; font-size:17px; font-weight:900; cursor:pointer;
+    font-family:inherit; display:flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .grade-btn.ok-btn{ color:var(--ok); }
+  .grade-btn.ok-btn:active{ background:var(--ok-bg); border-color:var(--ok); }
+  .grade-btn.ng-btn{ color:var(--ng); }
+  .grade-btn.ng-btn:active{ background:var(--ng-bg); border-color:var(--ng); }
+
+  .quit-link{
+    align-self:center; background:none; border:none; color:var(--ink-soft);
+    font-size:12.5px; text-decoration:underline; cursor:pointer; font-family:inherit; padding:6px;
+  }
+
+  /* ---------- RESULT SCREEN ---------- */
+  .score-hero{ text-align:center; display:flex; flex-direction:column; gap:6px; padding:6px 0 4px; }
+  .score-big{ font-size:52px; font-weight:900; color:var(--green-deep); font-variant-numeric:tabular-nums; line-height:1; }
+  .score-big span{ font-size:22px; color:var(--ink-soft); font-weight:700; }
+  .score-msg{ font-size:14px; color:var(--ink-soft); }
+
+  .review-list{ display:flex; flex-direction:column; gap:8px; }
+  .review-item{
+    display:flex; gap:10px; align-items:flex-start; border:1px solid var(--line);
+    border-radius:12px; padding:10px 12px; background:var(--bg);
+  }
+  .review-item .mark{ flex:none; font-weight:900; font-size:15px; margin-top:1px; }
+  .review-item.ok .mark{ color:var(--ok); }
+  .review-item.ng .mark{ color:var(--ng); }
+  .review-item .body{ display:flex; flex-direction:column; gap:2px; }
+  .review-item .q{ font-size:13.5px; font-weight:700; line-height:1.5; }
+  .review-item .a{ font-size:13px; color:var(--ink-soft); }
+  .review-item .a b{ color:var(--ink); }
+
+  .result-actions{ display:flex; flex-direction:column; gap:10px; }
+  .secondary-btn{
+    appearance:none; border:2px solid var(--line); background:var(--paper); color:var(--ink);
+    border-radius:14px; padding:13px; font-size:14.5px; font-weight:900; cursor:pointer; font-family:inherit;
+  }
+
+  [hidden]{ display:none !important; }
+  .foot-note{ text-align:center; font-size:11px; color:var(--ink-soft); padding-top:4px; }
+
+  /* ---------- REGION SELECT ---------- */
+  .back-link{
+    align-self:flex-start; background:none; border:none; color:var(--ink-soft);
+    font-size:12.5px; text-decoration:underline; cursor:pointer; font-family:inherit;
+    padding:2px 0 0; display:flex; align-items:center; gap:2px;
+  }
+  .link-btn{
+    align-self:flex-start; background:none; border:none; color:var(--ink-soft);
+    font-size:12.5px; text-decoration:underline; cursor:pointer; font-family:inherit;
+    padding:2px 0 0; display:inline-flex; align-items:center; gap:2px; text-decoration-line:underline;
+  }
+  .region-grid{ display:flex; flex-direction:column; gap:10px; }
+  .region-card{
+    appearance:none; width:100%; text-align:left; border:2px solid var(--line);
+    background:var(--paper); border-radius:16px; padding:14px 16px; cursor:pointer;
+    font-family:inherit; color:var(--ink); display:flex; align-items:center; gap:12px;
+  }
+  .region-card .emoji{ font-size:26px; flex:none; }
+  .region-card .body{ flex:1; min-width:0; }
+  .region-card .name{ font-weight:900; font-size:16px; }
+  .region-card .name .round-tag{ font-size:11px; font-weight:700; color:var(--ink-soft); margin-left:4px; white-space:nowrap; }
+  .region-card .meta{ font-size:12px; color:var(--ink-soft); margin-top:2px; display:flex; gap:8px; flex-wrap:wrap; }
+  .region-card .meta .weak-flag{ color:var(--accent-deep); font-weight:700; }
+  .region-card .chevron{ flex:none; color:var(--ink-soft); font-size:18px; }
+  .region-card:disabled{ opacity:.45; cursor:not-allowed; }
+  .region-card.mix{ border-style:dashed; border-color:var(--green); }
+  .region-card .meta .mix-badge{ color:var(--green-deep); font-weight:700; }
+  .region-card .meta .prep-flag{ font-weight:700; }
+  .view-toggle{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+  .view-btn{
+    appearance:none; border:2px solid var(--line); background:var(--paper); color:var(--ink);
+    border-radius:12px; padding:9px 8px; font-family:inherit; font-size:14px; font-weight:700; cursor:pointer;
+  }
+  .view-btn[aria-pressed="true"]{ background:var(--green); border-color:var(--green); color:#fff; }
+</style>
+
+<div class="app">
+
+  <!-- ===================== REGION SELECT ===================== -->
+  <section id="screen-regions">
+    <div class="topbar">
+      <div>
+        <div class="kicker">社会科ちりクイズ</div>
+        <div class="title">日本地方たんけんクイズ</div>
+      </div>
+      <a class="link-btn" target="_top" href="index.html">🏠 玄関へ</a>
+    </div>
+
+    <div class="card">
+      <div class="section-label">きろく（全地方合算）</div>
+      <div class="stat-row">
+        <div class="stat"><div class="n" id="statToday">0/0</div><div class="l">今日</div></div>
+        <div class="stat"><div class="n" id="statWeek">0/0</div><div class="l">今週</div></div>
+      </div>
+      <div class="week-chart" id="weekChart"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-label" id="selectLabel">地方をえらぶ</div>
+      <div class="view-toggle" id="viewToggle" role="group" aria-label="えらびかた">
+        <button type="button" class="view-btn" data-view="region" aria-pressed="true">地方で選ぶ</button>
+        <button type="button" class="view-btn" data-view="round" aria-pressed="false">回で選ぶ</button>
+      </div>
+      <div class="region-grid" id="regionGrid"></div>
+      <div class="region-grid" id="roundGrid" hidden></div>
+    </div>
+    <p class="foot-note">成績はこの端末のブラウザだけに保存されます</p>
+  </section>
+
+  <!-- ===================== HOME ===================== -->
+  <section id="screen-home" hidden>
+    <div class="topbar">
+      <div>
+        <button class="back-link" id="backToRegionsBtn">← 地方をえらびなおす</button>
+        <div class="title" id="regionTitle">中部地方たんけんクイズ</div>
+      </div>
+      <a class="link-btn" target="_top" href="index.html">🏠 玄関へ</a>
+    </div>
+
+    <div class="card">
+      <p class="home-lead" id="regionLead">地図から出題します。全<b id="totalCount">0</b>問。1回は10問です。</p>
+      <div class="stat-row">
+        <div class="stat"><div class="n" id="statPlayed">0</div><div class="l">といた数</div></div>
+        <div class="stat"><div class="n" id="statAcc">–</div><div class="l">せいかい率</div></div>
+        <div class="stat"><div class="n" id="statWeak">0</div><div class="l">にがて</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">こたえかた</div>
+      <div class="mode-grid" id="modeGrid">
+        <button class="mode-btn" data-mode="choice" aria-pressed="true">
+          <span class="emoji">🔘</span>
+          <span class="name">4たくもん</span>
+          <span class="desc">4つの中から選ぶ。手軽にサクサク。</span>
+        </button>
+        <button class="mode-btn" data-mode="write" aria-pressed="false">
+          <span class="emoji">✍️</span>
+          <span class="name">きじゅつ</span>
+          <span class="desc">自分で書いて、自己さいてん。</span>
+        </button>
+      </div>
+
+      <div class="section-label" style="margin-top:14px;">出題はんい</div>
+      <div class="chip-wrap" id="catChips"></div>
+    </div>
+
+    <button class="weak-btn" id="weakBtn">
+      <span>
+        <strong>🔥 にがて特訓モード</strong>
+        <span class="sub">この地方から、にがてな問題ほど出やすい10問</span>
+      </span>
+      <span class="badge" id="weakBadge">0問</span>
+    </button>
+
+    <button class="start-btn" id="startBtn">10問はじめる</button>
+    <p class="foot-note">成績はこの端末のブラウザだけに保存されます</p>
+  </section>
+
+  <!-- ===================== QUIZ ===================== -->
+  <section id="screen-quiz" hidden>
+    <div class="progress-row">
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-num" id="progressNum">1/10</div>
+    </div>
+
+    <div class="card quiz-card">
+      <span class="cat-tag" id="qCatTag">山・山脈</span>
+      <div class="question-text" id="qText">問題文がここに入ります</div>
+
+      <!-- choice mode -->
+      <div class="choice-grid" id="choiceGrid"></div>
+
+      <!-- write mode -->
+      <div class="write-box" id="writeBox" hidden>
+        <textarea id="writeInput" placeholder="ここに答えを書いてみよう（手書きOK）" rows="2"></textarea>
+      </div>
+      <button class="reveal-btn" id="revealBtn" hidden>こたえを見る</button>
+
+      <div class="answer-panel" id="answerPanel" hidden>
+        <div class="verdict" id="verdictText"></div>
+        <div class="ans" id="ansText"></div>
+        <div class="kana" id="ansKana"></div>
+      </div>
+
+      <div class="self-grade-row" id="selfGradeRow" hidden>
+        <button class="grade-btn ok-btn" id="gradeOkBtn">⭕ あってた</button>
+        <button class="grade-btn ng-btn" id="gradeNgBtn">❌ まちがえた</button>
+      </div>
+
+      <button class="next-btn" id="nextBtn" hidden>つぎへ →</button>
+    </div>
+
+    <button class="quit-link" id="quitBtn">やめてホームにもどる</button>
+  </section>
+
+  <!-- ===================== RESULT ===================== -->
+  <section id="screen-result" hidden>
+    <div class="card score-hero">
+      <div class="section-label">けっか</div>
+      <div class="score-big"><span id="resultScore">0</span><span>/10問 正解</span></div>
+      <div class="score-msg" id="resultMsg"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">今回のふりかえり</div>
+      <div class="review-list" id="reviewList"></div>
+    </div>
+
+    <div class="result-actions">
+      <button class="start-btn" id="retryBtn">もう10問やる</button>
+      <button class="secondary-btn" id="homeBtn">ホームにもどる</button>
+    </div>
+  </section>
+
+</div>
+
+<script>window.KQ_STATIC=true;window.KQ_PAGE="shakai";window.KQ_REPORT_URL="https://script.google.com/macros/s/AKfycby687LvFEfQsD0mvNnzUHikwb67ZGJ7fzP9yeC81q5SbpD043nhpPnTEmRS_3NTuwZw0w/exec";</script>
+<script src="common.js"></script>
+<script src="shakai-rounds.js"></script>
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   DATA — 出典:「自然のいとなみがうみだす地形」シリーズ各地方編の地図
+   カテゴリ記号 A〜H はすべての地方で共通の意味
+============================================================ */
+var CATS = {
+  A: "山・山脈",
+  B: "平野・盆地・台地",
+  C: "川・湖",
+  D: "半島・湾・島",
+  E: "県庁所在地",
+  F: "特産・名所",
+  G: "どこの県？",
+  H: "新幹線",
+  // --- 第9回「山と川がうみだす地形」専用の小分類 ---
+  I: "川のとくちょう",
+  J: "川と平野・川の利用",
+  K: "山地・山脈",
+  L: "火山",
+  M: "火山のめぐみ・被害",
+  N: "地震・津波",
+  // --- 第14回「肉や牛乳をつくる」 ---
+  O: "畜産・家畜",
+  P: "畜産農家の仕事",
+  Q: "畜産の問題と工夫",
+  R: "農業のうつりかわり",
+  // --- 第8回「日本の気候と各地のくらし」 ---
+  S: "季節風・海流・台風",
+  T: "日本の気候区分",
+  U: "自然災害",
+  // --- 第11回「米づくり」 ---
+  V: "稲作のさかんなところ",
+  W: "米づくりの流れ",
+  X: "米の加工・消費・生産",
+  // --- 第12回「畑でつくられるもの」 ---
+  Y: "穀物",
+  Z: "いも類",
+  AA: "工芸作物",
+  // --- 第13回「野菜とくだものづくり」 ---
+  AB: "野菜づくりの方法",
+  AC: "産地のリレー・野菜の今",
+  AD: "くだものづくり",
+  AE: "野菜の産地"
+};
+
+var QUESTIONS_CHUBU = [
+  // --- A. 山地・山脈・山 ---
+  {id:"A01", cat:"A", q:"「北アルプス」とよばれる山脈は？", a:"飛騨山脈", kana:"ひださんみゃく"},
+  {id:"A02", cat:"A", q:"「中央アルプス」とよばれる山脈は？", a:"木曽山脈", kana:"きそさんみゃく"},
+  {id:"A03", cat:"A", q:"「南アルプス」とよばれる山脈は？", a:"赤石山脈", kana:"あかいしさんみゃく"},
+  {id:"A04", cat:"A", q:"飛騨山脈の別名は？", a:"北アルプス", kana:"きたアルプス", choices:["北アルプス","中央アルプス","南アルプス","東アルプス"]},
+  {id:"A05", cat:"A", q:"木曽山脈の別名は？", a:"中央アルプス", kana:"ちゅうおうアルプス", choices:["北アルプス","中央アルプス","南アルプス","東アルプス"]},
+  {id:"A06", cat:"A", q:"赤石山脈の別名は？", a:"南アルプス", kana:"みなみアルプス", choices:["北アルプス","中央アルプス","南アルプス","東アルプス"]},
+  {id:"A07", cat:"A", q:"日本アルプスのうち、いちばん北にある山脈は？", a:"飛騨山脈", kana:"ひださんみゃく"},
+  {id:"A08", cat:"A", q:"日本アルプスのうち、いちばん南にある山脈は？", a:"赤石山脈", kana:"あかいしさんみゃく"},
+  {id:"A09", cat:"A", q:"新潟県の東側に連なる山脈は？", a:"越後山脈", kana:"えちござんみゃく"},
+  {id:"A10", cat:"A", q:"日本で最も標高が高い山は？", a:"富士山", kana:"ふじさん", choices:["富士山","八ヶ岳","浅間山","御嶽山"]},
+  {id:"A11", cat:"A", q:"富士山の標高（高さ）は何mか？", a:"3776m", kana:"さんぜんななひゃくななじゅうろくメートル", choices:["3000m","3376m","3776m","4172m"]},
+  {id:"A12", cat:"A", q:"世界文化遺産に登録されている山は？", a:"富士山", kana:"ふじさん", choices:["富士山","八ヶ岳","浅間山","御嶽山"]},
+  {id:"A13", cat:"A", q:"諏訪湖の近くにある山は？", a:"八ヶ岳", kana:"やつがたけ", choices:["富士山","八ヶ岳","浅間山","御嶽山"]},
+  {id:"A14", cat:"A", q:"地図に描かれている、長野県にある火山は？", a:"浅間山", kana:"あさまやま", choices:["富士山","八ヶ岳","浅間山","御嶽山"]},
+
+  // --- B. 平野・盆地・台地 ---
+  {id:"B01", cat:"B", q:"おもにコシヒカリを栽培している、新潟県の平野は？", a:"越後平野", kana:"えちごへいや", choices:["越後平野","濃尾平野","岡崎平野","庄内平野"]},
+  {id:"B02", cat:"B", q:"「木曽三川」が流れる、愛知・岐阜・三重にまたがる平野は？", a:"濃尾平野", kana:"のうびへいや", choices:["越後平野","濃尾平野","岡崎平野","庄内平野"]},
+  {id:"B03", cat:"B", q:"矢作川が流れこむ、愛知県の平野は？", a:"岡崎平野", kana:"おかざきへいや", choices:["越後平野","濃尾平野","岡崎平野","庄内平野"]},
+  {id:"B04", cat:"B", q:"ぶどうやワインで有名な、山梨県の盆地は？", a:"甲府盆地", kana:"こうふぼんち", choices:["甲府盆地","長野盆地","松本盆地","伊那盆地"]},
+  {id:"B05", cat:"B", q:"りんごの栽培でも有名な、長野市がある盆地は？", a:"長野盆地", kana:"ながのぼんち", choices:["甲府盆地","長野盆地","松本盆地","伊那盆地"]},
+  {id:"B06", cat:"B", q:"茶の栽培がさかんな、静岡県の台地は？", a:"牧ノ原", kana:"まきのはら", choices:["牧ノ原","三方原","磐田原","知多台地"]},
+  {id:"B07", cat:"B", q:"「木曽三川」の木曽川・長良川と、もう一つの川は？", a:"揖斐川", kana:"いびがわ"},
+
+  // --- C. 川・湖 ---
+  {id:"C01", cat:"C", q:"日本で最も長い川は？", a:"信濃川", kana:"しなのがわ"},
+  {id:"C02", cat:"C", q:"諏訪湖を水源として、静岡県に注ぐ川は？", a:"天竜川", kana:"てんりゅうがわ"},
+  {id:"C03", cat:"C", q:"天竜川の水源になっている、長野県の湖は？", a:"諏訪湖", kana:"すわこ", choices:["諏訪湖","浜名湖","河口湖","中禅寺湖"]},
+  {id:"C04", cat:"C", q:"「三大急流」の一つといわれる、静岡県を流れる川は？", a:"富士川", kana:"ふじかわ"},
+  {id:"C05", cat:"C", q:"鵜飼とよばれる昔ながらの漁法で有名な川は？", a:"長良川", kana:"ながらがわ"},
+  {id:"C06", cat:"C", q:"長良川で行われている、昔ながらの漁法は？", a:"鵜飼", kana:"うかい", choices:["鵜飼","地引き網","定置網","追い込み漁"]},
+  {id:"C07", cat:"C", q:"木曽川・長良川・揖斐川をまとめて何とよぶ？", a:"木曽三川", kana:"きそさんせん", choices:["木曽三川","四国三川","越後三川","関東三川"]},
+  {id:"C08", cat:"C", q:"「木曽三川」の一つで、木曽山脈と同じ名前がつく川は？", a:"木曽川", kana:"きそがわ"},
+  {id:"C09", cat:"C", q:"豊田市の近くを流れる、愛知県の川は？", a:"矢作川", kana:"やはぎがわ"},
+  {id:"C10", cat:"C", q:"静岡県を流れる川で、名前に「大」の字がつくのは？", a:"大井川", kana:"おおいがわ"},
+  {id:"C11", cat:"C", q:"うなぎの養殖がさかんな、静岡県の湖は？", a:"浜名湖", kana:"はまなこ", choices:["諏訪湖","浜名湖","河口湖","中禅寺湖"]},
+  {id:"C12", cat:"C", q:"浜名湖に面する、静岡県西部の大きな市は？", a:"浜松市", kana:"はままつし"},
+
+  // --- D. 半島・湾・島 ---
+  {id:"D01", cat:"D", q:"石川県にある半島は？", a:"能登半島", kana:"のとはんとう"},
+  {id:"D02", cat:"D", q:"キャベツ・メロン・きくの栽培で有名な、愛知県の半島は？", a:"渥美半島", kana:"あつみはんとう"},
+  {id:"D03", cat:"D", q:"渥美半島とならぶ、愛知県のもう一つの半島は？", a:"知多半島", kana:"ちたはんとう"},
+  {id:"D04", cat:"D", q:"静岡県にある半島は？", a:"伊豆半島", kana:"いずはんとう"},
+  {id:"D05", cat:"D", q:"静岡県の沖に広がる湾は？", a:"駿河湾", kana:"するがわん", choices:["駿河湾","若狭湾","富山湾","伊勢湾"]},
+  {id:"D06", cat:"D", q:"福井県にある湾は？", a:"若狭湾", kana:"わかさわん", choices:["駿河湾","若狭湾","富山湾","伊勢湾"]},
+  {id:"D07", cat:"D", q:"若狭湾に面した、福井県の港町は？", a:"敦賀", kana:"つるが", choices:["敦賀","小浜","三国","越前"]},
+  {id:"D08", cat:"D", q:"新潟県にある島は？", a:"佐渡島", kana:"さどがしま", choices:["佐渡島","淡路島","隠岐島","壱岐島"]},
+  {id:"D09", cat:"D", q:"佐渡島で保護されている鳥は？", a:"トキ", kana:"とき", choices:["トキ","コウノトリ","タンチョウ","ライチョウ"]},
+  {id:"D10", cat:"D", q:"世界文化遺産に登録されている、佐渡島の遺産は？", a:"佐渡島の金山", kana:"さどがしまのきんざん", g:"heritage", p:"新潟県"},
+
+  // --- E. 県庁所在地 ---
+  {id:"E01", cat:"E", q:"新潟県の県庁所在地は？", a:"新潟市", kana:"にいがたし"},
+  {id:"E02", cat:"E", q:"富山県の県庁所在地は？", a:"富山市", kana:"とやまし"},
+  {id:"E03", cat:"E", q:"石川県の県庁所在地は？", a:"金沢市", kana:"かなざわし"},
+  {id:"E04", cat:"E", q:"福井県の県庁所在地は？", a:"福井市", kana:"ふくいし"},
+  {id:"E05", cat:"E", q:"山梨県の県庁所在地は？", a:"甲府市", kana:"こうふし"},
+  {id:"E06", cat:"E", q:"長野県の県庁所在地は？", a:"長野市", kana:"ながのし"},
+  {id:"E07", cat:"E", q:"岐阜県の県庁所在地は？", a:"岐阜市", kana:"ぎふし"},
+  {id:"E08", cat:"E", q:"静岡県の県庁所在地は？", a:"静岡市", kana:"しずおかし"},
+  {id:"E09", cat:"E", q:"愛知県の県庁所在地は？", a:"名古屋市", kana:"なごやし"},
+
+  // --- F. 特産・産業・名所 ---
+  {id:"F01", cat:"F", q:"新潟県で、米をつかって作られるお酒は？", a:"日本酒", kana:"にほんしゅ", choices:["日本酒", "ワイン", "ビール", "ウイスキー"]},
+  {id:"F02", cat:"F", q:"新潟県で、米をつかって作られるお菓子は？", a:"せんべい", kana:"せんべい", g:"food2", p:"新潟県", ng:["ずんだ餅"]},
+  {id:"F03", cat:"F", q:"富山県で栽培がさかんな花は？", a:"チューリップ", kana:"ちゅーりっぷ", g:"flower", p:"富山県"},
+  {id:"F04", cat:"F", q:"日本三名園の一つで、金沢市にある庭園は？", a:"兼六園", kana:"けんろくえん", g:"garden", p:"石川県"},
+  {id:"F05", cat:"F", q:"石川県の能登半島でつくられる、伝統的な工芸品は？", a:"輪島塗", kana:"わじまぬり", g:"craft", p:"石川県"},
+  {id:"F06", cat:"F", q:"福井県の名産で、冬にとれる海の特産品は？", a:"越前がに", kana:"えちぜんがに", g:"sea", p:"福井県", ng:["ふぐ"]},
+  {id:"F07", cat:"F", q:"山梨県の甲府盆地でさかんに栽培される果物は？", a:"ぶどう", kana:"ぶどう", g:"fruit", p:"山梨県", ng:["もも", "さくらんぼ", "かき"]},
+  {id:"F08", cat:"F", q:"ぶどうを原料にした、山梨県の特産のお酒は？", a:"ワイン", kana:"わいん", choices:["ワイン", "日本酒", "ビール", "焼ちゅう"]},
+  {id:"F09", cat:"F", q:"長野県の高原で栽培がさかんな、サラダに使われる野菜は？", a:"レタス", kana:"れたす", g:"veg", p:"長野県", ng:["キャベツ"]},
+  {id:"F10", cat:"F", q:"牧ノ原で栽培がさかんな作物は？", a:"茶", kana:"ちゃ", g:"crop", p:"静岡県"},
+  {id:"F11", cat:"F", q:"浜名湖でさかんな養殖は？", a:"うなぎ", kana:"うなぎ", g:"fish", p:"静岡県", ng:["ふぐ"]},
+  {id:"F12", cat:"F", q:"渥美半島で栽培がさかんな、キャベツ・メロンと、もう一つの花は？", a:"きく", kana:"きく", g:"flower", p:"愛知県"},
+  {id:"F13", cat:"F", q:"愛知県にある、中部地方の空の玄関になっている空港は？", a:"中部国際空港", kana:"ちゅうぶこくさいくうこう", g:"airport", p:"愛知県"},
+  {id:"F14", cat:"F", q:"木曽山脈のふもとで有名な木材は？", a:"木曽ひのき", kana:"きそひのき", g:"wood", p:"長野県"},
+  {id:"F15", cat:"F", q:"静岡県の天竜川流域で有名な木材は？", a:"天竜すぎ", kana:"てんりゅうすぎ", g:"wood", p:"静岡県"},
+  {id:"F16", cat:"F", q:"地図に「そば」「わさび」がえがかれている県は？", a:"長野県", kana:"ながのけん", choices:["長野県","岐阜県","山梨県","新潟県"]},
+  {id:"F17", cat:"F", q:"合掌造りの家で有名な、岐阜県にある地名は？", a:"白川郷", kana:"しらかわごう", choices:["白川郷","五箇山","妻籠宿","高山"]},
+  {id:"F18", cat:"F", q:"合掌造りの家で有名な、富山県にある地名は？", a:"五箇山", kana:"ごかやま", choices:["五箇山","白川郷","黒部","立山"]},
+  {id:"F19", cat:"F", q:"長野盆地で栽培がさかんな果物は？", a:"りんご", kana:"りんご", g:"fruit", p:"長野県", ng:["ぶどう", "もも", "日本なし", "くり", "かき"]},
+  {id:"F20", cat:"F", q:"自動車工業で有名な、愛知県の市は？", a:"豊田市", kana:"とよたし", choices:["豊田市","岡崎市","浜松市","富山市"]},
+
+  // --- G. どこの県？（地図の位置から） ---
+  {id:"G01", cat:"G", q:"佐渡島がある県は？", a:"新潟県", kana:"にいがたけん"},
+  {id:"G02", cat:"G", q:"越後平野がある県は？", a:"新潟県", kana:"にいがたけん"},
+  {id:"G03", cat:"G", q:"能登半島がある県は？", a:"石川県", kana:"いしかわけん"},
+  {id:"G04", cat:"G", q:"兼六園がある県は？", a:"石川県", kana:"いしかわけん"},
+  {id:"G05", cat:"G", q:"輪島塗で有名な県は？", a:"石川県", kana:"いしかわけん"},
+  {id:"G06", cat:"G", q:"越前がにで有名な県は？", a:"福井県", kana:"ふくいけん"},
+  {id:"G07", cat:"G", q:"若狭湾がある県は？", a:"福井県", kana:"ふくいけん"},
+  {id:"G08", cat:"G", q:"甲府盆地がある県は？", a:"山梨県", kana:"やまなしけん"},
+  {id:"G09", cat:"G", q:"長野盆地がある県は？", a:"長野県", kana:"ながのけん"},
+  {id:"G10", cat:"G", q:"諏訪湖がある県は？", a:"長野県", kana:"ながのけん"},
+  {id:"G11", cat:"G", q:"牧ノ原がある県は？", a:"静岡県", kana:"しずおかけん"},
+  {id:"G12", cat:"G", q:"浜名湖がある県は？", a:"静岡県", kana:"しずおかけん"},
+  {id:"G13", cat:"G", q:"伊豆半島がある県は？", a:"静岡県", kana:"しずおかけん"},
+  {id:"G14", cat:"G", q:"駿河湾に面している県は？", a:"静岡県", kana:"しずおかけん"},
+  {id:"G15", cat:"G", q:"渥美半島がある県は？", a:"愛知県", kana:"あいちけん"},
+  {id:"G16", cat:"G", q:"知多半島がある県は？", a:"愛知県", kana:"あいちけん"},
+  {id:"G17", cat:"G", q:"岡崎平野がある県は？", a:"愛知県", kana:"あいちけん"},
+  {id:"G18", cat:"G", q:"長良川の鵜飼で有名な岐阜市がある県は？", a:"岐阜県", kana:"ぎふけん"},
+  {id:"G19", cat:"G", q:"豊田市がある県は？", a:"愛知県", kana:"あいちけん"},
+  {id:"G20", cat:"G", q:"白川郷がある県は？", a:"岐阜県", kana:"ぎふけん"},
+  {id:"G21", cat:"G", q:"五箇山がある県は？", a:"富山県", kana:"とやまけん"},
+
+  // --- H. 新幹線 ---
+  {id:"H01", cat:"H", q:"新潟市を通る新幹線は？", a:"上越新幹線", kana:"じょうえつしんかんせん", choices:["上越新幹線","北陸新幹線","東海道新幹線","東北新幹線"]},
+  {id:"H02", cat:"H", q:"長野市・富山市・金沢市を通る新幹線は？", a:"北陸新幹線", kana:"ほくりくしんかんせん", choices:["上越新幹線","北陸新幹線","東海道新幹線","東北新幹線"]},
+  {id:"H03", cat:"H", q:"静岡市・名古屋市を通る新幹線は？", a:"東海道新幹線", kana:"とうかいどうしんかんせん", choices:["上越新幹線","北陸新幹線","東海道新幹線","東北新幹線"]}
+];
+
+// 準備中の地方（後ほど問題を追加）
+var QUESTIONS_KANTO = [
+  /* ---- A. 山地・山脈・山 ---- */
+  {id:"A01", cat:"A", q:"群馬県と長野県の境にあり、北陸新幹線の列車の愛称にもなっている火山は？", a:"浅間山", kana:"あさまやま", choices:["浅間山","富士山","八ヶ岳","御嶽山"]},
+  {id:"A02", cat:"A", q:"浅間山のふもとにあり、キャベツづくりがさかんな村は？", a:"嬬恋村", kana:"つまごいむら", choices:["嬬恋村", "白川郷", "五箇山", "妻籠宿"]},
+  {id:"A03", cat:"A", q:"関東地方と中部地方を分ける、東京都西部に広がる山地は？", a:"奥多摩", kana:"おくたま", choices:["奥多摩","紀伊山地","中国山地","四国山地"]},
+  {id:"A04", cat:"A", q:"群馬県の北部、新潟県との県境に連なる山脈は？", a:"越後山脈", kana:"えちござんみゃく", choices:["越後山脈","飛騨山脈","木曽山脈","赤石山脈"]},
+
+  /* ---- B. 平野・盆地・台地 ---- */
+  {id:"B01", cat:"B", q:"日本で最も面積が広い平野は？", a:"関東平野", kana:"かんとうへいや", choices:["関東平野","越後平野","濃尾平野","讃岐平野"]},
+  {id:"B02", cat:"B", q:"銚子市がある、千葉県北部に広がる台地は？", a:"下総台地", kana:"しもうさだいち", choices:["下総台地","武蔵野","牧ノ原","三方原"]},
+  {id:"B03", cat:"B", q:"東京都と埼玉県にまたがる台地は？", a:"武蔵野", kana:"むさしの", choices:["武蔵野","下総台地","牧ノ原","三方原"]},
+
+  /* ---- C. 川・湖 ---- */
+  {id:"C01", cat:"C", q:"「坂東太郎」とよばれる、日本一流域面積が大きい川は？", a:"利根川", kana:"とねがわ"},
+  {id:"C02", cat:"C", q:"千葉県の西側を流れる川は？", a:"江戸川", kana:"えどがわ"},
+  {id:"C03", cat:"C", q:"さいたま市を流れる、埼玉県の代表的な川は？", a:"荒川", kana:"あらかわ"},
+  {id:"C04", cat:"C", q:"東京都と神奈川県の境を流れる川は？", a:"多摩川", kana:"たまがわ"},
+  {id:"C05", cat:"C", q:"日本で最も標高が高いところにある湖は？", a:"中禅寺湖", kana:"ちゅうぜんじこ", choices:["中禅寺湖","霞ヶ浦","諏訪湖","琵琶湖"]},
+  {id:"C06", cat:"C", q:"中禅寺湖の標高は約何mか？", a:"1269m", kana:"せんにひゃくろくじゅうきゅうメートル", choices:["869m","1269m","1769m","2269m"]},
+  {id:"C07", cat:"C", q:"中禅寺湖がある、栃木県の市は？", a:"日光市", kana:"にっこうし"},
+  {id:"C08", cat:"C", q:"日本で2番目に面積が大きい湖は？", a:"霞ヶ浦", kana:"かすみがうら", choices:["霞ヶ浦","中禅寺湖","諏訪湖","琵琶湖"]},
+
+  /* ---- D. 半島・湾・島 ---- */
+  {id:"D01", cat:"D", q:"千葉県にある半島は？", a:"房総半島", kana:"ぼうそうはんとう", choices:["房総半島","三浦半島","知床半島","能登半島"]},
+  {id:"D02", cat:"D", q:"神奈川県にある半島は？", a:"三浦半島", kana:"みうらはんとう", choices:["三浦半島","房総半島","知床半島","能登半島"]},
+  {id:"D03", cat:"D", q:"房総半島と三浦半島に囲まれ、東京都・千葉県・神奈川県に面する湾は？", a:"東京湾", kana:"とうきょうわん", choices:["東京湾","駿河湾","若狭湾","伊勢湾"]},
+  {id:"D04", cat:"D", q:"東京湾を横断する、橋とトンネルからなる道路は？", a:"東京湾アクアライン", kana:"とうきょうわんあくあらいん", g:"bridge", p:["千葉県", "神奈川県"]},
+  {id:"D05", cat:"D", q:"伊豆大島の別名は？", a:"大島", kana:"おおしま", choices:["大島","母島","佐渡島","種子島"]},
+  {id:"D06", cat:"D", q:"世界自然遺産に登録されている、東京都の諸島は？", a:"小笠原諸島", kana:"おがさわらしょとう", choices:["小笠原諸島","伊豆諸島","南西諸島","奄美群島"]},
+  {id:"D07", cat:"D", q:"小笠原諸島にある島で、父島ともう一つは？", a:"母島", kana:"ははじま", choices:["母島","大島","佐渡島","種子島"]},
+
+  /* ---- E. 県庁所在地 ---- */
+  {id:"E01", cat:"E", q:"茨城県の県庁所在地は？", a:"水戸市", kana:"みとし"},
+  {id:"E02", cat:"E", q:"栃木県の県庁所在地は？", a:"宇都宮市", kana:"うつのみやし"},
+  {id:"E03", cat:"E", q:"群馬県の県庁所在地は？", a:"前橋市", kana:"まえばしし"},
+  {id:"E04", cat:"E", q:"埼玉県の県庁所在地は？", a:"さいたま市", kana:"さいたまし"},
+  {id:"E05", cat:"E", q:"千葉県の県庁所在地は？", a:"千葉市", kana:"ちばし"},
+  {id:"E06", cat:"E", q:"神奈川県の県庁所在地は？", a:"横浜市", kana:"よこはまし"},
+  {id:"E07", cat:"E", q:"東京都の都庁所在地は？", a:"東京", kana:"とうきょう"},
+
+  /* ---- F. 特産・産業・名所 ---- */
+  {id:"F01", cat:"F", q:"日本三名園の一つで、水戸市にある庭園は？", a:"偕楽園", kana:"かいらくえん", g:"garden", p:"茨城県"},
+  {id:"F02", cat:"F", q:"世界文化遺産に登録されている、日光市の神社・寺院群は？", a:"日光の社寺", kana:"にっこうのしゃじ", g:"heritage", p:"栃木県"},
+  {id:"F03", cat:"F", q:"日光の社寺の中心で、徳川家康をまつる神社は？", a:"日光東照宮", kana:"にっこうとうしょうぐう", g:"shrine", p:"栃木県"},
+  {id:"F04", cat:"F", q:"しょう油の生産で有名な、千葉県の市は？", a:"銚子市", kana:"ちょうしし"},
+  {id:"F05", cat:"F", q:"銚子市の沖でとれる、地図にえがかれている魚は？", a:"いわし", kana:"いわし", g:"fish", p:"千葉県", ng:["かつお", "関サバ"]},
+  {id:"F06", cat:"F", q:"銚子市の南に広がる、日本有数の海岸は？", a:"九十九里浜", kana:"くじゅうくりはま", g:"scenic", p:"千葉県"},
+  {id:"F07", cat:"F", q:"殻をむいて食べる、千葉県の特産の作物は？", a:"らっかせい", kana:"らっかせい", g:"crop", p:"千葉県"},
+  {id:"F08", cat:"F", q:"千葉県にある、日本の空の玄関口の一つの空港は？", a:"成田国際空港", kana:"なりたこくさいくうこう", g:"airport", p:"千葉県"},
+  {id:"F09", cat:"F", q:"渋皮煮などで食べる、茨城県の特産品は？", a:"くり", kana:"くり", g:"fruit", p:"茨城県", ng:["日本なし", "すいか"]},
+  {id:"F10", cat:"F", q:"霞ヶ浦の周辺でさかんに栽培される、穴のあいた茨城県の特産の野菜は？", a:"れんこん", kana:"れんこん", g:"veg", p:"茨城県", ng:["ねぎ", "ピーマン", "キャベツ"]},
+  {id:"F11", cat:"F", q:"いちご狩りでも有名な、栃木県の特産の果物は？", a:"いちご", kana:"いちご", g:"fruit", p:"栃木県", ng:["日本なし"]},
+  {id:"F12", cat:"F", q:"夕顔の実を干してつくる、栃木県の特産品は？", a:"かんぴょう", kana:"かんぴょう", g:"food2", p:"栃木県"},
+  {id:"F13", cat:"F", q:"群馬県の特産品で、おでんなどに使われる食品の原料になる野菜は？", a:"こんにゃくいも", kana:"こんにゃくいも", g:"veg", p:"群馬県", ng:["レタス", "ねぎ", "桜島だいこん", "じゃがいも"]},
+  {id:"F14", cat:"F", q:"嬬恋村でさかんに栽培される、群馬県の高原野菜は？", a:"キャベツ", kana:"きゃべつ", g:"veg", p:"群馬県", ng:["レタス", "ねぎ"]},
+  {id:"F15", cat:"F", q:"世界文化遺産に登録されている、群馬県の製糸工場は？", a:"富岡製糸場", kana:"とみおかせいしじょう", g:"heritage", p:"群馬県"},
+  {id:"F16", cat:"F", q:"さいたま市の周辺でさかんに栽培される、埼玉県の特産の野菜は？", a:"ねぎ", kana:"ねぎ", g:"veg", p:"埼玉県", ng:["キャベツ"]},
+  {id:"F17", cat:"F", q:"魚のすり身からつくる、神奈川県三浦半島の特産品は？", a:"かまぼこ", kana:"かまぼこ", g:"food2", p:"神奈川県"},
+  {id:"F18", cat:"F", q:"千葉県で生産がさかんな、大豆からつくる特産品は？", a:"しょう油", kana:"しょうゆ", g:"food2", p:"千葉県"},
+  {id:"F19", cat:"F", q:"房総半島などで見られる、早春に咲く黄色い花は？", a:"菜の花", kana:"なのはな", g:"flower", p:"千葉県"},
+
+  /* ---- G. 位置（どこの県？） ---- */
+  {id:"G01", cat:"G", q:"中禅寺湖がある県は？", a:"栃木県", kana:"とちぎけん"},
+  {id:"G02", cat:"G", q:"日光東照宮があるのは何県？", a:"栃木県", kana:"とちぎけん"},
+  {id:"G03", cat:"G", q:"いちごの生産で有名な県は？", a:"栃木県", kana:"とちぎけん"},
+  {id:"G04", cat:"G", q:"かんぴょうの生産で有名な県は？", a:"栃木県", kana:"とちぎけん"},
+  {id:"G05", cat:"G", q:"偕楽園がある県は？", a:"茨城県", kana:"いばらきけん"},
+  {id:"G06", cat:"G", q:"霞ヶ浦がある県は？", a:"茨城県", kana:"いばらきけん"},
+  {id:"G07", cat:"G", q:"くりの生産で有名な県は？", a:"茨城県", kana:"いばらきけん"},
+  {id:"G08", cat:"G", q:"れんこんの生産で有名な県は？", a:"茨城県", kana:"いばらきけん"},
+  {id:"G09", cat:"G", q:"浅間山があるのは群馬県とどこの県の境？", a:"長野県", kana:"ながのけん"},
+  {id:"G10", cat:"G", q:"富岡製糸場がある県は？", a:"群馬県", kana:"ぐんまけん"},
+  {id:"G11", cat:"G", q:"こんにゃくいもの生産で有名な県は？", a:"群馬県", kana:"ぐんまけん"},
+  {id:"G12", cat:"G", q:"キャベツの産地、嬬恋村があるのは何県？", a:"群馬県", kana:"ぐんまけん"},
+  {id:"G13", cat:"G", q:"房総半島がある県は？", a:"千葉県", kana:"ちばけん"},
+  {id:"G14", cat:"G", q:"銚子市がある県は？", a:"千葉県", kana:"ちばけん"},
+  {id:"G15", cat:"G", q:"成田国際空港がある県は？", a:"千葉県", kana:"ちばけん"},
+  {id:"G16", cat:"G", q:"らっかせいの生産で有名な県は？", a:"千葉県", kana:"ちばけん"},
+  {id:"G17", cat:"G", q:"下総台地がある県は？", a:"千葉県", kana:"ちばけん"},
+  {id:"G18", cat:"G", q:"九十九里浜がある県は？", a:"千葉県", kana:"ちばけん"},
+  {id:"G19", cat:"G", q:"三浦半島がある県は？", a:"神奈川県", kana:"かながわけん"},
+  {id:"G20", cat:"G", q:"かまぼこで有名な県は？", a:"神奈川県", kana:"かながわけん"},
+  {id:"G21", cat:"G", q:"小笠原諸島があるのは何都道府県？", a:"東京都", kana:"とうきょうと"},
+  {id:"G22", cat:"G", q:"伊豆大島があるのは何都道府県？", a:"東京都", kana:"とうきょうと"},
+  {id:"G23", cat:"G", q:"武蔵野台地が広がる、東京都ととなり合う県は？", a:"埼玉県", kana:"さいたまけん"},
+  {id:"G24", cat:"G", q:"ねぎの生産で有名な県は？", a:"埼玉県", kana:"さいたまけん"},
+
+  /* ---- H. 新幹線 ---- */
+  {id:"H01", cat:"H", q:"宇都宮市や日光市の近くを通り、東北地方へ向かう新幹線は？", a:"東北新幹線", kana:"とうほくしんかんせん"},
+  {id:"H02", cat:"H", q:"前橋市（高崎）を通り、新潟県へ向かう新幹線は？", a:"上越新幹線", kana:"じょうえつしんかんせん"},
+  {id:"H03", cat:"H", q:"群馬県の高崎から北陸地方へ向かう新幹線は？", a:"北陸新幹線", kana:"ほくりくしんかんせん"},
+  {id:"H04", cat:"H", q:"東京・横浜を通り、関西方面へ向かう新幹線は？", a:"東海道新幹線", kana:"とうかいどうしんかんせん"}
+];
+var QUESTIONS_HOKKAIDO_TOHOKU = [
+  /* ---- A. 山地・山脈・山 ---- */
+  {id:"A01", cat:"A", q:"北海道の中央部にあり、旭川市の近くにそびえる山は？", a:"大雪山", kana:"たいせつざん", choices:["大雪山","磐梯山","富士山","浅間山"]},
+  {id:"A02", cat:"A", q:"北海道南部、十勝地方の西に連なる山脈は？", a:"日高山脈", kana:"ひだかさんみゃく", choices:["日高山脈","奥羽山脈","越後山脈","飛騨山脈"]},
+  {id:"A03", cat:"A", q:"東北地方の中央を南北に走り、「日本の背骨」ともよばれる山脈は？", a:"奥羽山脈", kana:"おううさんみゃく", choices:["日高山脈","奥羽山脈","越後山脈","飛騨山脈"]},
+  {id:"A04", cat:"A", q:"福島県にある火山は？", a:"磐梯山", kana:"ばんだいさん", choices:["大雪山","磐梯山","富士山","浅間山"]},
+  {id:"A05", cat:"A", q:"世界自然遺産に登録されている、青森県と秋田県にまたがる山地は？", a:"白神山地", kana:"しらかみさんち", choices:["白神山地","紀伊山地","中国山地","四国山地"]},
+
+  /* ---- B. 平野・盆地・台地 ---- */
+  {id:"B01", cat:"B", q:"中心都市の旭川市で−41.0℃を記録したことがある、北海道の盆地は？", a:"上川盆地", kana:"かみかわぼんち", choices:["上川盆地","山形盆地","甲府盆地","長野盆地"]},
+  {id:"B02", cat:"B", q:"札幌市がある、北海道の平野は？", a:"石狩平野", kana:"いしかりへいや"},
+  {id:"B03", cat:"B", q:"じゃがいもやてんさいの畑作がさかんな、北海道東部の平野は？", a:"十勝平野", kana:"とかちへいや"},
+  {id:"B04", cat:"B", q:"酪農がさかんな、北海道東部の台地は？", a:"根釧台地", kana:"こんせんだいち", choices:["根釧台地","牧ノ原","武蔵野","下総台地"]},
+  {id:"B05", cat:"B", q:"りんごの産地として有名な、青森県の平野は？", a:"津軽平野", kana:"つがるへいや"},
+  {id:"B06", cat:"B", q:"さくらんぼの栽培で有名な、山形県の盆地は？", a:"山形盆地", kana:"やまがたぼんち", choices:["上川盆地","山形盆地","甲府盆地","長野盆地"]},
+  {id:"B07", cat:"B", q:"「つや姫」などの米づくりがさかんな、山形県の平野は？", a:"庄内平野", kana:"しょうないへいや"},
+  {id:"B08", cat:"B", q:"仙台市がある、宮城県の平野は？", a:"仙台平野", kana:"せんだいへいや"},
+
+  /* ---- C. 川・湖 ---- */
+  {id:"C01", cat:"C", q:"日本で3番目に長い川は？", a:"石狩川", kana:"いしかりがわ"},
+  {id:"C02", cat:"C", q:"輪作による畑作がさかんな、十勝平野を流れる川は？", a:"十勝川", kana:"とかちがわ"},
+  {id:"C03", cat:"C", q:"日本で最も深い湖は？", a:"田沢湖", kana:"たざわこ"},
+  {id:"C04", cat:"C", q:"東北地方で最も長い川は？", a:"北上川", kana:"きたかみがわ"},
+  {id:"C05", cat:"C", q:"東北地方で最も面積が大きい湖は？", a:"猪苗代湖", kana:"いなわしろこ"},
+  {id:"C06", cat:"C", q:"「三大急流」の一つに数えられる、山形県を流れる川は？", a:"最上川", kana:"もがみがわ"},
+  {id:"C07", cat:"C", q:"福島県を流れる川は？", a:"阿武隈川", kana:"あぶくまがわ"},
+  {id:"C08", cat:"C", q:"ほたて貝の養殖でも知られる、世界自然遺産・知床の近くにある湖は？", a:"サロマ湖", kana:"さろまこ"},
+  {id:"C09", cat:"C", q:"青森県にある湖は？", a:"十和田湖", kana:"とわだこ"},
+
+  /* ---- D. 半島・湾・島（海岸） ---- */
+  {id:"D01", cat:"D", q:"ほたて貝の養殖がさかんな、青森県の湾は？", a:"陸奥湾", kana:"むつわん", choices:["陸奥湾","東京湾","駿河湾","伊勢湾"]},
+  {id:"D02", cat:"D", q:"北海道と本州の間にある海峡は？", a:"津軽海峡", kana:"つがるかいきょう", choices:["津軽海峡","関門海峡","明石海峡","宗谷海峡"]},
+  {id:"D03", cat:"D", q:"津軽海峡の海底を通るトンネルは？", a:"青函トンネル", kana:"せいかんとんねる", g:"bridge", p:["青森県", "北海道"]},
+  {id:"D04", cat:"D", q:"ぎざぎざとした地形が特ちょうの、岩手県などの海岸は？", a:"リアス海岸", kana:"りあすかいがん", g:"scenic", p:"岩手県"},
+  {id:"D05", cat:"D", q:"世界自然遺産に登録されている、北海道東部の地域は？", a:"知床", kana:"しれとこ", g:"scenic", p:"北海道"},
+
+  /* ---- E. 県庁所在地 ---- */
+  {id:"E01", cat:"E", q:"北海道の道庁所在地は？", a:"札幌市", kana:"さっぽろし"},
+  {id:"E02", cat:"E", q:"青森県の県庁所在地は？", a:"青森市", kana:"あおもりし"},
+  {id:"E03", cat:"E", q:"岩手県の県庁所在地は？", a:"盛岡市", kana:"もりおかし"},
+  {id:"E04", cat:"E", q:"秋田県の県庁所在地は？", a:"秋田市", kana:"あきたし"},
+  {id:"E05", cat:"E", q:"宮城県の県庁所在地は？", a:"仙台市", kana:"せんだいし"},
+  {id:"E06", cat:"E", q:"山形県の県庁所在地は？", a:"山形市", kana:"やまがたし"},
+  {id:"E07", cat:"E", q:"福島県の県庁所在地は？", a:"福島市", kana:"ふくしまし"},
+
+  /* ---- F. 特産・産業・名所 ---- */
+  {id:"F01", cat:"F", q:"札幌市の名産としても知られる飲み物は？", a:"ビール", kana:"びーる", choices:["ビール", "日本酒", "ワイン", "焼ちゅう"]},
+  {id:"F02", cat:"F", q:"北海道の石狩平野などでさかんに作られる作物は？", a:"米", kana:"こめ", g:"crop", p:"北海道"},
+  {id:"F03", cat:"F", q:"北海道のオホーツク海側などで栽培される野菜は？", a:"たまねぎ", kana:"たまねぎ", g:"veg", p:"北海道", ng:["キャベツ"]},
+  {id:"F04", cat:"F", q:"十勝平野などで栽培される、北海道の特産の野菜は？", a:"じゃがいも", kana:"じゃがいも", g:"veg", p:"北海道", ng:["キャベツ"]},
+  {id:"F05", cat:"F", q:"十勝平野で栽培される、砂糖の原料になる作物は？", a:"てんさい", kana:"てんさい", g:"crop", p:"北海道", ng:["さとうきび"]},
+  {id:"F06", cat:"F", q:"根釧台地でさかんな、乳牛を育てて乳をとる産業は？", a:"酪農", kana:"らくのう", choices:["酪農", "稲作", "林業", "漁業"]},
+  {id:"F07", cat:"F", q:"サロマ湖や陸奥湾で養殖がさかんな、海の特産品は？", a:"ほたて貝", kana:"ほたてがい", g:"sea", p:["北海道", "青森県"], ng:["かき"]},
+  {id:"F08", cat:"F", q:"青森県の津軽平野で栽培される果物は？", a:"りんご", kana:"りんご", g:"fruit", p:"青森県", ng:["さくらんぼ"]},
+  {id:"F09", cat:"F", q:"青森県などでとれる、家具にも使われる木は？", a:"津軽ひば", kana:"つがるひば", g:"wood", p:"青森県"},
+  {id:"F10", cat:"F", q:"青森ねぶた祭で知られる、東北三大祭りの一つは？", a:"ねぶた", kana:"ねぶた", choices:["ねぶた","竿燈","七夕","阿波おどり"]},
+  {id:"F11", cat:"F", q:"秋田竿燈まつりで知られる、東北三大祭りの一つは？", a:"竿燈", kana:"かんとう", choices:["ねぶた","竿燈","七夕","阿波おどり"]},
+  {id:"F12", cat:"F", q:"仙台七夕まつりで知られる、東北三大祭りの一つは？", a:"七夕", kana:"たなばた", choices:["ねぶた","竿燈","七夕","阿波おどり"]},
+  {id:"F13", cat:"F", q:"秋田県の郷土料理で、丸めたご飯を串にさして焼いたものは？", a:"きりたんぽ", kana:"きりたんぽ", g:"food2", p:"秋田県"},
+  {id:"F14", cat:"F", q:"秋田県でとれる、まっすぐ育つ木材は？", a:"秋田すぎ", kana:"あきたすぎ", g:"wood", p:"秋田県"},
+  {id:"F15", cat:"F", q:"秋田県などで作られる、木を曲げてつくる伝統工芸品は？", a:"曲げわっぱ", kana:"まげわっぱ", g:"craft", p:"秋田県", ng:["こけし"]},
+  {id:"F16", cat:"F", q:"秋田県のブランド米は？", a:"あきたこまち", kana:"あきたこまち", choices:["あきたこまち", "コシヒカリ", "ひとめぼれ", "ゆめぴりか"]},
+  {id:"F17", cat:"F", q:"秋田県などで見られる、雪でつくった小屋の伝統行事は？", a:"かまくら", kana:"かまくら", choices:["かまくら", "ねぶた", "七夕", "阿波おどり"]},
+  {id:"F18", cat:"F", q:"世界文化遺産に登録されている、岩手県にある寺院などの遺跡は？", a:"平泉", kana:"ひらいずみ", g:"heritage", p:"岩手県"},
+  {id:"F19", cat:"F", q:"仙台名物として知られる、枝豆のあんをからめたお餅は？", a:"ずんだ餅", kana:"ずんだもち", g:"food2", p:"宮城県"},
+  {id:"F20", cat:"F", q:"松島湾などで養殖される、宮城県の海の特産品は？", a:"かき", kana:"かき", g:"sea", p:"宮城県", ng:["ほたて貝", "のり"]},
+  {id:"F21", cat:"F", q:"日本三景の一つで、宮城県にある景勝地は？", a:"松島", kana:"まつしま", g:"scenic", p:"宮城県"},
+  {id:"F22", cat:"F", q:"山形盆地でさかんに栽培される果物は？", a:"さくらんぼ", kana:"さくらんぼ", g:"fruit", p:"山形県", ng:["ぶどう", "りんご", "もも", "すいか", "かき"]},
+  {id:"F23", cat:"F", q:"山形県などで作られる、将棋で使うこまは？", a:"将棋のコマ", kana:"しょうぎのこま", g:"craft", p:"山形県", ng:["こけし"]},
+  {id:"F24", cat:"F", q:"福島県などで栽培される果物は？", a:"もも", kana:"もも", g:"fruit", p:"福島県", ng:["日本なし", "りんご", "さくらんぼ", "かき", "ぶどう"]},
+  {id:"F25", cat:"F", q:"東北地方でつくられる、丸い頭とえがおの模様が特ちょうの木の人形は？", a:"こけし", kana:"こけし", g:"craft", p:["青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県"]},
+
+  /* ---- G. 位置（どこの県？） ---- */
+  {id:"G01", cat:"G", q:"大雪山があるのは？", a:"北海道", kana:"ほっかいどう"},
+  {id:"G02", cat:"G", q:"石狩平野があるのは？", a:"北海道", kana:"ほっかいどう"},
+  {id:"G03", cat:"G", q:"十勝平野があるのは？", a:"北海道", kana:"ほっかいどう"},
+  {id:"G04", cat:"G", q:"根釧台地があるのは？", a:"北海道", kana:"ほっかいどう"},
+  {id:"G05", cat:"G", q:"上川盆地があるのは？", a:"北海道", kana:"ほっかいどう"},
+  {id:"G06", cat:"G", q:"知床があるのは？", a:"北海道", kana:"ほっかいどう"},
+  {id:"G07", cat:"G", q:"サロマ湖があるのは？", a:"北海道", kana:"ほっかいどう"},
+  {id:"G08", cat:"G", q:"日高山脈があるのは？", a:"北海道", kana:"ほっかいどう"},
+  {id:"G09", cat:"G", q:"津軽平野があるのは？", a:"青森県", kana:"あおもりけん"},
+  {id:"G10", cat:"G", q:"陸奥湾があるのは？", a:"青森県", kana:"あおもりけん"},
+  {id:"G11", cat:"G", q:"白神山地があるのは、青森県とどこの県？", a:"秋田県", kana:"あきたけん"},
+  {id:"G12", cat:"G", q:"十和田湖があるのは？", a:"青森県", kana:"あおもりけん"},
+  {id:"G13", cat:"G", q:"ねぶた祭りが行われるのは？", a:"青森県", kana:"あおもりけん"},
+  {id:"G14", cat:"G", q:"田沢湖があるのは？", a:"秋田県", kana:"あきたけん"},
+  {id:"G15", cat:"G", q:"きりたんぽが名物なのは？", a:"秋田県", kana:"あきたけん"},
+  {id:"G16", cat:"G", q:"あきたこまちが作られるのは？", a:"秋田県", kana:"あきたけん"},
+  {id:"G17", cat:"G", q:"竿燈まつりが行われるのは？", a:"秋田県", kana:"あきたけん"},
+  {id:"G18", cat:"G", q:"平泉があるのは？", a:"岩手県", kana:"いわてけん"},
+  {id:"G19", cat:"G", q:"北上川があるのは？", a:"岩手県", kana:"いわてけん"},
+  {id:"G20", cat:"G", q:"盛岡市があるのは？", a:"岩手県", kana:"いわてけん"},
+  {id:"G21", cat:"G", q:"松島があるのは？", a:"宮城県", kana:"みやぎけん"},
+  {id:"G22", cat:"G", q:"ずんだ餅が名物なのは？", a:"宮城県", kana:"みやぎけん"},
+  {id:"G23", cat:"G", q:"仙台平野があるのは？", a:"宮城県", kana:"みやぎけん"},
+  {id:"G24", cat:"G", q:"最上川があるのは？", a:"山形県", kana:"やまがたけん"},
+  {id:"G25", cat:"G", q:"さくらんぼの栽培で有名なのは？", a:"山形県", kana:"やまがたけん"},
+  {id:"G26", cat:"G", q:"庄内平野があるのは？", a:"山形県", kana:"やまがたけん"},
+  {id:"G27", cat:"G", q:"磐梯山があるのは？", a:"福島県", kana:"ふくしまけん"},
+  {id:"G28", cat:"G", q:"猪苗代湖があるのは？", a:"福島県", kana:"ふくしまけん"},
+  {id:"G29", cat:"G", q:"阿武隈川があるのは？", a:"福島県", kana:"ふくしまけん"},
+  {id:"G30", cat:"G", q:"ももの生産で有名なのは？", a:"福島県", kana:"ふくしまけん"},
+
+  /* ---- H. 新幹線 ---- */
+  {id:"H01", cat:"H", q:"新函館北斗まで通っている、北海道の新幹線は？", a:"北海道新幹線", kana:"ほっかいどうしんかんせん"},
+  {id:"H02", cat:"H", q:"盛岡市・仙台市などを通る新幹線は？", a:"東北新幹線", kana:"とうほくしんかんせん"},
+  {id:"H03", cat:"H", q:"東北新幹線から分かれ、秋田市まで通る新幹線は？", a:"秋田新幹線", kana:"あきたしんかんせん"},
+  {id:"H04", cat:"H", q:"東北新幹線から分かれ、山形市まで通る新幹線は？", a:"山形新幹線", kana:"やまがたしんかんせん"}
+];
+var QUESTIONS_KINKI = [
+  /* ---- A. 山地・山脈・山 ---- */
+  {id:"A01", cat:"A", q:"三重県と滋賀県にまたがる山脈は？", a:"鈴鹿山脈", kana:"すずかさんみゃく", choices:["鈴鹿山脈","越後山脈","飛騨山脈","木曽山脈"]},
+  {id:"A02", cat:"A", q:"険しい地形で知られる、和歌山県・奈良県・三重県にまたがる山地は？", a:"紀伊山地", kana:"きいさんち", choices:["紀伊山地","白神山地","中国山地","四国山地"]},
+  {id:"A03", cat:"A", q:"奈良県と三重県の県境にある山は？", a:"大台ヶ原山", kana:"おおだいがはらやま", choices:["大台ヶ原山","富士山","浅間山","磐梯山"]},
+
+  /* ---- B. 平野・盆地・台地 ---- */
+  {id:"B01", cat:"B", q:"大阪市がある平野は？", a:"大阪平野", kana:"おおさかへいや", choices:["大阪平野","関東平野","越後平野","濃尾平野"]},
+  {id:"B02", cat:"B", q:"京都市がある盆地は？", a:"京都盆地", kana:"きょうとぼんち", choices:["京都盆地","近江盆地","奈良盆地","甲府盆地"]},
+  {id:"B03", cat:"B", q:"大津市がある盆地は？", a:"近江盆地", kana:"おうみぼんち", choices:["京都盆地","近江盆地","奈良盆地","甲府盆地"]},
+  {id:"B04", cat:"B", q:"奈良市がある盆地は？", a:"奈良盆地", kana:"ならぼんち", choices:["京都盆地","近江盆地","奈良盆地","甲府盆地"]},
+
+  /* ---- C. 川・湖 ---- */
+  {id:"C01", cat:"C", q:"日本で最も面積が大きい湖は？", a:"琵琶湖", kana:"びわこ", choices:["琵琶湖","霞ヶ浦","浜名湖","猪苗代湖"]},
+  {id:"C02", cat:"C", q:"大阪湾に注ぐ、大阪府を流れる川は？", a:"淀川", kana:"よどがわ"},
+  {id:"C03", cat:"C", q:"奈良県では「吉野川」とよばれる、和歌山県を流れる川は？", a:"紀の川", kana:"きのかわ"},
+  {id:"C04", cat:"C", q:"近畿地方で最も長い川で、「新宮川」ともよばれるのは？", a:"熊野川", kana:"くまのがわ"},
+  {id:"C05", cat:"C", q:"熊野川の別名は？", a:"新宮川", kana:"しんぐうがわ"},
+  {id:"C06", cat:"C", q:"紀の川は、奈良県内では何とよばれる？", a:"吉野川", kana:"よしのがわ"},
+
+  /* ---- D. 半島・湾・島 ---- */
+  {id:"D01", cat:"D", q:"日本で最も大きな半島は？", a:"紀伊半島", kana:"きいはんとう", choices:["紀伊半島","志摩半島","房総半島","知床半島"]},
+  {id:"D02", cat:"D", q:"真珠の養殖がさかんな、三重県の半島は？", a:"志摩半島", kana:"しまはんとう", choices:["紀伊半島","志摩半島","房総半島","知床半島"]},
+  {id:"D03", cat:"D", q:"瀬戸内海で最も大きな島は？", a:"淡路島", kana:"あわじしま", choices:["淡路島","佐渡島","種子島","大島"]},
+  {id:"D04", cat:"D", q:"兵庫県の本州と淡路島を結ぶ橋は？", a:"明石海峡大橋", kana:"あかしかいきょうおおはし", g:"bridge", p:"兵庫県"},
+
+  /* ---- E. 県庁所在地 ---- */
+  {id:"E01", cat:"E", q:"滋賀県の県庁所在地は？", a:"大津市", kana:"おおつし"},
+  {id:"E02", cat:"E", q:"京都府の府庁所在地は？", a:"京都市", kana:"きょうとし"},
+  {id:"E03", cat:"E", q:"大阪府の府庁所在地は？", a:"大阪市", kana:"おおさかし"},
+  {id:"E04", cat:"E", q:"兵庫県の県庁所在地は？", a:"神戸市", kana:"こうべし"},
+  {id:"E05", cat:"E", q:"奈良県の県庁所在地は？", a:"奈良市", kana:"ならし"},
+  {id:"E06", cat:"E", q:"和歌山県の県庁所在地は？", a:"和歌山市", kana:"わかやまし"},
+  {id:"E07", cat:"E", q:"三重県の県庁所在地は？", a:"津市", kana:"つし"},
+
+  /* ---- F. 特産・産業・名所 ---- */
+  {id:"F01", cat:"F", q:"日本三景の一つで、京都府にある景勝地は？", a:"天橋立", kana:"あまのはしだて", g:"scenic", p:"京都府"},
+  {id:"F02", cat:"F", q:"京都府の宇治市などで栽培される、お茶の銘柄は？", a:"宇治茶", kana:"うじちゃ", choices:["宇治茶", "静岡茶", "狭山茶", "八女茶"]},
+  {id:"F03", cat:"F", q:"滋賀県の信楽町などで作られる、たぬきの置物でも知られるやきものは？", a:"信楽焼", kana:"しがらきやき", g:"craft", p:"滋賀県"},
+  {id:"F04", cat:"F", q:"世界文化遺産に登録されている、兵庫県の姫路市にある建物は？", a:"姫路城", kana:"ひめじじょう", g:"heritage", p:"兵庫県"},
+  {id:"F05", cat:"F", q:"兵庫県北部（但馬地方）の特産の牛肉は？", a:"但馬牛", kana:"たじまうし", g:"meat", p:"兵庫県"},
+  {id:"F06", cat:"F", q:"明石市周辺などでとれる、兵庫県の特産品は？", a:"のり", kana:"のり", g:"sea", p:"兵庫県", ng:["まだい", "かき", "松葉がに", "越前がに", "ふぐ"]},
+  {id:"F07", cat:"F", q:"大阪府にある、日本の空の玄関口の一つの空港は？", a:"関西国際空港", kana:"かんさいこくさいくうこう", g:"airport", p:"大阪府"},
+  {id:"F08", cat:"F", q:"奈良県の郷土料理で、柿の葉で包んだすし料理は？", a:"柿の葉寿司", kana:"かきのはずし", g:"food2", p:"奈良県"},
+  {id:"F09", cat:"F", q:"三重県の特産の牛肉は？", a:"松阪牛", kana:"まつさかうし", g:"meat", p:"三重県"},
+  {id:"F10", cat:"F", q:"三重県にある、日本を代表する神社は？", a:"伊勢神宮", kana:"いせじんぐう", g:"shrine", p:"三重県"},
+  {id:"F11", cat:"F", q:"志摩半島などでとれる、三重県の海の特産品は？", a:"伊勢えび", kana:"いせえび", g:"sea", p:"三重県", ng:["かき", "のり", "まだい", "ふぐ", "かつお"]},
+  {id:"F12", cat:"F", q:"志摩半島でさかんに養殖される、海の特産品は？", a:"真珠", kana:"しんじゅ", g:"sea", p:"三重県", ng:["かき", "のり", "まだい", "ふぐ", "かつお"]},
+  {id:"F13", cat:"F", q:"三重県の尾鷲市周辺で育てられる、建材になる木は？", a:"尾鷲ひのき", kana:"おわせひのき", g:"wood", p:"三重県"},
+  {id:"F14", cat:"F", q:"奈良県の吉野地方で育てられる、建材になる木は？", a:"吉野すぎ", kana:"よしのすぎ", g:"wood", p:"奈良県"},
+  {id:"F15", cat:"F", q:"和歌山県の特産の果物は？", a:"みかん", kana:"みかん", g:"fruit", p:"和歌山県", ng:["もも"]},
+  {id:"F16", cat:"F", q:"和歌山県の特産で、梅干しにもされる果物は？", a:"うめ", kana:"うめ", g:"fruit", p:"和歌山県", ng:["もも"]},
+  {id:"F17", cat:"F", q:"和歌山県の特産の果物で、秋にとれる実は？", a:"かき", kana:"かき", g:"fruit", p:"和歌山県", ng:["もも"]},
+  {id:"F18", cat:"F", q:"淡路島の特産の野菜は？", a:"たまねぎ", kana:"たまねぎ", g:"veg", p:"兵庫県", ng:["レタス", "キャベツ"]},
+
+  /* ---- G. 位置（どこの県？） ---- */
+  {id:"G01", cat:"G", q:"琵琶湖があるのは？", a:"滋賀県", kana:"しがけん"},
+  {id:"G02", cat:"G", q:"近江盆地があるのは？", a:"滋賀県", kana:"しがけん"},
+  {id:"G03", cat:"G", q:"信楽焼で有名なのは？", a:"滋賀県", kana:"しがけん"},
+  {id:"G04", cat:"G", q:"大津市があるのは？", a:"滋賀県", kana:"しがけん"},
+  {id:"G05", cat:"G", q:"天橋立があるのは？", a:"京都府", kana:"きょうとふ"},
+  {id:"G06", cat:"G", q:"宇治茶で有名なのは？", a:"京都府", kana:"きょうとふ"},
+  {id:"G07", cat:"G", q:"京都盆地があるのは？", a:"京都府", kana:"きょうとふ"},
+  {id:"G08", cat:"G", q:"淀川があるのは？", a:"大阪府", kana:"おおさかふ"},
+  {id:"G09", cat:"G", q:"大阪平野があるのは？", a:"大阪府", kana:"おおさかふ"},
+  {id:"G10", cat:"G", q:"関西国際空港があるのは？", a:"大阪府", kana:"おおさかふ"},
+  {id:"G11", cat:"G", q:"姫路城があるのは？", a:"兵庫県", kana:"ひょうごけん"},
+  {id:"G12", cat:"G", q:"明石海峡大橋があるのは？", a:"兵庫県", kana:"ひょうごけん"},
+  {id:"G13", cat:"G", q:"但馬牛で有名なのは？", a:"兵庫県", kana:"ひょうごけん"},
+  {id:"G14", cat:"G", q:"淡路島があるのは？", a:"兵庫県", kana:"ひょうごけん"},
+  {id:"G15", cat:"G", q:"奈良盆地があるのは？", a:"奈良県", kana:"ならけん"},
+  {id:"G16", cat:"G", q:"柿の葉寿司で有名なのは？", a:"奈良県", kana:"ならけん"},
+  {id:"G17", cat:"G", q:"大台ヶ原山があるのは、三重県とどこの県？", a:"奈良県", kana:"ならけん"},
+  {id:"G18", cat:"G", q:"みかんの生産で有名なのは？", a:"和歌山県", kana:"わかやまけん"},
+  {id:"G19", cat:"G", q:"うめの生産で有名なのは？", a:"和歌山県", kana:"わかやまけん"},
+  {id:"G20", cat:"G", q:"和歌山市があるのは？", a:"和歌山県", kana:"わかやまけん"},
+  {id:"G21", cat:"G", q:"松阪牛で有名なのは？", a:"三重県", kana:"みえけん"},
+  {id:"G22", cat:"G", q:"伊勢神宮があるのは？", a:"三重県", kana:"みえけん"},
+  {id:"G23", cat:"G", q:"志摩半島があるのは？", a:"三重県", kana:"みえけん"},
+  {id:"G24", cat:"G", q:"尾鷲市があるのは？", a:"三重県", kana:"みえけん"},
+  {id:"G25", cat:"G", q:"鈴鹿山脈があるのは、三重県とどこの県？", a:"滋賀県", kana:"しがけん"},
+  {id:"G26", cat:"G", q:"紀伊半島があるのは、和歌山県・三重県とどこの県？", a:"奈良県", kana:"ならけん"},
+  {id:"G27", cat:"G", q:"熊野川が海に注ぐ河口があるのは？", a:"三重県", kana:"みえけん"},
+
+  /* ---- H. 新幹線 ---- */
+  {id:"H01", cat:"H", q:"京都市・大津市などを通る新幹線は？", a:"東海道新幹線", kana:"とうかいどうしんかんせん", choices:["東海道新幹線","山陽新幹線","北陸新幹線","東北新幹線"]},
+  {id:"H02", cat:"H", q:"神戸市・姫路市などを通る新幹線は？", a:"山陽新幹線", kana:"さんようしんかんせん", choices:["東海道新幹線","山陽新幹線","北陸新幹線","東北新幹線"]}
+];
+var QUESTIONS_CHUGOKU_SHIKOKU = [
+  /* ---- A. 山地・山脈・山 ---- */
+  {id:"A01", cat:"A", q:"鳥取県にある、「伯耆富士」ともよばれる山は？", a:"大山", kana:"だいせん", choices:["大山","石鎚山","富士山","浅間山"]},
+  {id:"A02", cat:"A", q:"西日本で最も高い山は？", a:"石鎚山", kana:"いしづちさん", choices:["大山","石鎚山","富士山","浅間山"]},
+  {id:"A03", cat:"A", q:"中国地方の中央にある山地は？", a:"中国山地", kana:"ちゅうごくさんち", choices:["中国山地","四国山地","紀伊山地","白神山地"]},
+  {id:"A04", cat:"A", q:"四国地方の中央にある、険しい地形で知られる山地は？", a:"四国山地", kana:"しこくさんち", choices:["中国山地","四国山地","紀伊山地","白神山地"]},
+  {id:"A05", cat:"A", q:"徳島県と香川県の境に連なる山脈は？", a:"讃岐山脈", kana:"さぬきさんみゃく", choices:["讃岐山脈","越後山脈","飛騨山脈","鈴鹿山脈"]},
+
+  /* ---- B. 平野・盆地・台地 ---- */
+  {id:"B01", cat:"B", q:"広島市がある平野は？", a:"広島平野", kana:"ひろしまへいや"},
+  {id:"B02", cat:"B", q:"高松市がある平野は？", a:"讃岐平野", kana:"さぬきへいや"},
+  {id:"B03", cat:"B", q:"徳島市がある平野は？", a:"徳島平野", kana:"とくしまへいや"},
+  {id:"B04", cat:"B", q:"野菜の促成栽培（早づくり）がさかんな、高知県の平野は？", a:"高知平野", kana:"こうちへいや"},
+
+  /* ---- C. 川・湖 ---- */
+  {id:"C01", cat:"C", q:"広島平野を流れる川は？", a:"太田川", kana:"おおたがわ", choices:["太田川","吉野川","四万十川","北上川"]},
+  {id:"C02", cat:"C", q:"「四国三郎」とよばれる、徳島県を流れる川は？", a:"吉野川", kana:"よしのがわ", choices:["太田川","吉野川","四万十川","北上川"]},
+  {id:"C03", cat:"C", q:"「日本最後の清流」とよばれ、西日本で最も長い川は？", a:"四万十川", kana:"しまんとがわ", choices:["太田川","吉野川","四万十川","北上川"]},
+  {id:"C04", cat:"C", q:"しじみの産地として知られる、島根県の湖は？", a:"宍道湖", kana:"しんじこ", choices:["宍道湖","琵琶湖","霞ヶ浦","中禅寺湖"]},
+
+  /* ---- D. 半島・湾・島 ---- */
+  {id:"D01", cat:"D", q:"ぶどう畑などが広がる、岡山県にある湾は？", a:"児島湾", kana:"こじまわん", choices:["児島湾","東京湾","駿河湾","伊勢湾"]},
+  {id:"D02", cat:"D", q:"オリーブの生産で有名な、瀬戸内海の島は？", a:"小豆島", kana:"しょうどしま", choices:["小豆島","佐渡島","種子島","淡路島"]},
+  {id:"D03", cat:"D", q:"岡山県倉敷市と香川県を結ぶ橋は？", a:"瀬戸大橋", kana:"せとおおはし", g:"bridge", p:["岡山県", "香川県"]},
+  {id:"D04", cat:"D", q:"徳島県と淡路島を結ぶ橋は？", a:"大鳴門橋", kana:"おおなるときょう", g:"bridge", p:["徳島県", "兵庫県"]},
+  {id:"D05", cat:"D", q:"広島県と愛媛県を島づたいに結ぶ道路は？", a:"瀬戸内しまなみ海道", kana:"せとうちしまなみかいどう", g:"bridge", p:["広島県", "愛媛県"]},
+  {id:"D06", cat:"D", q:"愛媛県の西側に広がる、真珠の養殖がさかんな海は？", a:"宇和海", kana:"うわかい", choices:["宇和海","有明海","児島湾","東京湾"]},
+
+  /* ---- E. 県庁所在地 ---- */
+  {id:"E01", cat:"E", q:"鳥取県の県庁所在地は？", a:"鳥取市", kana:"とっとりし"},
+  {id:"E02", cat:"E", q:"島根県の県庁所在地は？", a:"松江市", kana:"まつえし"},
+  {id:"E03", cat:"E", q:"岡山県の県庁所在地は？", a:"岡山市", kana:"おかやまし"},
+  {id:"E04", cat:"E", q:"広島県の県庁所在地は？", a:"広島市", kana:"ひろしまし"},
+  {id:"E05", cat:"E", q:"山口県の県庁所在地は？", a:"山口市", kana:"やまぐちし"},
+  {id:"E06", cat:"E", q:"徳島県の県庁所在地は？", a:"徳島市", kana:"とくしまし"},
+  {id:"E07", cat:"E", q:"香川県の県庁所在地は？", a:"高松市", kana:"たかまつし"},
+  {id:"E08", cat:"E", q:"愛媛県の県庁所在地は？", a:"松山市", kana:"まつやまし"},
+  {id:"E09", cat:"E", q:"高知県の県庁所在地は？", a:"高知市", kana:"こうちし"},
+
+  /* ---- F. 特産・産業・名所 ---- */
+  {id:"F01", cat:"F", q:"鳥取県にある、日本を代表する砂の海岸は？", a:"鳥取砂丘", kana:"とっとりさきゅう", g:"scenic", p:"鳥取県"},
+  {id:"F02", cat:"F", q:"鳥取県の冬の味覚で有名な、海の特産品は？", a:"松葉がに", kana:"まつばがに", g:"sea", p:"鳥取県", ng:["いわし", "かき"]},
+  {id:"F03", cat:"F", q:"鳥取県の特産の果物は？", a:"日本なし", kana:"にほんなし", g:"fruit", p:"鳥取県", ng:["すいか"]},
+  {id:"F04", cat:"F", q:"島根県にある、縁結びの神様として知られる神社は？", a:"出雲大社", kana:"いずもたいしゃ", g:"shrine", p:"島根県"},
+  {id:"F05", cat:"F", q:"世界文化遺産に登録されている、島根県の遺跡は？", a:"石見銀山", kana:"いわみぎんざん", g:"heritage", p:"島根県"},
+  {id:"F06", cat:"F", q:"岡山県で栽培される、マスカットという品種でも知られる果物は？", a:"ぶどう", kana:"ぶどう", g:"fruit", p:"岡山県", ng:["もも"]},
+  {id:"F07", cat:"F", q:"日本三名園の一つで、岡山市にある庭園は？", a:"後楽園", kana:"こうらくえん", g:"garden", p:"岡山県"},
+  {id:"F08", cat:"F", q:"世界文化遺産に登録されている、広島市にある建物跡は？", a:"原爆ドーム", kana:"げんばくどーむ", g:"heritage", p:"広島県"},
+  {id:"F09", cat:"F", q:"広島県で養殖がさかんな、海の特産品は？", a:"かき", kana:"かき", g:"sea", p:"広島県", ng:["まだい"]},
+  {id:"F10", cat:"F", q:"山口県の萩市などで作られる伝統的なやきものは？", a:"萩焼", kana:"はぎやき", g:"craft", p:"山口県"},
+  {id:"F11", cat:"F", q:"カルスト地形で知られる、山口県の台地は？", a:"秋吉台", kana:"あきよしだい", g:"scenic", p:"山口県"},
+  {id:"F12", cat:"F", q:"下関市の名物として知られる魚は？", a:"ふぐ", kana:"ふぐ", g:"fish", p:"山口県"},
+  {id:"F13", cat:"F", q:"世界文化遺産に登録されている、広島県の神社は？", a:"厳島神社", kana:"いつくしまじんじゃ", g:"shrine", p:"広島県"},
+  {id:"F14", cat:"F", q:"日本三景の一つで、厳島神社がある島は？", a:"宮島", kana:"みやじま", g:"scenic", p:"広島県"},
+  {id:"F15", cat:"F", q:"徳島県の特産の果物は？", a:"すだち", kana:"すだち", g:"fruit", p:"徳島県", ng:["ゆず", "みかん"]},
+  {id:"F16", cat:"F", q:"香川県の郷土料理として有名なものは？", a:"うどん", kana:"うどん", g:"food2", p:"香川県"},
+  {id:"F17", cat:"F", q:"小豆島などで栽培される、オイルにもなる作物は？", a:"オリーブ", kana:"おりーぶ", g:"crop", p:"香川県"},
+  {id:"F18", cat:"F", q:"高松市周辺で生産がさかんな特産品は？", a:"しょう油", kana:"しょうゆ", g:"food2", p:"香川県"},
+  {id:"F19", cat:"F", q:"愛媛県の特産の果物は？", a:"みかん", kana:"みかん", g:"fruit", p:"愛媛県"},
+  {id:"F20", cat:"F", q:"宇和海で養殖される、赤い高級魚は？", a:"まだい", kana:"まだい", g:"fish", p:"愛媛県"},
+  {id:"F21", cat:"F", q:"高知県の特産の野菜で、紫色の実をつけるのは？", a:"なす", kana:"なす", g:"veg", p:"高知県"},
+  {id:"F22", cat:"F", q:"高知県で促成栽培される、緑色の野菜は？", a:"ピーマン", kana:"ぴーまん", g:"veg", p:"高知県"},
+  {id:"F23", cat:"F", q:"高知県の特産の果物は？", a:"ゆず", kana:"ゆず", g:"fruit", p:"高知県"},
+  {id:"F24", cat:"F", q:"高知県でとれる、たたきでも有名な魚は？", a:"かつお", kana:"かつお", g:"fish", p:"高知県"},
+
+  /* ---- G. 位置（どこの県？） ---- */
+  {id:"G01", cat:"G", q:"鳥取砂丘があるのは？", a:"鳥取県", kana:"とっとりけん"},
+  {id:"G02", cat:"G", q:"大山があるのは？", a:"鳥取県", kana:"とっとりけん"},
+  {id:"G03", cat:"G", q:"松葉がにで有名なのは？", a:"鳥取県", kana:"とっとりけん"},
+  {id:"G04", cat:"G", q:"宍道湖があるのは？", a:"島根県", kana:"しまねけん"},
+  {id:"G05", cat:"G", q:"出雲大社があるのは？", a:"島根県", kana:"しまねけん"},
+  {id:"G06", cat:"G", q:"石見銀山があるのは？", a:"島根県", kana:"しまねけん"},
+  {id:"G07", cat:"G", q:"後楽園があるのは？", a:"岡山県", kana:"おかやまけん"},
+  {id:"G08", cat:"G", q:"児島湾があるのは？", a:"岡山県", kana:"おかやまけん"},
+  {id:"G09", cat:"G", q:"マスカットの生産で有名なのは？", a:"岡山県", kana:"おかやまけん"},
+  {id:"G10", cat:"G", q:"原爆ドームがあるのは？", a:"広島県", kana:"ひろしまけん"},
+  {id:"G11", cat:"G", q:"厳島神社があるのは？", a:"広島県", kana:"ひろしまけん"},
+  {id:"G12", cat:"G", q:"宮島があるのは？", a:"広島県", kana:"ひろしまけん"},
+  {id:"G13", cat:"G", q:"太田川があるのは？", a:"広島県", kana:"ひろしまけん"},
+  {id:"G14", cat:"G", q:"萩焼で有名なのは？", a:"山口県", kana:"やまぐちけん"},
+  {id:"G15", cat:"G", q:"秋吉台があるのは？", a:"山口県", kana:"やまぐちけん"},
+  {id:"G16", cat:"G", q:"ふぐの水あげで有名なのは？", a:"山口県", kana:"やまぐちけん"},
+  {id:"G17", cat:"G", q:"すだちの生産で有名なのは？", a:"徳島県", kana:"とくしまけん"},
+  {id:"G18", cat:"G", q:"大鳴門橋があるのは？", a:"徳島県", kana:"とくしまけん"},
+  {id:"G19", cat:"G", q:"吉野川があるのは？", a:"徳島県", kana:"とくしまけん"},
+  {id:"G20", cat:"G", q:"うどんで有名なのは？", a:"香川県", kana:"かがわけん"},
+  {id:"G21", cat:"G", q:"小豆島があるのは？", a:"香川県", kana:"かがわけん"},
+  {id:"G22", cat:"G", q:"讃岐平野があるのは？", a:"香川県", kana:"かがわけん"},
+  {id:"G23", cat:"G", q:"石鎚山があるのは？", a:"愛媛県", kana:"えひめけん"},
+  {id:"G24", cat:"G", q:"宇和海があるのは？", a:"愛媛県", kana:"えひめけん"},
+  {id:"G25", cat:"G", q:"みかんの生産で有名なのは？", a:"愛媛県", kana:"えひめけん"},
+  {id:"G26", cat:"G", q:"四万十川があるのは？", a:"高知県", kana:"こうちけん"},
+  {id:"G27", cat:"G", q:"高知平野があるのは？", a:"高知県", kana:"こうちけん"},
+  {id:"G28", cat:"G", q:"かつおのたたきで有名なのは？", a:"高知県", kana:"こうちけん"},
+  {id:"G29", cat:"G", q:"瀬戸大橋が結んでいるのは、岡山県とどこの県？", a:"香川県", kana:"かがわけん"},
+  {id:"G30", cat:"G", q:"瀬戸内しまなみ海道が結んでいるのは、広島県とどこの県？", a:"愛媛県", kana:"えひめけん"},
+
+  /* ---- H. 新幹線 ---- */
+  {id:"H01", cat:"H", q:"広島市や山口県を通る新幹線は？", a:"山陽新幹線", kana:"さんようしんかんせん", choices:["山陽新幹線","東海道新幹線","北陸新幹線","東北新幹線"]}
+];
+var QUESTIONS_KYUSHU_OKINAWA = [
+  /* ---- A. 山地・山脈・山 ---- */
+  {id:"A01", cat:"A", q:"熊本県にある、世界有数の巨大カルデラをもつ火山は？", a:"阿蘇山", kana:"あそさん"},
+  {id:"A02", cat:"A", q:"1990年代に大規模な噴火をした、長崎県の火山は？", a:"雲仙岳", kana:"うんぜんだけ"},
+  {id:"A03", cat:"A", q:"九州地方の中央部に広がる山地は？", a:"九州山地", kana:"きゅうしゅうさんち", choices:["九州山地","紀伊山地","中国山地","四国山地"]},
+  {id:"A04", cat:"A", q:"屋久島にある、九州地方で最も高い山は？", a:"宮之浦岳", kana:"みやのうらだけ"},
+  {id:"A05", cat:"A", q:"薩摩半島の南端にある火山は？", a:"開聞岳", kana:"かいもんだけ"},
+
+  /* ---- B. 平野・盆地・台地 ---- */
+  {id:"B01", cat:"B", q:"福岡県・佐賀県に広がる平野は？", a:"筑紫平野", kana:"つくしへいや", choices:["筑紫平野","宮崎平野","関東平野","越後平野"]},
+  {id:"B02", cat:"B", q:"野菜の促成栽培がさかんな、宮崎県の平野は？", a:"宮崎平野", kana:"みやざきへいや", choices:["筑紫平野","宮崎平野","関東平野","越後平野"]},
+  {id:"B03", cat:"B", q:"宮崎県南部から鹿児島県にかけて広がる、火山灰でできた台地は？", a:"シラス台地", kana:"しらすだいち", choices:["シラス台地","牧ノ原","武蔵野","下総台地"]},
+
+  /* ---- C. 川・湖 ---- */
+  {id:"C01", cat:"C", q:"「筑紫次郎」とよばれる、福岡県・佐賀県を流れる川は？", a:"筑後川", kana:"ちくごがわ", choices:["筑後川","球磨川","最上川","富士川"]},
+  {id:"C02", cat:"C", q:"「三大急流」の一つに数えられる、熊本県を流れる川は？", a:"球磨川", kana:"くまがわ", choices:["筑後川","球磨川","最上川","富士川"]},
+
+  /* ---- D. 半島・湾・島 ---- */
+  {id:"D01", cat:"D", q:"桜島とつながっている、鹿児島県の半島は？", a:"大隅半島", kana:"おおすみはんとう", choices:["大隅半島","薩摩半島","房総半島","三浦半島"]},
+  {id:"D02", cat:"D", q:"開聞岳がある、鹿児島県の半島は？", a:"薩摩半島", kana:"さつまはんとう", choices:["大隅半島","薩摩半島","房総半島","三浦半島"]},
+  {id:"D03", cat:"D", q:"島原半島がある、長崎県の湾は？", a:"大村湾", kana:"おおむらわん", choices:["大村湾","有明海","東京湾","宇和海"]},
+  {id:"D04", cat:"D", q:"のりの養殖がさかんな、佐賀県などに面する海は？", a:"有明海", kana:"ありあけかい", choices:["大村湾","有明海","東京湾","宇和海"]},
+  {id:"D05", cat:"D", q:"雲仙岳がある、長崎県の半島は？", a:"島原半島", kana:"しまばらはんとう", choices:["島原半島","大隅半島","薩摩半島","国東半島"]},
+  {id:"D06", cat:"D", q:"世界自然遺産に登録されている、鹿児島県の島は？", a:"屋久島", kana:"やくしま"},
+  {id:"D07", cat:"D", q:"ロケットの発射場（宇宙センター）がある、鹿児島県の島は？", a:"種子島", kana:"たねがしま"},
+  {id:"D08", cat:"D", q:"世界自然遺産に登録されている、アマミノクロウサギがすむ鹿児島県の島は？", a:"奄美大島", kana:"あまみおおしま"},
+  {id:"D09", cat:"D", q:"世界自然遺産に登録されている、イリオモテヤマネコがすむ沖縄県の島は？", a:"西表島", kana:"いりおもてじま"},
+  {id:"D10", cat:"D", q:"日本の最西端にある島は？", a:"与那国島", kana:"よなぐにじま"},
+
+  /* ---- E. 県庁所在地 ---- */
+  {id:"E01", cat:"E", q:"福岡県の県庁所在地は？", a:"福岡市", kana:"ふくおかし"},
+  {id:"E02", cat:"E", q:"佐賀県の県庁所在地は？", a:"佐賀市", kana:"さがし"},
+  {id:"E03", cat:"E", q:"長崎県の県庁所在地は？", a:"長崎市", kana:"ながさきし"},
+  {id:"E04", cat:"E", q:"熊本県の県庁所在地は？", a:"熊本市", kana:"くまもとし"},
+  {id:"E05", cat:"E", q:"大分県の県庁所在地は？", a:"大分市", kana:"おおいたし"},
+  {id:"E06", cat:"E", q:"宮崎県の県庁所在地は？", a:"宮崎市", kana:"みやざきし"},
+  {id:"E07", cat:"E", q:"鹿児島県の県庁所在地は？", a:"鹿児島市", kana:"かごしまし"},
+  {id:"E08", cat:"E", q:"沖縄県の県庁所在地は？", a:"那覇市", kana:"なはし"},
+
+  /* ---- F. 特産・産業・名所 ---- */
+  {id:"F01", cat:"F", q:"佐賀県の有田町などで作られる、伝統的な陶磁器は？", a:"有田焼", kana:"ありたやき", g:"craft", p:"佐賀県"},
+  {id:"F02", cat:"F", q:"大分県の別府市などでさかんな、地下の熱を利用した発電は？", a:"地熱発電", kana:"ちねつはつでん", choices:["地熱発電", "水力発電", "火力発電", "風力発電"]},
+  {id:"F03", cat:"F", q:"大分県の特産品で、原木などで栽培されるものは？", a:"しいたけ", kana:"しいたけ", g:"veg", p:"大分県"},
+  {id:"F04", cat:"F", q:"大分県の特産の果物は？", a:"かぼす", kana:"かぼす", g:"fruit", p:"大分県"},
+  {id:"F05", cat:"F", q:"大分県の佐賀関でとれる、ブランド化された魚は？", a:"関アジ", kana:"せきあじ", g:"fish", p:"大分県"},
+  {id:"F06", cat:"F", q:"大分県の佐賀関でとれる、関アジとならぶブランド魚は？", a:"関サバ", kana:"せきさば", g:"fish", p:"大分県"},
+  {id:"F07", cat:"F", q:"熊本県の八代市周辺で栽培される果物は？", a:"すいか", kana:"すいか", g:"fruit", p:"熊本県", ng:["みかん", "いちご"]},
+  {id:"F08", cat:"F", q:"大隅半島などで栽培される、鹿児島県の特産の野菜は？", a:"さつまいも", kana:"さつまいも", g:"veg", p:"鹿児島県", ng:["ピーマン"]},
+  {id:"F09", cat:"F", q:"鹿児島県の特産の肉は？", a:"黒ぶた", kana:"くろぶた", g:"meat", p:"鹿児島県"},
+  {id:"F10", cat:"F", q:"鹿児島県の特産の野菜で、大きく育つものは？", a:"桜島だいこん", kana:"さくらじまだいこん", g:"veg", p:"鹿児島県", ng:["ピーマン"]},
+  {id:"F11", cat:"F", q:"宮崎県の特産の果物は？", a:"マンゴー", kana:"まんごー", g:"fruit", p:"宮崎県"},
+  {id:"F12", cat:"F", q:"宮崎県の特産のかんきつ類は？", a:"ひゅうがなつ", kana:"ひゅうがなつ", g:"fruit", p:"宮崎県"},
+  {id:"F13", cat:"F", q:"沖縄県の特産の野菜は？", a:"ゴーヤ", kana:"ごーや", g:"veg", p:"沖縄県"},
+  {id:"F14", cat:"F", q:"沖縄県の特産の果物は？", a:"パイナップル", kana:"ぱいなっぷる", g:"fruit", p:"沖縄県", ng:["マンゴー"]},
+  {id:"F15", cat:"F", q:"沖縄県で栽培される、砂糖の原料になる作物は？", a:"さとうきび", kana:"さとうきび", g:"crop", p:"沖縄県", ng:["てんさい"]},
+
+  /* ---- G. 位置（どこの県？） ---- */
+  {id:"G01", cat:"G", q:"阿蘇山があるのは？", a:"熊本県", kana:"くまもとけん"},
+  {id:"G02", cat:"G", q:"球磨川があるのは？", a:"熊本県", kana:"くまもとけん"},
+  {id:"G03", cat:"G", q:"すいかの生産で有名なのは？", a:"熊本県", kana:"くまもとけん"},
+  {id:"G04", cat:"G", q:"有田焼で有名なのは？", a:"佐賀県", kana:"さがけん"},
+  {id:"G05", cat:"G", q:"有明海に面しているのは？", a:"佐賀県", kana:"さがけん"},
+  {id:"G06", cat:"G", q:"雲仙岳があるのは？", a:"長崎県", kana:"ながさきけん"},
+  {id:"G07", cat:"G", q:"島原半島があるのは？", a:"長崎県", kana:"ながさきけん"},
+  {id:"G08", cat:"G", q:"大村湾があるのは？", a:"長崎県", kana:"ながさきけん"},
+  {id:"G09", cat:"G", q:"筑紫平野があるのは、福岡県とどこの県？", a:"佐賀県", kana:"さがけん"},
+  {id:"G10", cat:"G", q:"北九州市があるのは？", a:"福岡県", kana:"ふくおかけん"},
+  {id:"G11", cat:"G", q:"別府市があるのは？", a:"大分県", kana:"おおいたけん"},
+  {id:"G12", cat:"G", q:"地熱発電で有名なのは？", a:"大分県", kana:"おおいたけん"},
+  {id:"G13", cat:"G", q:"かぼすの生産で有名なのは？", a:"大分県", kana:"おおいたけん"},
+  {id:"G14", cat:"G", q:"関アジ・関サバで有名なのは？", a:"大分県", kana:"おおいたけん"},
+  {id:"G15", cat:"G", q:"宮崎平野があるのは？", a:"宮崎県", kana:"みやざきけん"},
+  {id:"G16", cat:"G", q:"マンゴーの生産で有名な、九州地方の県は？", a:"宮崎県", kana:"みやざきけん"},
+  {id:"G17", cat:"G", q:"ひゅうがなつの生産で有名なのは？", a:"宮崎県", kana:"みやざきけん"},
+  {id:"G18", cat:"G", q:"桜島があるのは？", a:"鹿児島県", kana:"かごしまけん"},
+  {id:"G19", cat:"G", q:"種子島があるのは？", a:"鹿児島県", kana:"かごしまけん"},
+  {id:"G20", cat:"G", q:"屋久島があるのは？", a:"鹿児島県", kana:"かごしまけん"},
+  {id:"G21", cat:"G", q:"奄美大島があるのは？", a:"鹿児島県", kana:"かごしまけん"},
+  {id:"G22", cat:"G", q:"さつまいもの生産で有名なのは？", a:"鹿児島県", kana:"かごしまけん"},
+  {id:"G23", cat:"G", q:"黒ぶたで有名なのは？", a:"鹿児島県", kana:"かごしまけん"},
+  {id:"G24", cat:"G", q:"宮之浦岳があるのは？", a:"鹿児島県", kana:"かごしまけん"},
+  {id:"G25", cat:"G", q:"開聞岳があるのは？", a:"鹿児島県", kana:"かごしまけん"},
+  {id:"G26", cat:"G", q:"西表島があるのは？", a:"沖縄県", kana:"おきなわけん"},
+  {id:"G27", cat:"G", q:"与那国島があるのは？", a:"沖縄県", kana:"おきなわけん"},
+  {id:"G28", cat:"G", q:"ゴーヤの生産で有名なのは？", a:"沖縄県", kana:"おきなわけん"},
+  {id:"G29", cat:"G", q:"さとうきびの生産で有名なのは？", a:"沖縄県", kana:"おきなわけん"},
+  {id:"G30", cat:"G", q:"那覇市があるのは？", a:"沖縄県", kana:"おきなわけん"},
+
+  /* ---- H. 新幹線 ---- */
+  {id:"H01", cat:"H", q:"福岡市・熊本市・鹿児島市を通る新幹線は？", a:"九州新幹線", kana:"きゅうしゅうしんかんせん", choices:["九州新幹線","西九州新幹線","山陽新幹線","東海道新幹線"]},
+  {id:"H02", cat:"H", q:"佐賀県・長崎県を通る新幹線は？", a:"西九州新幹線", kana:"にしきゅうしゅうしんかんせん", choices:["九州新幹線","西九州新幹線","山陽新幹線","東海道新幹線"]},
+  {id:"H03", cat:"H", q:"本州から関門トンネルを抜けて北九州市まで通っている新幹線は？", a:"山陽新幹線", kana:"さんようしんかんせん", choices:["九州新幹線","西九州新幹線","山陽新幹線","東海道新幹線"]}
+];
+
+/* ---- 第9回 山と川がうみだす地形（予習シリーズ4年下 社会）----
+   出題は教科書の本文・ノート・練習問題の写真に載っている内容だけ。すべて4択(choices)。
+   きじゅつモードでは choices を出さず q だけを出すので、q は単独で答えられる文にしてある。
+   カテゴリ I〜N は第9回専用（CATS 参照）。 */
+var QUESTIONS_ROUND9 = [
+  // --- I. 川のとくちょう ---
+  {id:"ROUND9-I01", cat:"I", q:"大陸の川とくらべたときの、日本の川の特色は？", a:"長さが短く、流れが急", choices:["長さが短く、流れが急","長さが長く、流れがゆるやか","長さが短く、流れがゆるやか","長さが長く、流れが急"]},
+  {id:"ROUND9-I02", cat:"I", q:"川の「流域面積」とは、何の広さのこと？", a:"川に流れこむ水のもとになる雨や雪がふった地域の広さ", choices:["川に流れこむ水のもとになる雨や雪がふった地域の広さ","川の長さを面積であらわしたもの","川があふれたときに水につかる地域の広さ","川のそばにある平野の広さ"]},
+  {id:"ROUND9-I03", cat:"I", q:"日本の川の水量には、どんな特色がある？", a:"季節によって水量が変化する", choices:["季節によって水量が変化する","一年じゅう水量がほとんど変わらない","夏のあいだだけ川の水がなくなる","冬になるといつも水量が2倍になる"]},
+  {id:"ROUND9-I04", cat:"I", q:"梅雨や台風の時期に川の水かさが増して起こることがあるのは？", a:"洪水", kana:"こうずい", choices:["洪水","津波","火砕流","液状化現象"]},
+  {id:"ROUND9-I05", cat:"I", q:"夏から秋にかけてやって来て、大雨を降らせて川の水量を増やすものは？", a:"台風", kana:"たいふう", choices:["台風","津波","火砕流","黄砂"]},
+  {id:"ROUND9-I06", cat:"I", q:"中部地方・東北地方・北海道地方などの日本海側の川で、春先に水量が増えるのは、何のおかげ？", a:"雪どけ水", kana:"ゆきどけみず", choices:["雪どけ水","梅雨の雨","台風の雨","地下水"]},
+  {id:"ROUND9-I08", cat:"I", q:"日本に、流れの急な川が多いのはなぜ？", a:"山地・山脈が中央に連なり、そこから一気に海へ流れ下るから", choices:["山地・山脈が中央に連なり、そこから一気に海へ流れ下るから","平地が広がっていて、水が海までゆっくり流れるから","雨があまりふらず、川に水が少ないから","大陸から流れてきた水が川に入ってくるから"]},
+  {id:"ROUND9-I09", cat:"I", q:"南アメリカ大陸を流れるアマゾン川のように、大陸を流れる川は、日本の川とくらべてどうなっている？", a:"流域面積が大きく、流れがゆるやか", choices:["流域面積が大きく、流れがゆるやか","流域面積が小さく、流れが急","長さが短く、流れが急","流域面積が小さく、流れがゆるやか"]},
+
+  // --- J. 川と平野・川の利用 ---
+  {id:"ROUND9-J01", cat:"J", q:"川が山地から平地に出るところに、土砂が積もってできる扇形の地形は？", a:"扇状地", kana:"せんじょうち", choices:["扇状地","三角州","台地","盆地"]},
+  {id:"ROUND9-J02", cat:"J", q:"川が海に流れこむ河口の近くに、土砂が積もってできる地形は？", a:"三角州", kana:"さんかくす", choices:["三角州","扇状地","台地","半島"]},
+  {id:"ROUND9-J03", cat:"J", q:"日本の川は、土地をけずって土砂を運ぶ力が強い。それはなぜ？", a:"流れが急だから", choices:["流れが急だから","水の量がいつも少ないから","流域面積が大きいから","川の長さが長いから"]},
+  {id:"ROUND9-J04", cat:"J", q:"川の水を利用して電気をつくることを何という？", a:"水力発電", kana:"すいりょくはつでん", choices:["水力発電","地熱発電","風力発電","太陽光発電"]},
+  {id:"ROUND9-J05", cat:"J", q:"家庭や会社、店などで使う水のことを何という？", a:"生活用水", kana:"せいかつようすい", choices:["生活用水","農業用水","工業用水","防火用水"]},
+  {id:"ROUND9-J08", cat:"J", q:"「坂東太郎」という別名をもつ川は？", a:"利根川", kana:"とねがわ", choices:["利根川","筑後川","吉野川","信濃川"]},
+  {id:"ROUND9-J09", cat:"J", q:"「筑紫次郎」という別名をもつ川は？", a:"筑後川", kana:"ちくごがわ", choices:["利根川","筑後川","吉野川","信濃川"]},
+  {id:"ROUND9-J10", cat:"J", q:"「四国三郎」という別名をもつ川は？", a:"吉野川", kana:"よしのがわ", choices:["利根川","筑後川","吉野川","信濃川"]},
+  {id:"ROUND9-J11", cat:"J", q:"「坂東太郎」「筑紫次郎」「四国三郎」のような川の別名は、昔、その川がどんな川だったことからつけられた？", a:"洪水をくり返して暴れた川", choices:["洪水をくり返して暴れた川","水がきれいで魚がたくさんとれた川","船が行き来して商売でにぎわった川","一年じゅう水がかれることのない川"]},
+  {id:"ROUND9-J12", cat:"J", q:"信濃川が流れている平野は？", a:"越後平野", kana:"えちごへいや", choices:["越後平野","庄内平野","仙台平野","濃尾平野"]},
+  {id:"ROUND9-J13", cat:"J", q:"最上川が流れている平野は？", a:"庄内平野", kana:"しょうないへいや", choices:["越後平野","庄内平野","仙台平野","濃尾平野"]},
+  {id:"ROUND9-J14", cat:"J", q:"木曽川が流れている平野は？", a:"濃尾平野", kana:"のうびへいや", choices:["越後平野","庄内平野","仙台平野","濃尾平野"]},
+  {id:"ROUND9-J15", cat:"J", q:"筑後川が流れている平野は？", a:"筑紫平野", kana:"つくしへいや", choices:["筑紫平野","八代平野","石狩平野","十勝平野"]},
+  {id:"ROUND9-J16", cat:"J", q:"諏訪湖から流れ出て、太平洋に注いでいる川は？", a:"天竜川", kana:"てんりゅうがわ", choices:["天竜川","信濃川","木曽川","富士川"]},
+
+  // --- K. 山地・山脈 ---
+  {id:"ROUND9-K01", cat:"K", q:"日本の国土のおよそ何分の何が山地？", a:"4分の3", kana:"よんぶんのさん", choices:["4分の1","2分の1","4分の3","5分の1"]},
+  {id:"ROUND9-K02", cat:"K", q:"日本の国土面積は約38万km²。山地の面積は約何万km²？", a:"約28.5万km²", choices:["約9.5万km²","約19万km²","約28.5万km²","約30.4万km²"]},
+  {id:"ROUND9-K04", cat:"K", q:"日本列島の中央に連なる山地・山脈は、国土を大きくどう分けている？", a:"太平洋側と日本海側", choices:["太平洋側と日本海側","北日本と南日本","東日本と西日本","瀬戸内側と太平洋側"]},
+  {id:"ROUND9-K05", cat:"K", q:"中部地方の、標高3000mをこえる山々が連なる中央高地は、何とよばれている？", a:"日本の屋根", kana:"にほんのやね", choices:["日本の屋根","日本の背骨","日本のへそ","日本の大黒柱"]},
+  {id:"ROUND9-K06", cat:"K", q:"3000mをこえる山々が連なり、南アルプスともよばれる山脈は？", a:"赤石山脈", kana:"あかいしさんみゃく", choices:["赤石山脈","飛騨山脈","木曽山脈","奥羽山脈"]},
+  {id:"ROUND9-K07", cat:"K", q:"東北地方の中央に連なる山脈は？", a:"奥羽山脈", kana:"おううさんみゃく", choices:["奥羽山脈","越後山脈","日高山脈","飛騨山脈"]},
+  {id:"ROUND9-K10", cat:"K", q:"山地の森林は、人びとのくらしにどんなものをつくり出してくれる？", a:"水資源や木材", choices:["水資源や木材","石油や天然ガス","鉄鉱石や石炭","海水や魚"]},
+
+  // --- L. 火山 ---
+  {id:"ROUND9-L01", cat:"L", q:"「活火山」とは、どんな火山のこと？", a:"1万年ほど前から今までに噴火したことのある火山", choices:["1万年ほど前から今までに噴火したことのある火山","今まさに噴火している最中の火山","人が住んでいない島にある火山","山のてっぺんに雪がのこっている火山"]},
+  {id:"ROUND9-L02", cat:"L", q:"日本には、活火山がいくつある？", a:"110以上", kana:"ひゃくじゅういじょう", choices:["10くらい","30くらい","110以上","300以上"]},
+  {id:"ROUND9-L03", cat:"L", q:"日本には、世界の活火山のどれくらいがある？", a:"10分の1近く", kana:"じゅうぶんのいちちかく", choices:["2分の1ほど","5分の1ほど","10分の1近く","20分の1ほど"]},
+  {id:"ROUND9-L04", cat:"L", q:"太平洋を取り囲むようにして連なる大山脈で、火山が多く見られ、日本列島もその一部であるのは？", a:"環太平洋造山帯", kana:"かんたいへいようぞうざんたい", choices:["環太平洋造山帯","アルプス・ヒマラヤ造山帯","日本アルプス","ヒマラヤ山脈"]},
+  {id:"ROUND9-L05", cat:"L", q:"火山の火口部分がくぼんだところに水がたまってできた湖を何という？", a:"カルデラ湖", kana:"カルデラこ", choices:["カルデラ湖","せきとめ湖","ダム湖","三日月湖"]},
+  {id:"ROUND9-L06", cat:"L", q:"マグマなどによって川の水がせきとめられてできた湖を何という？", a:"せきとめ湖", kana:"せきとめこ", choices:["カルデラ湖","せきとめ湖","ダム湖","三日月湖"]},
+  {id:"ROUND9-L08", cat:"L", q:"静岡県と山梨県の境にある、標高3776mの活火山は？", a:"富士山", kana:"ふじさん", choices:["富士山","浅間山","阿蘇山","桜島"]},
+  {id:"ROUND9-L09", cat:"L", q:"富士山が最後に噴火したのは何年？", a:"1707年", kana:"せんななひゃくななねん", choices:["1707年","1783年","1914年","2000年"]},
+  {id:"ROUND9-L10", cat:"L", q:"群馬県と長野県の県境にあり、1783年に大噴火した山は？", a:"浅間山", kana:"あさまやま", choices:["浅間山","富士山","御嶽山","有珠山"]},
+  {id:"ROUND9-L11", cat:"L", q:"鹿児島県にある火山島で、1914年の噴火のとき溶岩が流れ出して大隅半島と陸続きになった山は？", a:"桜島", kana:"さくらじま", choices:["桜島","阿蘇山","雲仙岳","開聞岳"]},
+  {id:"ROUND9-L12", cat:"L", q:"洞爺湖の南にあり、2000年に大きな噴火をしたが、緊急火山情報で住民が避難して犠牲者が出なかった山は？", a:"有珠山", kana:"うすざん", choices:["有珠山","御嶽山","富士山","浅間山"]},
+
+  // --- M. 火山のめぐみ・被害 ---
+  {id:"ROUND9-M01", cat:"M", q:"地球の内部の熱（地熱）によって熱せられた地下水が、わき出したものは？", a:"温泉", kana:"おんせん", choices:["温泉","海水","雨水","洪水"]},
+  {id:"ROUND9-M02", cat:"M", q:"地中の蒸気を使って電気をつくる発電を何という？", a:"地熱発電", kana:"ちねつはつでん", choices:["地熱発電","水力発電","風力発電","太陽光発電"]},
+  {id:"ROUND9-M04", cat:"M", q:"地熱発電所の例として、教科書の写真にのっていたのはどの県の発電所？", a:"大分県", kana:"おおいたけん", choices:["大分県","愛知県","千葉県","香川県"]},
+  {id:"ROUND9-M05", cat:"M", q:"すばらしい自然を守り伝えるために、国が指定して管理している公園を何という？", a:"国立公園", kana:"こくりつこうえん", choices:["国立公園","県立公園","市民公園","動物公園"]},
+  {id:"ROUND9-M06", cat:"M", q:"火山のめぐみとして、教科書にあげられているものは？", a:"温泉・地熱発電・美しい風景", choices:["温泉・地熱発電・美しい風景","泥流・火砕流・火山灰","液状化・津波・火災","洪水・高潮・かんばつ"]},
+  {id:"ROUND9-M07", cat:"M", q:"火山灰が太陽の光をさえぎることで起こることもある害は？", a:"冷害", kana:"れいがい", choices:["冷害","洪水","津波","干ばつ"]},
+  {id:"ROUND9-M08", cat:"M", q:"火山灰などが雨水をふくんで、川のように流れる現象を何という？", a:"泥流", kana:"でいりゅう", choices:["泥流","火砕流","液状化現象","高潮"]},
+  {id:"ROUND9-M09", cat:"M", q:"高温の火山灰やガスなどがまとまって、山の斜面をすべり落ちる現象を何という？", a:"火砕流", kana:"かさいりゅう", choices:["火砕流","泥流","液状化現象","津波"]},
+
+  // --- N. 地震・津波 ---
+  {id:"ROUND9-N01", cat:"N", q:"地震の大きなゆれで、建物が倒れることを何という？", a:"倒壊", kana:"とうかい", choices:["倒壊","液状化現象","津波","高潮"]},
+  {id:"ROUND9-N02", cat:"N", q:"埋め立て地などで、地震のゆれによって地下水が土砂とまざり、泥水が地表にあふれ出てくる現象を何という？", a:"液状化現象", kana:"えきじょうかげんしょう", choices:["液状化現象","泥流","火砕流","津波"]},
+  {id:"ROUND9-N03", cat:"N", q:"地震のときに、液状化現象が起こりやすいのはどんな土地？", a:"埋め立て地", kana:"うめたてち", choices:["埋め立て地","山地","丘陵地","扇状地"]},
+  {id:"ROUND9-N05", cat:"N", q:"地震による火災が、とくに広がりやすいのはどんな地域？", a:"木造の住宅が集まっている地域", choices:["木造の住宅が集まっている地域","コンクリートのビルが並ぶ地域","田畑が広がる地域","海べの砂浜が続く地域"]},
+  {id:"ROUND9-N06", cat:"N", q:"地震のあと、火災が広がってしまう理由として教科書にあげられているのは？", a:"避難する自動車で道路が渋滞し、消防車の到着がおくれるから", choices:["避難する自動車で道路が渋滞し、消防車の到着がおくれるから","地震ですべての消防署がなくなってしまうから","火山灰で消防車が動かなくなるから","津波で道路がすべて通れなくなるから"]},
+  {id:"ROUND9-N07", cat:"N", q:"1923年の関東大震災で、多くの人が亡くなる原因になった「炎の竜巻」を何という？", a:"火災旋風", kana:"かさいせんぷう", choices:["火災旋風","津波","液状化現象","火砕流"]},
+  {id:"ROUND9-N08", cat:"N", q:"海底で地震が起こると発生し、海の水が陸におしよせる現象を何という？", a:"津波", kana:"つなみ", choices:["津波","高潮","洪水","泥流"]},
+  {id:"ROUND9-N10", cat:"N", q:"リアス海岸では、湾に入った津波はどうなる？", a:"せばめられて、高くなる", choices:["せばめられて、高くなる","広がって、低くなる","湾の入口で止まる","陸に着く前に消える"]},
+  {id:"ROUND9-N11", cat:"N", q:"リアス海岸では、津波から避難できるどんな場所が近くにある？", a:"山", kana:"やま", choices:["山","高いビル","地下街","大きな橋"]},
+  {id:"ROUND9-N12", cat:"N", q:"東日本大震災の説明として、まちがっているものは？", a:"震源は太平洋沖の南海トラフだった", choices:["国内の観測史上最大規模の地震だった","震源は太平洋沖の南海トラフだった","福島第一原子力発電所で連続して大きな事故が発生した","東京の都心部でも交通機関が止まり、帰宅困難者が大量に出た"]},
+  {id:"ROUND9-N14", cat:"N", q:"電気・ガス・水道など、生活をするうえで欠かせない設備のことを何という？", a:"ライフライン", choices:["ライフライン","ハザードマップ","ライフスタイル","ネットワーク"]}
+];
+
+/* ---- 第8・11・12・14回（予習シリーズ4年下 社会）出題は教科書・ノート・基本問題・要点チェックの写真にある内容だけ。すべて4択 ---- */
+var QUESTIONS_ROUND8 = [
+  {id:"ROUND8-S01", cat:"S", q:"日本の多くは、何という気候帯にふくまれる？", a:"温帯", choices:["温帯","熱帯","寒帯","乾燥帯"]},
+  {id:"ROUND8-S02", cat:"S", q:"季節によって、風向きがちがう風のことを何という？", a:"季節風", choices:["台風","季節風","やませ","フェーン"]},
+  {id:"ROUND8-S03", cat:"S", q:"夏に、おもに南東から太平洋側にふく季節風は？", a:"夏の南東の季節風", choices:["夏の北西の季節風","冬の南東の季節風","夏の南東の季節風","夏の北東の季節風"]},
+  {id:"ROUND8-S04", cat:"S", q:"冬に、日本海側に雪や雨を降らせるのは、どの方位からの季節風？", a:"北西", choices:["南東","南西","北東","北西"]},
+  {id:"ROUND8-S05", cat:"S", q:"冬の北西の季節風は、日本海をわたるとき、何を運んでくる？", a:"水蒸気", choices:["水蒸気","火山灰","砂ぼこり","海水の塩"]},
+  {id:"ROUND8-S06", cat:"S", q:"日本海側に雪が多く降るのは、北西の季節風が何にぶつかって上昇するから？", a:"山地・山脈", choices:["太平洋","山地・山脈","大きな平野","海流"]},
+  {id:"ROUND8-S07", cat:"S", q:"太平洋側を流れる暖流は？", a:"黒潮（日本海流）", choices:["親潮（千島海流）","対馬海流","黒潮（日本海流）","リマン海流"]},
+  {id:"ROUND8-S08", cat:"S", q:"日本海側を流れる暖流は？", a:"対馬海流", choices:["黒潮（日本海流）","親潮（千島海流）","千島海流","対馬海流"]},
+  {id:"ROUND8-S09", cat:"S", q:"太平洋側を流れる寒流は？", a:"親潮（千島海流）", choices:["親潮（千島海流）","黒潮（日本海流）","対馬海流","日本海流"]},
+  {id:"ROUND8-S10", cat:"S", q:"九州から本州にかけて、6月ごろから1か月以上、雨の多い日が続く時期を何という？", a:"梅雨", choices:["台風","梅雨","やませ","高潮"]},
+  {id:"ROUND8-S11", cat:"S", q:"熱帯で発生し、8〜9月を中心に強い風や雨をともなって、日本の近くにやって来るものは？", a:"台風", choices:["梅雨","季節風","台風","やませ"]},
+  {id:"ROUND8-S12", cat:"S", q:"台風が通過するときなどに、海面が異常に高くなる現象を何という？", a:"高潮", choices:["津波","洪水","日照り","高潮"]},
+  {id:"ROUND8-S13", cat:"S", q:"台風は、どこで発生する？", a:"一年中気温の高い熱帯", choices:["一年中気温の高い熱帯","一年中気温の低い寒帯","大陸の内陸部","日本海の北部"]},
+  {id:"ROUND8-S14", cat:"S", q:"2月の立春から数えて210日目で、9月1日ごろをさす日は？", a:"二百十日", choices:["二百二十日","二百十日","八十八夜","夏至"]},
+  {id:"ROUND8-T01", cat:"T", q:"冬に雪や雨が多く降る気候は？", a:"日本海側の気候", choices:["太平洋側の気候","中央高地の気候","日本海側の気候","北海道の気候"]},
+  {id:"ROUND8-T02", cat:"T", q:"夏はむし暑く、冬は乾燥した晴れの日が多くなる気候は？", a:"太平洋側の気候", choices:["日本海側の気候","北海道の気候","南西諸島の気候","太平洋側の気候"]},
+  {id:"ROUND8-T03", cat:"T", q:"梅雨や台風の影響をあまり受けず、冬の気温がとくに低くなる気候は？", a:"北海道の気候", choices:["北海道の気候","太平洋側の気候","瀬戸内の気候","南西諸島の気候"]},
+  {id:"ROUND8-T04", cat:"T", q:"一年中雨が少なく、温和な気候は？", a:"瀬戸内の気候", choices:["日本海側の気候","瀬戸内の気候","南西諸島の気候","中央高地の気候"]},
+  {id:"ROUND8-T05", cat:"T", q:"一年中気温が高く、雨が多い気候は？", a:"南西諸島の気候", choices:["北海道の気候","瀬戸内の気候","南西諸島の気候","中央高地の気候"]},
+  {id:"ROUND8-T06", cat:"T", q:"夏と冬、昼と夜の気温の差が大きく、降水量が少ない気候は？", a:"中央高地（内陸性）の気候", choices:["太平洋側の気候","日本海側の気候","南西諸島の気候","中央高地（内陸性）の気候"]},
+  {id:"ROUND8-T07", cat:"T", q:"日本海側の気候を代表する都市は？", a:"金沢市", choices:["金沢市","高知市","高松市","那覇市"]},
+  {id:"ROUND8-T08", cat:"T", q:"太平洋側の気候を代表する都市は？", a:"高知市", choices:["金沢市","高知市","札幌市","松本市"]},
+  {id:"ROUND8-T09", cat:"T", q:"瀬戸内の気候を代表する都市は？", a:"高松市", choices:["高知市","那覇市","高松市","札幌市"]},
+  {id:"ROUND8-T10", cat:"T", q:"北海道の気候を代表する都市は？", a:"札幌市", choices:["高松市","金沢市","松本市","札幌市"]},
+  {id:"ROUND8-T11", cat:"T", q:"南西諸島の気候を代表する都市は？", a:"那覇市", choices:["那覇市","高知市","高松市","松本市"]},
+  {id:"ROUND8-T12", cat:"T", q:"中央高地（内陸性）の気候を代表する都市は？", a:"松本市", choices:["那覇市","松本市","金沢市","高知市"]},
+  {id:"ROUND8-T13", cat:"T", q:"日本の気候は、大きくいくつに分けることができる？", a:"6つ", choices:["3つ","4つ","6つ","8つ"]},
+  {id:"ROUND8-U01", cat:"U", q:"夏に気温が上がらなかったり、日照時間が短かったりして、作物が被害を受けることを何という？", a:"冷害", choices:["干害","霜害","雪害","冷害"]},
+  {id:"ROUND8-U02", cat:"U", q:"6月〜8月に東北地方の太平洋側にふく冷たい風は？", a:"やませ", choices:["やませ","季節風","台風","フェーン"]},
+  {id:"ROUND8-U03", cat:"U", q:"大雪のため、交通機関や電気が止まるなどの被害が出ることを何という？", a:"雪害", choices:["冷害","雪害","干害","風水害"]},
+  {id:"ROUND8-U04", cat:"U", q:"水不足によって、作物が枯れる被害を何という？", a:"干害（日照りの害）", choices:["冷害","雪害","干害（日照りの害）","霜害"]},
+  {id:"ROUND8-U05", cat:"U", q:"雨の少ない瀬戸内地方などで多く発生する自然災害は？", a:"干害", choices:["雪害","冷害","霜害","干害"]},
+  {id:"ROUND8-U06", cat:"U", q:"水不足にそなえて、雨の少ない地方でつくられてきたものは？", a:"ため池", choices:["ため池","消雪パイプ","防霜ファン","スプリンクラー"]},
+  {id:"ROUND8-U07", cat:"U", q:"梅雨や台風などが原因となって起こる災害を何という？", a:"風水害", choices:["冷害","風水害","干害","霜害"]},
+  {id:"ROUND8-U08", cat:"U", q:"風水害を防ぐために行われている対策は？", a:"山に植林をする", choices:["道路に消雪パイプをつくる","ファンで空気をかくはんする","山に植林をする","ビニールで作物をおおう"]},
+  {id:"ROUND8-U09", cat:"U", q:"作物が育つ時期に、朝の冷えこみがきびしいと受ける被害は？", a:"霜害（霜の害）", choices:["冷害","干害","雪害","霜害（霜の害）"]},
+  {id:"ROUND8-U10", cat:"U", q:"霜害を防ぐために、茶畑などで空気をかくはんするものは？", a:"ファン（防霜ファン）", choices:["ファン（防霜ファン）","スプリンクラー","消雪パイプ","ため池"]},
+  {id:"ROUND8-U11", cat:"U", q:"大雪が降る北陸から中部地方の道路で、雪をとかすためにつくられているものは？", a:"消雪パイプ", choices:["防霜ファン","消雪パイプ","ため池","ダム"]},
+  {id:"ROUND8-U12", cat:"U", q:"都市の気温が、周囲より高くなる現象を何という？", a:"ヒートアイランド現象", choices:["エルニーニョ現象","フェーン現象","ヒートアイランド現象","液状化現象"]},
+  {id:"ROUND8-U13", cat:"U", q:"ヒートアイランド現象の原因として正しくないものは？", a:"森林が増えて気温が下がること", choices:["エアコンや自動車から熱が出されること","ビルが増えて風通しが悪くなること","コンクリートの建物や舗装道路が熱をためること","森林が増えて気温が下がること"]},
+  {id:"ROUND8-U14", cat:"U", q:"ヒートアイランド現象をやわらげるために行われている、ビルの屋上などの対策は？", a:"屋上緑化", choices:["屋上緑化","屋上駐車場","屋上プール","屋上アンテナ"]},
+  {id:"ROUND8-U15", cat:"U", q:"1日の最高気温が35℃以上の日を何という？", a:"猛暑日", choices:["真夏日","猛暑日","夏日","冬日"]}
+];
+var QUESTIONS_ROUND11 = [
+  {id:"ROUND11-V01", cat:"V", q:"寒さに強い、味がよいなど、目的に合った作物をつくり出すことを何という？", a:"品種改良", choices:["品種改良","品種輸入","生産調整","田起こし"]},
+  {id:"ROUND11-V02", cat:"V", q:"日本の夏は、気温が高く雨が多いので、何に向いている？", a:"稲作", choices:["小麦づくり","稲作","畜産","茶づくり"]},
+  {id:"ROUND11-V03", cat:"V", q:"北海道の米の産地で、石狩平野のほかにあるのは？", a:"上川盆地", choices:["仙台平野","庄内平野","上川盆地","越後平野"]},
+  {id:"ROUND11-V04", cat:"V", q:"秋田平野・庄内平野・仙台平野など、全国の米の4分の1以上を生産しているのは？", a:"東北地方", choices:["九州地方","関東地方","四国地方","東北地方"]},
+  {id:"ROUND11-V05", cat:"V", q:"山形県で米づくりがさかんな平野は？", a:"庄内平野", choices:["庄内平野","仙台平野","秋田平野","越後平野"]},
+  {id:"ROUND11-V06", cat:"V", q:"宮城県で米づくりがさかんな平野は？", a:"仙台平野", choices:["庄内平野","仙台平野","越後平野","石狩平野"]},
+  {id:"ROUND11-V07", cat:"V", q:"新潟県の米づくりがさかんな平野は？", a:"越後平野", choices:["庄内平野","石狩平野","越後平野","秋田平野"]},
+  {id:"ROUND11-V08", cat:"V", q:"新潟県で多くつくられている、米の品種は？", a:"コシヒカリ", choices:["あきたこまち","ひとめぼれ","ななつぼし","コシヒカリ"]},
+  {id:"ROUND11-V09", cat:"V", q:"米の生産量が日本一の都道府県は？", a:"新潟県", choices:["新潟県","北海道","秋田県","山形県"]},
+  {id:"ROUND11-V10", cat:"V", q:"米の生産量で、新潟県に次いで全国2位の道県は？", a:"北海道", choices:["秋田県","北海道","山形県","宮城県"]},
+  {id:"ROUND11-V11", cat:"V", q:"日本で米をつくっている面積の3分の1以上をしめている品種は？", a:"コシヒカリ", choices:["あきたこまち","ひとめぼれ","コシヒカリ","ななつぼし"]},
+  {id:"ROUND11-V12", cat:"V", q:"秋田県のあきたこまちや宮城県のひとめぼれは、何の代表的な品種？", a:"稲（米）", choices:["小麦","大豆","とうもろこし","稲（米）"]},
+  {id:"ROUND11-V13", cat:"V", q:"同じ耕地で、1年に1種類の作物だけを栽培することを何という？", a:"単作", choices:["単作","二毛作","近郊農業","促成栽培"]},
+  {id:"ROUND11-V14", cat:"V", q:"北陸地方や東北地方に見られる米の単作地帯は、どんな気候？", a:"冬に雪が多い", choices:["一年中あたたかい","冬に雪が多い","一年中雨が少ない","夏に雨が少ない"]},
+  {id:"ROUND11-V15", cat:"V", q:"水田は、洪水を防ぐためにつくられた全国のダムの貯水量の約何倍以上の水をたくわえている？", a:"3倍", choices:["半分","10倍","3倍","同じ"]},
+  {id:"ROUND11-V16", cat:"V", q:"山のしゃ面に階段のようにつくられた水田を何という？", a:"棚田", choices:["干拓地","段丘","三角州","棚田"]},
+  {id:"ROUND11-W01", cat:"W", q:"米づくりで、ビニールハウスの中で苗を育てる作業は？", a:"育苗", choices:["育苗","代かき","中干し","田起こし"]},
+  {id:"ROUND11-W02", cat:"W", q:"肥料をまいた後、トラクターなどを使って田を耕すことを何という？", a:"田起こし", choices:["代かき","田起こし","中干し","田植え"]},
+  {id:"ROUND11-W03", cat:"W", q:"田に水を入れ、土をくだいて平らにすることを何という？", a:"代かき", choices:["田起こし","中干し","代かき","脱穀"]},
+  {id:"ROUND11-W04", cat:"W", q:"田植え機を使って、苗を田に植える作業は？", a:"田植え", choices:["代かき","中干し","田起こし","田植え"]},
+  {id:"ROUND11-W05", cat:"W", q:"7月ごろ、田の水をぬき、土を乾かす作業は？", a:"中干し", choices:["中干し","代かき","田植え","育苗"]},
+  {id:"ROUND11-W06", cat:"W", q:"中干しをする目的は？", a:"土に酸素が入って根がよくのびるようにするため", choices:["稲に水をたくさん飲ませるため","土に酸素が入って根がよくのびるようにするため","雑草を植えるため","もみの数を減らすため"]},
+  {id:"ROUND11-W07", cat:"W", q:"稲刈りと、稲穂から米粒をはなす脱穀を一度に行う農業機械は？", a:"コンバイン", choices:["トラクター","田植え機","コンバイン","スプリンクラー"]},
+  {id:"ROUND11-W08", cat:"W", q:"わら・落ち葉・家畜のふんなどを積み上げ、くさらせてつくる肥料は？", a:"たい肥", choices:["化学肥料","農薬","種もみ","たい肥"]},
+  {id:"ROUND11-W09", cat:"W", q:"米づくりの作業を、早い順にならべたとき、正しいものは？", a:"育苗→田起こし→代かき→田植え", choices:["育苗→田起こし→代かき→田植え","代かき→育苗→田植え→田起こし","田植え→代かき→田起こし→育苗","田起こし→田植え→代かき→育苗"]},
+  {id:"ROUND11-X01", cat:"X", q:"もみから、もみ殻を取りのぞいたものを何という？", a:"玄米", choices:["精白米","玄米","米粉","もち米"]},
+  {id:"ROUND11-X02", cat:"X", q:"玄米から、ぬか（皮の部分）や胚芽を取りのぞいたものを何という？", a:"精白米", choices:["玄米","もみ","精白米","米粉"]},
+  {id:"ROUND11-X03", cat:"X", q:"収穫した米を乾燥して保管する設備を何という？", a:"カントリーエレベーター", choices:["ライスセンター倉庫","ダム","トレーサビリティ","カントリーエレベーター"]},
+  {id:"ROUND11-X04", cat:"X", q:"田に直接、種もみをまく方法を何という？", a:"直まき", choices:["直まき","田植え","育苗","代かき"]},
+  {id:"ROUND11-X05", cat:"X", q:"大型の農業機械を使うなどして、水田の面積を大きくすると、どうなる？", a:"作業にかかる時間を減らせる", choices:["作業の時間が増える","作業にかかる時間を減らせる","米の味が変わる","収穫が必ず2倍になる"]},
+  {id:"ROUND11-X06", cat:"X", q:"化学肥料や農薬を使わずに米などを栽培する方法を何という？", a:"有機栽培", choices:["促成栽培","二毛作","有機栽培","近郊農業"]},
+  {id:"ROUND11-X07", cat:"X", q:"日本人の米の消費量は、60年ほど前とくらべてどうなった？", a:"半分以下になった", choices:["2倍になった","変わらない","少し増えた","半分以下になった"]},
+  {id:"ROUND11-X08", cat:"X", q:"米が余るようになり、1970年ごろから行われた、米の生産をおさえる政策を何という？", a:"生産調整（減反政策）", choices:["生産調整（減反政策）","品種改良","輸入自由化","有機栽培"]},
+  {id:"ROUND11-X09", cat:"X", q:"米の生産をおさえるために、米以外の作物をつくることを何という？", a:"転作", choices:["単作","転作","直まき","田起こし"]},
+  {id:"ROUND11-X10", cat:"X", q:"日本が米の輸入を始めたのは、何年からか？", a:"1995年", choices:["1970年","1955年","1995年","2020年"]},
+  {id:"ROUND11-X11", cat:"X", q:"米の消費を増やすために、米をくだいて粉にして加工した食品の材料を何という？", a:"米粉", choices:["玄米","飼料米","もみ殻","米粉"]}
+];
+var QUESTIONS_ROUND12 = [
+  {id:"ROUND12-Y01", cat:"Y", q:"北海道で全国の半分以上が生産されている穀物は？", a:"小麦", choices:["小麦","大豆","米","とうもろこし"]},
+  {id:"ROUND12-Y02", cat:"Y", q:"小麦粉からつくられるものは？", a:"うどん・パスタ・パン", choices:["みそ・とうふ","うどん・パスタ・パン","砂糖・塩","たたみ表・ござ"]},
+  {id:"ROUND12-Y03", cat:"Y", q:"国内の小麦の生産量が少ないのは、収穫の時期が何の影響を受けやすいから？", a:"梅雨", choices:["台風","冬の雪","梅雨","春の霜"]},
+  {id:"ROUND12-Y04", cat:"Y", q:"日本は小麦のほとんどをどこから輸入している？", a:"アメリカなど", choices:["中国のみ","北海道","ヨーロッパのみ","アメリカなど"]},
+  {id:"ROUND12-Y05", cat:"Y", q:"みそ・とうふ・しょうゆなどの原料になる作物は？", a:"大豆", choices:["大豆","小麦","とうもろこし","さつまいも"]},
+  {id:"ROUND12-Y06", cat:"Y", q:"大豆の多くは、何をとるために使われる？", a:"油", choices:["砂糖","油","塩","お茶"]},
+  {id:"ROUND12-Y07", cat:"Y", q:"大豆の多くは、どこから輸入されている？", a:"アメリカなど", choices:["北海道","沖縄県","アメリカなど","韓国のみ"]},
+  {id:"ROUND12-Y08", cat:"Y", q:"大豆の生産量が日本一の道県は？", a:"北海道", choices:["宮城県","秋田県","佐賀県","北海道"]},
+  {id:"ROUND12-Y09", cat:"Y", q:"家畜にあたえるえさとなる穀物は？", a:"とうもろこし", choices:["とうもろこし","小麦","米","大豆"]},
+  {id:"ROUND12-Y10", cat:"Y", q:"とうもろこしは、おもに何に使われる？", a:"家畜のえさ", choices:["みそ","家畜のえさ","しょうゆ","お茶"]},
+  {id:"ROUND12-Y11", cat:"Y", q:"とうもろこしのほとんどは、どこから輸入されている？", a:"アメリカなど", choices:["北海道","沖縄","アメリカなど","中国のみ"]},
+  {id:"ROUND12-Y12", cat:"Y", q:"とうもろこしなどを原料にしてつくられる、燃料のことを何という？", a:"バイオマス燃料（バイオ燃料）", choices:["原子力燃料","石炭燃料","地熱燃料","バイオマス燃料（バイオ燃料）"]},
+  {id:"ROUND12-Y13", cat:"Y", q:"米・麦・とうもろこし・豆など、人間がその種・実を食べる植物のことを何という？", a:"穀物", choices:["穀物","いも類","工芸作物","野菜"]},
+  {id:"ROUND12-Z01", cat:"Z", q:"日本一の生産量をあげているじゃがいもの産地は？", a:"北海道", choices:["鹿児島県","北海道","長崎県","茨城県"]},
+  {id:"ROUND12-Z02", cat:"Z", q:"じゃがいもの別名で、馬鈴薯ともいう。何年ほど前に日本に伝えられた？", a:"約450年前", choices:["約50年前","約100年前","約450年前","約1000年前"]},
+  {id:"ROUND12-Z03", cat:"Z", q:"さつまいもの生産量が日本一の県は？", a:"鹿児島県", choices:["北海道","長崎県","茨城県","鹿児島県"]},
+  {id:"ROUND12-Z04", cat:"Z", q:"「さつまいも」の名前は、何から名づけられた？", a:"鹿児島県西部の昔の国名", choices:["鹿児島県西部の昔の国名","さつまの形","うすい赤色","収穫できる季節"]},
+  {id:"ROUND12-Z05", cat:"Z", q:"さつまいもは、約400年ほど前にどこから伝えられた？", a:"沖縄", choices:["北海道","沖縄","中国地方","東北地方"]},
+  {id:"ROUND12-Z06", cat:"Z", q:"太平洋戦争のころ、さつまいもが多く栽培されたのは、なぜ？", a:"食べ物が不足して、さつまいもが食料になったから", choices:["さつまいもがぜいたく品だったから","外国から大量に輸入できたから","食べ物が不足して、さつまいもが食料になったから","花を楽しむために栽培されたから"]},
+  {id:"ROUND12-Z07", cat:"Z", q:"いも類が育つのは、どんな土地？", a:"気温の変化に強く、養分が少ない土地", choices:["養分が多く、水が豊富な土地","気温が変化しない土地","水の中","気温の変化に強く、養分が少ない土地"]},
+  {id:"ROUND12-AA01", cat:"AA", q:"食品をはじめとする製品に加工される作物を何という？", a:"工芸作物", choices:["工芸作物","飼料作物","穀物","いも類"]},
+  {id:"ROUND12-AA02", cat:"AA", q:"沖縄県と鹿児島県で多く栽培されている、砂糖の原料になる作物は？", a:"さとうきび", choices:["てんさい","さとうきび","茶","いぐさ"]},
+  {id:"ROUND12-AA03", cat:"AA", q:"北海道で栽培されている、砂糖の原料になる作物は？", a:"てんさい（ビート）", choices:["さとうきび","こうぞ","てんさい（ビート）","紅花"]},
+  {id:"ROUND12-AA04", cat:"AA", q:"てんさい（ビート）は、おもにどこで栽培される？", a:"北海道", choices:["沖縄県","静岡県","熊本県","北海道"]},
+  {id:"ROUND12-AA05", cat:"AA", q:"茶は、どんな地域で栽培されている？", a:"あたたかく、水はけのよい地域", choices:["あたたかく、水はけのよい地域","寒くて雨の少ない地域","雪の多い地域","湿地や池の中"]},
+  {id:"ROUND12-AA06", cat:"AA", q:"茶の生産が多い静岡県と、もう1つの県は？", a:"鹿児島県", choices:["群馬県","鹿児島県","熊本県","沖縄県"]},
+  {id:"ROUND12-AA07", cat:"AA", q:"静岡県と鹿児島県で、全国の約何分の何以上の茶が生産されている？", a:"3分の2以上", choices:["3分の1","10分の1","3分の2以上","半分以下"]},
+  {id:"ROUND12-AA08", cat:"AA", q:"こんにゃくの原料になる作物は？", a:"こんにゃくいも", choices:["さつまいも","じゃがいも","てんさい","こんにゃくいも"]},
+  {id:"ROUND12-AA09", cat:"AA", q:"こんにゃくいもは、どこの県の特産物？", a:"群馬県", choices:["群馬県","沖縄県","静岡県","熊本県"]},
+  {id:"ROUND12-AA10", cat:"AA", q:"たたみ表やござに加工される作物は？", a:"いぐさ", choices:["こうぞ","いぐさ","紅花","うるし"]},
+  {id:"ROUND12-AA11", cat:"AA", q:"いぐさのおもな産地は、どこの県？", a:"熊本県", choices:["群馬県","静岡県","熊本県","北海道"]},
+  {id:"ROUND12-AA12", cat:"AA", q:"和紙の原料になるものは？", a:"こうぞ・みつまた", choices:["いぐさ","紅花","こんにゃくいも","こうぞ・みつまた"]},
+  {id:"ROUND12-AA13", cat:"AA", q:"赤色に染めたり、食用油に加工される作物は？", a:"紅花", choices:["紅花","いぐさ","うるし","さとうきび"]},
+  {id:"ROUND12-AA14", cat:"AA", q:"漆器をつくるときに、お盆などに塗る原料は？", a:"うるし", choices:["紅花","うるし","こうぞ","いぐさ"]},
+  {id:"ROUND12-AA15", cat:"AA", q:"昔は、照明の燃料にもなり、今は食用の油としても利用される作物は？", a:"菜種（なたね）", choices:["こうぞ","みつまた","菜種（なたね）","いぐさ"]},
+  {id:"ROUND12-AA16", cat:"AA", q:"新茶の出荷が他の産地より早い4月上旬に始まる、茶の産地は？", a:"鹿児島県", choices:["京都府","埼玉県","静岡県","鹿児島県"]},
+  {id:"ROUND12-AA17", cat:"AA", q:"茶の新芽が霜におそわれないよう、夜に空気を回すものは？", a:"防霜ファン", choices:["防霜ファン","消雪パイプ","スプリンクラー","ため池"]},
+  {id:"ROUND12-AA18", cat:"AA", q:"京都府でつくられる、高級な茶として知られるのは？", a:"宇治茶", choices:["狭山茶","宇治茶","静岡茶","北海道茶"]},
+  {id:"ROUND12-AA19", cat:"AA", q:"関東地方で有名な、埼玉県の茶は？", a:"狭山茶", choices:["宇治茶","静岡茶","狭山茶","鹿児島茶"]}
+];
+var QUESTIONS_ROUND14 = [
+  {id:"ROUND14-O01", cat:"O", q:"ぶた・牛・にわとりなどを飼って、肉・牛乳・たまごなどを生産する農業は？", a:"畜産", choices:["畜産","稲作","近郊農業","工芸作物の栽培"]},
+  {id:"ROUND14-O02", cat:"O", q:"牛乳や乳製品をつくるために乳牛を飼うことを、とくに何という？", a:"酪農", choices:["促成栽培","酪農","近郊農業","養殖"]},
+  {id:"ROUND14-O03", cat:"O", q:"牛乳を生産するための牛は？", a:"乳牛", choices:["肉牛","若鶏","乳牛","採卵鶏"]},
+  {id:"ROUND14-O04", cat:"O", q:"肉を生産するための牛は？", a:"肉牛", choices:["乳牛","採卵鶏","肉用若鶏","肉牛"]},
+  {id:"ROUND14-O05", cat:"O", q:"乳牛は、広い土地にめぐまれた北海道や、どこで多く飼われている？", a:"岩手県", choices:["岩手県","鹿児島県","宮崎県","沖縄県"]},
+  {id:"ROUND14-O06", cat:"O", q:"乳牛が多く飼われている県のうち、関東地方にあるのは？", a:"栃木県", choices:["鹿児島県","栃木県","宮崎県","岩手県"]},
+  {id:"ROUND14-O07", cat:"O", q:"乳牛は、北海道や岩手県のほか、どんな地方でも多く飼われている？", a:"大都市に近い関東地方", choices:["大都市から遠い九州地方","雨の少ない瀬戸内地方","大都市に近い関東地方","雪の多い北陸地方"]},
+  {id:"ROUND14-O08", cat:"O", q:"肉牛は、北海道のほか、どこの県で多く飼われている？", a:"鹿児島県・宮崎県", choices:["栃木県・群馬県","岩手県・青森県","千葉県・茨城県","鹿児島県・宮崎県"]},
+  {id:"ROUND14-O09", cat:"O", q:"ぶたが多く飼われている県は？", a:"鹿児島県・宮崎県", choices:["鹿児島県・宮崎県","北海道・岩手県","千葉県・茨城県","栃木県・群馬県"]},
+  {id:"ROUND14-O10", cat:"O", q:"ぶたの飼育頭数が最も多い県は？", a:"鹿児島県", choices:["岩手県","鹿児島県","栃木県","茨城県"]},
+  {id:"ROUND14-O11", cat:"O", q:"にわとりは、たまごをとる「採卵鶏」と、何をとるための「若鶏」に分けられる？", a:"肉", choices:["牛乳","毛","肉","羽毛ぶとん"]},
+  {id:"ROUND14-O12", cat:"O", q:"たまごをとるための採卵鶏が多く飼われているのは、千葉県や茨城県などの何地方？", a:"関東地方", choices:["九州地方","東北地方","四国地方","関東地方"]},
+  {id:"ROUND14-O13", cat:"O", q:"肉をとるための若鶏が多く飼われているのは、どこの県？", a:"鹿児島県・宮崎県", choices:["鹿児島県・宮崎県","千葉県・茨城県","栃木県・熊本県","北海道・岩手県"]},
+  {id:"ROUND14-O14", cat:"O", q:"1991年から外国産の安い牛肉を何できるようになった？", a:"自由に輸入", choices:["自由に輸出","自由に輸入","自由に生産","自由にゆずり合い"]},
+  {id:"ROUND14-O15", cat:"O", q:"輸入された安い牛肉が入ってきて、国内の肉牛農家はどうなった？", a:"きびしい競争にさらされた", choices:["売れ行きがよくなった","仕事がなくなった","きびしい競争にさらされた","外国に牛肉を売れるようになった"]},
+  {id:"ROUND14-O16", cat:"O", q:"松阪牛のように、品質のよさをとくに強調した高級な牛肉を何という？", a:"ブランド牛", choices:["輸入牛","乳牛","飼料牛","ブランド牛"]},
+  {id:"ROUND14-O17", cat:"O", q:"「松阪牛」は、どこの県でつくられているブランド牛？", a:"三重県", choices:["三重県","山形県","兵庫県","岐阜県"]},
+  {id:"ROUND14-O18", cat:"O", q:"「米沢牛」は、どこの県でつくられているブランド牛？", a:"山形県", choices:["三重県","山形県","兵庫県","岩手県"]},
+  {id:"ROUND14-O19", cat:"O", q:"「神戸ビーフ」は、どこの県でつくられているブランド牛？", a:"兵庫県", choices:["三重県","宮崎県","兵庫県","山形県"]},
+  {id:"ROUND14-O20", cat:"O", q:"「飛騨牛」は、どこの県でつくられているブランド牛？", a:"岐阜県", choices:["三重県","山形県","滋賀県","岐阜県"]},
+  {id:"ROUND14-O21", cat:"O", q:"食べ物などの商品が、いつ・どこで生産され、どのようにして消費者まで届いたのかを調べることができるしくみを何という？", a:"トレーサビリティ", choices:["トレーサビリティ","バリアフリー","ライフライン","ハザードマップ"]},
+  {id:"ROUND14-O22", cat:"O", q:"牛のトレーサビリティでは、牛ごとに登録された何番号を使って調べる？", a:"個体識別番号", choices:["郵便番号","個体識別番号","電話番号","整理番号"]},
+  {id:"ROUND14-P01", cat:"P", q:"家畜にあたえるえさのことを何という？", a:"飼料", choices:["肥料","原料","飼料","燃料"]},
+  {id:"ROUND14-P02", cat:"P", q:"家畜の飼料になる作物（とくにとうもろこし）のことを何という？", a:"飼料作物", choices:["工芸作物","野菜","穀物","飼料作物"]},
+  {id:"ROUND14-P03", cat:"P", q:"畜産農家で行う、牛舎のようすを見て回る仕事を何という？", a:"見回り", choices:["見回り","代かき","中干し","田起こし"]},
+  {id:"ROUND14-P04", cat:"P", q:"畜産農家は、家畜をおそう病気から守るために、出入りする自動車も何をしている？", a:"消毒", choices:["水あらい","消毒","ぬりかえ","点検だけ"]},
+  {id:"ROUND14-P05", cat:"P", q:"家畜を伝染病から守るために、牛舎に入れる人はどうなっている？", a:"限られた人だけ", choices:["だれでも自由","お客さんだけ","限られた人だけ","近所の人だけ"]},
+  {id:"ROUND14-P06", cat:"P", q:"牛舎にカメラや温度センサーなどを置くのは、何のため？", a:"見回り以外の時もようすがわかるように", choices:["牛に音楽を聞かせるため","えさを安く買うため","牛乳をそのまま売るため","見回り以外の時もようすがわかるように"]},
+  {id:"ROUND14-P07", cat:"P", q:"乳牛を飼う農家で、毎日2〜3回行う仕事は？", a:"乳しぼり", choices:["乳しぼり","田植え","稲刈り","毛がり"]},
+  {id:"ROUND14-P08", cat:"P", q:"乳牛は暑さに弱いため、牛舎では何で水をまくなどの対策をする？", a:"スプリンクラー", choices:["ストーブ","スプリンクラー","ファン","消雪パイプ"]},
+  {id:"ROUND14-P09", cat:"P", q:"にわとりを飼う農家では、きつねなどの動物におそわれないよう、何で囲むことがある？", a:"電気が流れる柵", choices:["高いコンクリートのへい","ビニールハウス","電気が流れる柵","大きな池"]},
+  {id:"ROUND14-P10", cat:"P", q:"休みをとりにくい酪農家が休めるように、代わりに乳しぼりやえさやりなどを行う人を何という？", a:"酪農ヘルパー", choices:["酪農ガイド","畜産ドクター","牛舎ボランティア","酪農ヘルパー"]},
+  {id:"ROUND14-Q01", cat:"Q", q:"畜産農家が減っている理由として、正しくないものは？", a:"外国から安い飼料が手に入らなくなったこと", choices:["外国から安い飼料が手に入らなくなったこと","働く人の年齢が高くなり、後つぎが不足していること","安い輸入肉との競争がきびしいこと","設備や飼料などに多くの費用がかかること"]},
+  {id:"ROUND14-Q02", cat:"Q", q:"外国産の安い肉に対抗するため、畜産農家が行っている工夫は？", a:"機械化を進め、複数の農家で共同して飼育する", choices:["飼育をすべて外国にまかせる","機械化を進め、複数の農家で共同して飼育する","えさを安い外国産に切りかえる","家畜の数をできるだけ少なくする"]},
+  {id:"ROUND14-Q03", cat:"Q", q:"日本の家畜の飼料の多くは、どうやって手に入れている？", a:"外国からの輸入にたよっている", choices:["国内の山でとっている","国内の海でとっている","外国からの輸入にたよっている","すべて国内で自給している"]},
+  {id:"ROUND14-Q04", cat:"Q", q:"国内の飼料を増やすため、水田で栽培した米を家畜の飼料にしたものを何という？", a:"飼料用米", choices:["精白米","玄米","米粉","飼料用米"]},
+  {id:"ROUND14-Q05", cat:"Q", q:"飼料用米は、何のために水田で栽培された米のこと？", a:"家畜の飼料として利用するため", choices:["家畜の飼料として利用するため","お酒をつくるため","パンにするため","外国に輸出するため"]},
+  {id:"ROUND14-Q06", cat:"Q", q:"畜産農家が、高く売るために行っている工夫は？", a:"品質のよさを伝え、ブランド化をはかる", choices:["売る量をできるだけ増やす","品質のよさを伝え、ブランド化をはかる","外国産の肉を安く売る","牛のえさを減らす"]},
+  {id:"ROUND14-Q07", cat:"Q", q:"ぶたの飼育農家の数と飼育頭数は、1992年から2023年にかけてどうなった？", a:"農家の数は大きく減り、頭数はあまり減っていない", choices:["農家の数も頭数も増えた","農家の数は増え、頭数は減った","農家の数は大きく減り、頭数はあまり減っていない","農家の数も頭数も同じ割合で減った"]},
+  {id:"ROUND14-Q08", cat:"Q", q:"ぶたの飼育農家の数の減り方は、飼育頭数の減り方とくらべてどうなっている？", a:"農家の数の減り方の方が大きい", choices:["頭数の減り方の方が大きい","まったく同じ","どちらも増えている","農家の数の減り方の方が大きい"]},
+  {id:"ROUND14-Q09", cat:"Q", q:"農家の数が減っても飼育頭数があまり減らない結果、農家1戸あたりの飼育頭数はどうなった？", a:"増えている", choices:["増えている","減っている","変わらない","ゼロになった"]},
+  {id:"ROUND14-Q10", cat:"Q", q:"日本は、家畜の飼料の量が国産より輸入の方が多い。この問題点として考えられることは？", a:"外国の事情によって価格が急に上がる場合がある", choices:["日本の飼料が外国で売れなくなる","外国の事情によって価格が急に上がる場合がある","国内の飼料があまってしまう","輸入の飼料が安くなりすぎる"]},
+  {id:"ROUND14-R01", cat:"R", q:"1955年の農業生産額は、何がいちばん多かった？", a:"米", choices:["野菜","畜産","米","くだもの"]},
+  {id:"ROUND14-R02", cat:"R", q:"2021年の農業生産額で、畜産は農業生産額全体のどれくらいをしめている？", a:"3分の1以上", choices:["10分の1","ほんの少し","半分以上","3分の1以上"]},
+  {id:"ROUND14-R03", cat:"R", q:"農業生産額で、畜産の割合が大きくなったのはなぜ？", a:"洋風の食事が広まり、肉や乳製品が好まれるようになったから", choices:["洋風の食事が広まり、肉や乳製品が好まれるようになったから","米の生産が増えたから","外国から肉が入らなくなったから","野菜が食べられなくなったから"]},
+  {id:"ROUND14-R04", cat:"R", q:"農業生産額の多い都道府県で、畜産の生産額がとくに大きいのは、北海道とどこの南部？", a:"九州", choices:["東北","九州","四国","関東"]}
+];
+
+var QUESTIONS_ROUND13 = [
+  {id:"ROUND13-AB01", cat:"AB", q:"大都市に近い地域で、大都市向けの野菜・くだもの・花などをつくる農業を何という？", a:"近郊農業", choices:["近郊農業","高冷地農業","促成栽培","露地栽培"]},
+  {id:"ROUND13-AB02", cat:"AB", q:"夏でも涼しい高原の気候を利用して、野菜をつくる農業を何という？", a:"高冷地農業", choices:["近郊農業","高冷地農業","促成栽培","露地栽培"]},
+  {id:"ROUND13-AB03", cat:"AB", q:"高冷地農業でつくられる野菜は？", a:"レタス・キャベツ・はくさい", choices:["ピーマン・なす・きゅうり","たまねぎ・にんじん","レタス・キャベツ・はくさい","さつまいも・じゃがいも"]},
+  {id:"ROUND13-AB04", cat:"AB", q:"高冷地農業がさかんな、長野県の高原は？", a:"野辺山原", choices:["越後平野","石狩平野","仙台平野","野辺山原"]},
+  {id:"ROUND13-AB05", cat:"AB", q:"キャベツの産地として全国に知られる、群馬県の村は？", a:"嬬恋村", choices:["嬬恋村","野辺山村","浅間村","八ヶ岳村"]},
+  {id:"ROUND13-AB06", cat:"AB", q:"野菜や花などを、ふつうよりも早い時期につくることを何という？", a:"促成栽培", choices:["高冷地農業","促成栽培","近郊農業","露地栽培"]},
+  {id:"ROUND13-AB07", cat:"AB", q:"促成栽培がさかんな平野は、宮崎平野とどこ？", a:"高知平野", choices:["越後平野","仙台平野","高知平野","石狩平野"]},
+  {id:"ROUND13-AB08", cat:"AB", q:"高知平野や宮崎平野で、ビニールハウスなどを利用して栽培されている野菜は？", a:"ピーマン・なす・きゅうり", choices:["レタス・はくさい","たまねぎ・にんじん","キャベツ・だいこん","ピーマン・なす・きゅうり"]},
+  {id:"ROUND13-AB09", cat:"AB", q:"ビニールハウスなどの施設を使わずに、作物を栽培する方法を何という？", a:"露地栽培", choices:["露地栽培","促成栽培","高冷地農業","近郊農業"]},
+  {id:"ROUND13-AB10", cat:"AB", q:"野菜をふつうよりも早い時期に出荷すると、高く売れるのはなぜ？", a:"ほかの地域でとれない時期に出荷できるから", choices:["外国から安く輸入できるから","ほかの地域でとれない時期に出荷できるから","野菜が大きくなるから","農家の数が増えるから"]},
+  {id:"ROUND13-AC01", cat:"AC", q:"季節によって、東京に野菜を出荷する都道府県が変わり、安定して消費地へ届くようにしていることを何という？", a:"産地のリレー", choices:["産地のバトン","旬の入れかえ","産地のリレー","野菜の自由化"]},
+  {id:"ROUND13-AC02", cat:"AC", q:"東京に出荷されるキャベツは、冬から春には愛知県や千葉県、夏にはどこの県のものが多い？", a:"群馬県", choices:["高知県","宮崎県","熊本県","群馬県"]},
+  {id:"ROUND13-AC03", cat:"AC", q:"野菜を仕事とする人が高齢化して起こっていることは？", a:"人手不足", choices:["人手不足","人手あまり","収入の大幅な増加","野菜の値下がり"]},
+  {id:"ROUND13-AC04", cat:"AC", q:"人手不足の産地のなかには、外国から何を学びに来ている人の力にたよっているところもある？", a:"農業", choices:["医療","農業","工業","漁業"]},
+  {id:"ROUND13-AC05", cat:"AC", q:"あらかじめ切られていて手間がかからず、スーパーやコンビニなどで売られている野菜を何という？", a:"カット野菜", choices:["伝統野菜","高原野菜","カット野菜","露地野菜"]},
+  {id:"ROUND13-AC06", cat:"AC", q:"形が不ぞろいで売り物にならない野菜を、どう利用する農家もある？", a:"カット野菜などに加工して販売する", choices:["すべて捨てる","そのまま外国に輸出する","家畜のえさにする","カット野菜などに加工して販売する"]},
+  {id:"ROUND13-AC07", cat:"AC", q:"京都府の京野菜や金沢市の加賀野菜など、その地域の気候や地形に合わせて昔から栽培されてきた野菜を何という？", a:"伝統野菜", choices:["伝統野菜","高原野菜","カット野菜","促成野菜"]},
+  {id:"ROUND13-AD01", cat:"AD", q:"日本で最も多く輸入されているくだものは？", a:"バナナ", choices:["りんご","バナナ","みかん","もも"]},
+  {id:"ROUND13-AD03", cat:"AD", q:"1991年から数量制限なく輸入することになったくだものは？", a:"オレンジ", choices:["バナナ","りんご","ぶどう","オレンジ"]},
+  {id:"ROUND13-AD04", cat:"AD", q:"りんごの生産量が全国のおよそ半分をしめる県は？", a:"青森県", choices:["青森県","長野県","山形県","和歌山県"]},
+  {id:"ROUND13-AD05", cat:"AD", q:"みかんの生産量が日本一の県は？", a:"和歌山県", choices:["愛媛県","和歌山県","青森県","山梨県"]},
+  {id:"ROUND13-AD06", cat:"AD", q:"ぶどうやももの生産量が日本一の県は？", a:"山梨県", choices:["山形県","長野県","山梨県","福島県"]},
+  {id:"ROUND13-AD07", cat:"AD", q:"おうとう（さくらんぼ）の生産量が日本一の県は？", a:"山形県", choices:["青森県","山梨県","福島県","山形県"]},
+  {id:"ROUND13-AD08", cat:"AD", q:"りんごは、どんな気候を好む？", a:"涼しい気候", choices:["涼しい気候","あたたかい気候","一年中雨の多い気候","乾燥した気候"]},
+  {id:"ROUND13-AD09", cat:"AD", q:"みかんは、どんな気候を好む？", a:"あたたかい気候", choices:["涼しい気候","あたたかい気候","寒い気候","雪の多い気候"]},
+  {id:"ROUND13-AD10", cat:"AD", q:"ぶどうが栽培されているのは、どんな地域？", a:"昼と夜の気温の差が大きい、山にかこまれた平地", choices:["一年中雨が多い海ぞいの地域","雪が深い山の上","昼と夜の気温の差が大きい、山にかこまれた平地","気温の差が小さい島"]},
+  {id:"ROUND13-AD11", cat:"AD", q:"みかんは、太陽の光をたくさん受けるために、海ぞいのどんな畑でつくられることがある？", a:"段々畑（石垣）", choices:["ビニールハウス","田んぼ","水の中","段々畑（石垣）"]},
+  {id:"ROUND13-AE01", cat:"AE", q:"北海道が日本一の生産量をあげている野菜は？", a:"たまねぎ・にんじん", choices:["たまねぎ・にんじん","レタス・はくさい","ピーマン・なす","キャベツ・きゅうり"]},
+  {id:"ROUND13-AE02", cat:"AE", q:"レタスの生産量が日本一の県は？", a:"長野県", choices:["群馬県","長野県","茨城県","高知県"]},
+  {id:"ROUND13-AE03", cat:"AE", q:"ピーマンの生産量が日本一の県は？", a:"茨城県", choices:["宮崎県","高知県","茨城県","北海道"]},
+  {id:"ROUND13-AE04", cat:"AE", q:"ピーマンの生産量で、茨城県に次いで2位の県は？", a:"宮崎県", choices:["高知県","群馬県","長野県","宮崎県"]},
+  {id:"ROUND13-AE05", cat:"AE", q:"キャベツの生産量で、全国の約20%をしめている県は？", a:"群馬県", choices:["群馬県","愛知県","千葉県","長野県"]},
+  {id:"ROUND13-AE06", cat:"AE", q:"キャベツの生産量で、群馬県に次いで多い県は？", a:"愛知県", choices:["千葉県","愛知県","長野県","茨城県"]},
+  {id:"ROUND13-AE07", cat:"AE", q:"かつて、収穫量が最も多かった野菜は？", a:"だいこん", choices:["キャベツ","たまねぎ","だいこん","レタス"]}
+];
+
+/* 回（第◯回）と単元の対応は shakai-rounds.js の SHAKAI_ROUND_TABLE に1か所だけ定義する。
+   地方カードの「第◯回」表示も、回で選ぶビューも、まとめ回（第5・10・15・19回）もそこから作る。
+   新しい単元を足すときは、ここ(REGIONS)に1つ足し、SHAKAI_ROUND_TABLE の該当回の units に id を書く。 */
+var REGIONS = [
+  { id:"chubu", emoji:"🗻", name:"中部地方",       subtitle:"飛騨山脈・信濃川・富士山など", questions:QUESTIONS_CHUBU },
+  { id:"kanto", emoji:"🗼", name:"関東地方",       subtitle:"関東平野・利根川・東京湾など", questions:QUESTIONS_KANTO },
+  { id:"hokkaido_tohoku", emoji:"❄️", name:"北海道・東北地方", subtitle:"石狩川・奥羽山脈・十和田湖など", questions:QUESTIONS_HOKKAIDO_TOHOKU },
+  { id:"kinki", emoji:"⛩️", name:"近畿地方",       subtitle:"琵琶湖・紀伊半島・淀川など", questions:QUESTIONS_KINKI },
+  { id:"chugoku_shikoku", emoji:"🍊", name:"中国・四国地方",  subtitle:"中国山地・瀬戸内海・四万十川など", questions:QUESTIONS_CHUGOKU_SHIKOKU },
+  { id:"kyushu_okinawa", emoji:"🌺", name:"九州・沖縄地方",  subtitle:"阿蘇山・筑後川・南西諸島など", questions:QUESTIONS_KYUSHU_OKINAWA },
+  { id:"round9", emoji:"🏔️", name:"山と川がうみだす地形", subtitle:"川・山地・火山・地震など", leadSuffix:"を、予習シリーズ4年下 第9回の教科書から出題します。", questions:QUESTIONS_ROUND9 },
+  { id:"round8", emoji:"🌀", name:"日本の気候と各地のくらし", subtitle:"季節風・海流・梅雨・台風・自然災害", leadSuffix:"を、予習シリーズ4年下 第8回の教科書から出題します。", questions:QUESTIONS_ROUND8 },
+  { id:"round11", emoji:"🌾", name:"米づくり", subtitle:"産地・米づくりの流れ・消費", leadSuffix:"を、予習シリーズ4年下 第11回の教科書から出題します。", questions:QUESTIONS_ROUND11 },
+  { id:"round12", emoji:"🥔", name:"畑でつくられるもの", subtitle:"穀物・いも類・工芸作物", leadSuffix:"を、予習シリーズ4年下 第12回の教科書から出題します。", questions:QUESTIONS_ROUND12 },
+  { id:"round14", emoji:"🐄", name:"肉や牛乳をつくる", subtitle:"畜産・ブランド牛・飼料", leadSuffix:"を、予習シリーズ4年下 第14回の教科書から出題します。", questions:QUESTIONS_ROUND14 },
+  { id:"round13", emoji:"🍎", name:"野菜とくだものづくり", subtitle:"近郊農業・促成栽培・くだものの産地", leadSuffix:"を、予習シリーズ4年下 第13回の教科書から出題します。", questions:QUESTIONS_ROUND13 }
+];
+
+/* ============================================================
+   STATE / STORAGE
+   にがてスコア・今日/今週の合計は common.js の KQHub に一本化。
+   地方ごとの「といた数／せいかい率」表示だけ、このアプリ専用の
+   軽いローカル記録（kq-shakai-）に残す。
+============================================================ */
+var SUBJECT = "shakai";
+function fullKey(regionId, id){ return SUBJECT + ":" + regionId + ":" + id; }
+
+var REGION_STORE_KEY = "kq-shakai-region-play-v1";
+var regionPlay = loadRegionPlay();
+
+function loadRegionPlay(){
+  try{
+    var raw = localStorage.getItem(REGION_STORE_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return {};
+}
+function saveRegionPlay(){
+  try{ localStorage.setItem(REGION_STORE_KEY, JSON.stringify(regionPlay)); }catch(e){}
+}
+function regionStats(regionId){
+  if(!regionPlay[regionId]) regionPlay[regionId] = { totalAnswered:0, totalCorrect:0 };
+  return regionPlay[regionId];
+}
+
+/* ---- 日付まわりのヘルパー ---- */
+function pad2(n){ return n<10 ? "0"+n : ""+n; }
+function dateKey(d){ return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()); }
+function todayKey(){ return dateKey(new Date()); }
+// 直近7日分（今日をふくむ）の Date を古い順で返す
+function last7Days(){
+  var out = [];
+  var now = new Date();
+  for(var i=6;i>=0;i--){
+    var d = new Date(now);
+    d.setDate(now.getDate()-i);
+    out.push(d);
+  }
+  return out;
+}
+// 今週（月曜始まり）の合計
+function thisWeekTotals(){
+  var now = new Date();
+  var day = now.getDay(); // 0=日
+  var diffToMonday = (day===0) ? -6 : (1-day);
+  var monday = new Date(now);
+  monday.setDate(now.getDate()+diffToMonday);
+  var total=0, correct=0;
+  for(var i=0;i<7;i++){
+    var d = new Date(monday);
+    d.setDate(monday.getDate()+i);
+    if(d > now) break;
+    var e = KQHub.getStatsFor(d, SUBJECT);
+    total+=e.total; correct+=e.correct;
+  }
+  return { total:total, correct:correct };
+}
+function recordAnswer(regionId, id, correct){
+  var rs = regionStats(regionId);
+  rs.totalAnswered++;
+  if(correct) rs.totalCorrect++;
+  saveRegionPlay();
+  KQHub.recordAnswer(SUBJECT, fullKey(regionId, id), correct);
+}
+// 問題の持ち主の単元ID。複数単元ミックス(まとめ回)の問題は _rid に元の単元IDを持つ
+function ridOf(q, fallbackRegionId){ return q._rid || fallbackRegionId; }
+function weakCount(regionId, questions){
+  return KQHub.countWeakFresh(questions.map(function(q){ return fullKey(ridOf(q, regionId), q.id); }));
+}
+
+/* ============================================================
+   HELPERS
+============================================================ */
+function shuffle(arr){
+  var a = arr.slice();
+  for(var i=a.length-1;i>0;i--){
+    var j = Math.floor(Math.random()*(i+1));
+    var t=a[i]; a[i]=a[j]; a[j]=t;
+  }
+  return a;
+}
+function pickN(arr, n){ return shuffle(arr).slice(0, n); }
+
+// 答えの「種類」を判定する。選択肢は必ず同じ種類でそろえる
+// （例：「〇〇平野は？」の答えが平野なら、選択肢も平野の名前だけにする）
+function answerGroup(a){
+  if(/^(富士山|八ヶ岳|浅間山|大雪山|磐梯山|大台ヶ原山|大山|石鎚山|阿蘇山|雲仙岳|開聞岳|宮之浦岳)$/.test(a)) return "mountain"; // 単体の山
+  if(a==="奥多摩") return "mountainarea";                        // 山地（山脈と呼ばない広い山地名）
+  if(/山地$/.test(a)) return "mountainarea";                     // 〇〇山地
+  if(/山脈$/.test(a)) return "range";                             // 山脈
+  if(/^[北中央南]+アルプス$/.test(a)) return "altname";           // アルプスの別名
+  if(/平野$/.test(a)) return "plain";                             // 平野
+  if(/盆地$/.test(a)) return "basin";                             // 盆地
+  if(a==="牧ノ原" || a==="武蔵野" || a==="下総台地" || a==="シラス台地") return "plateau"; // 台地
+  if(/半島$/.test(a)) return "peninsula";                         // 半島
+  if(/海峡$/.test(a)) return "strait";                            // 海峡
+  if(/(湾|海)$/.test(a)) return "bay";                            // 湾・内海
+  if(a==="敦賀") return "port";                                   // 港町
+  if(/諸島$/.test(a)) return "islandgroup";                       // 諸島・群島
+  if(/島$/.test(a)) return "island";                              // 島
+  if(a==="木曽三川") return "riverset";                           // 川のまとまり
+  if(/川$/.test(a)) return "river";                               // 川
+  if(/湖$/.test(a)) return "lake";                                // 湖
+  if(a==="鵜飼") return "method";                                 // 漁法
+  if(/新幹線$/.test(a)) return "shinkansen";                      // 新幹線
+  if(/海道$/.test(a) && a!=="北海道") return "bridge";           // 〇〇海道（道路）は県ではない
+  if(/^(都|道|府|県)$/.test(a)) return "specialty";
+  if(/[都道府県]$/.test(a)) return "prefecture";                  // 都道府県
+  if(a==="東京") return "city";                                   // 都庁所在地（東京）も市とまとめる
+  if(/市$/.test(a)) return "city";                                // 市（県庁所在地・豊田市など）
+  return "specialty";                                             // 特産・名所などその他
+}
+
+function uniqueAnswers(list){
+  var out = [], seen = {};
+  list.forEach(function(q){
+    if(!seen[q.a]){ seen[q.a]=true; out.push(q.a); }
+  });
+  return out;
+}
+
+/* 特産・名所などは「ジャンル(g)」で選択肢を作る。
+   候補は全地方の問題（すべて教材の地図にのっているもの）から同じジャンルだけ集める。
+   同じ県の別の特産品(p)と、実際にはその場所の特産でもあるもの(ng)は選択肢に出さない。 */
+var GENRE_FROM = { sea:["sea","fish"] };   // 「海の特産品」は魚もふくめて出す
+var EXTRA_POOL = [                           // 教材データだけでは3つそろわないジャンルの補い（すべて実在）
+  {a:"ラベンダー", g:"flower",  p:"北海道"},
+  {a:"栗林公園",   g:"garden",  p:"香川県"},
+  {a:"羽田空港",   g:"airport", p:"東京都"},
+  {a:"米沢牛",     g:"meat",    p:"山形県"}
+];
+function asList(v){ return v ? (Array.isArray(v) ? v : [v]) : []; }
+function genrePool(question){
+  var from = GENRE_FROM[question.g] || [question.g];
+  var qPrefs = asList(question.p);
+  var ng = asList(question.ng);
+  var items = [];
+  REGIONS.forEach(function(r){ (r.questions||[]).forEach(function(q){ if(q.g) items.push(q); }); });
+  items = items.concat(EXTRA_POOL);
+  var seen = {}; var out = [];
+  items.forEach(function(it){
+    if(from.indexOf(it.g) < 0) return;
+    if(it.a === question.a || ng.indexOf(it.a) >= 0) return;
+    if(asList(it.p).some(function(pp){ return qPrefs.indexOf(pp) >= 0; })) return;
+    if(seen[it.a]) return;
+    seen[it.a] = true; out.push(it.a);
+  });
+  return out;
+}
+
+function buildChoices(question){
+  if(question.choices && question.choices.length){
+    return shuffle(question.choices);
+  }
+  if(question.g){
+    return shuffle(pickN(genrePool(question), 3).concat([question.a]));
+  }
+  var group = answerGroup(question.a);
+  // ミックス出題でも、まちがい選択肢は同じ単元の問題から作る
+  var ownPool = question._rid ? currentRegion.questions.filter(function(q){ return q._rid===question._rid; }) : currentRegion.questions;
+  var samePool = ownPool.filter(function(q){
+    return !q.g && answerGroup(q.a)===group && q.a!==question.a;   // ジャンル(g)つきの答えは別のしくみで出す
+  });
+  var pool = uniqueAnswers(samePool);
+  var distractors = pickN(pool, 3);
+  if(distractors.length < 3){
+    // 同じ種類の候補が足りない場合のみ、他の種類から補う
+    var usedSet = {};
+    distractors.forEach(function(d){ usedSet[d]=true; });
+    var otherPool = ownPool.filter(function(q){ return q.a!==question.a && !usedSet[q.a]; });
+    var uniqueOther = uniqueAnswers(otherPool).filter(function(a){ return a!==question.a; });
+    var need = 3 - distractors.length;
+    distractors = distractors.concat(pickN(uniqueOther, need));
+  }
+  var choices = shuffle(distractors.slice(0,3).concat([question.a]));
+  return choices;
+}
+
+/* ============================================================
+   DOM REFS
+============================================================ */
+var $ = function(id){ return document.getElementById(id); };
+
+var screenRegions = $("screen-regions");
+var screenHome = $("screen-home");
+var screenQuiz = $("screen-quiz");
+var screenResult = $("screen-result");
+
+var regionGrid = $("regionGrid");
+var statToday = $("statToday");
+var statWeek = $("statWeek");
+var weekChart = $("weekChart");
+
+var backToRegionsBtn = $("backToRegionsBtn");
+var regionTitle = $("regionTitle");
+var regionLead = $("regionLead");
+var totalCountEl = $("totalCount");
+var statPlayed = $("statPlayed");
+var statAcc = $("statAcc");
+var statWeak = $("statWeak");
+var modeGrid = $("modeGrid");
+var catChips = $("catChips");
+var weakBtn = $("weakBtn");
+var weakBadge = $("weakBadge");
+var startBtn = $("startBtn");
+
+var progressFill = $("progressFill");
+var progressNum = $("progressNum");
+var qCatTag = $("qCatTag");
+var qText = $("qText");
+var choiceGrid = $("choiceGrid");
+var writeBox = $("writeBox");
+var writeInput = $("writeInput");
+var revealBtn = $("revealBtn");
+var answerPanel = $("answerPanel");
+var verdictText = $("verdictText");
+var ansText = $("ansText");
+var ansKana = $("ansKana");
+var selfGradeRow = $("selfGradeRow");
+var gradeOkBtn = $("gradeOkBtn");
+var gradeNgBtn = $("gradeNgBtn");
+var nextBtn = $("nextBtn");
+var quitBtn = $("quitBtn");
+
+var resultScore = $("resultScore");
+var resultMsg = $("resultMsg");
+var reviewList = $("reviewList");
+var retryBtn = $("retryBtn");
+var homeBtn = $("homeBtn");
+
+/* ============================================================
+   REGION SELECT
+============================================================ */
+var SR = window.KQShakaiRounds || null; // shakai-rounds.js（回の定義表）。読めなくても地方ビューは動く
+var currentRegion = null;
+var mode = "choice";          // "choice" | "write"
+var activeCats = Object.keys(CATS); // all selected by default
+var useWeakOnly = false;
+
+function roundTagHtml(region){
+  if(!SR) return "";
+  var rs = SR.roundsOfUnit(region.id);
+  return rs.length ? ' <span class="round-tag">第'+rs.join("・")+'回</span>' : '';
+}
+
+function regionById(id){ return REGIONS.filter(function(r){ return r.id===id; })[0] || null; }
+
+/* ---- 複数単元ミックス（まとめ回・テスト範囲）----
+   指定した単元IDの問題を合算した「仮想の地方」を作る。問題は浅いコピーに _rid（元の単元ID）を
+   持たせ、にがて/未挑戦の記録キー・正答記録は元の単元のまま（地方ビューと共通）にする。 */
+function buildMixRegion(unitIds, name, subtitle){
+  var members = unitIds.map(regionById).filter(function(r){ return r && r.questions.length>0; });
+  var qs = [];
+  members.forEach(function(r){
+    r.questions.forEach(function(q){ var c = {}; for(var k in q){ c[k]=q[k]; } c._rid = r.id; qs.push(c); });
+  });
+  return {
+    id: "mix:"+members.map(function(r){ return r.id; }).join("+"),
+    isMix: true,
+    memberIds: members.map(function(r){ return r.id; }),
+    emoji: "🧩",
+    name: name,
+    subtitle: subtitle || members.map(function(r){ return r.name.replace(/地方$/,""); }).join("・"),
+    leadSuffix: "の問題をまぜて出題します。",
+    questions: qs
+  };
+}
+
+/* ---- えらびかた切替（地方で選ぶ / 回で選ぶ）---- */
+var VIEW_KEY = "kq-shakai-select-view-v1";
+var selectView = "region";
+try{ if(localStorage.getItem(VIEW_KEY)==="round") selectView = "round"; }catch(e){}
+if(!SR) selectView = "region";
+var viewToggle = $("viewToggle");
+var roundGrid = $("roundGrid");
+var selectLabel = $("selectLabel");
+
+function applySelectView(){
+  var isRound = selectView==="round";
+  regionGrid.hidden = isRound;
+  roundGrid.hidden = !isRound;
+  selectLabel.textContent = isRound ? "回をえらぶ" : "地方をえらぶ";
+  viewToggle.querySelectorAll(".view-btn").forEach(function(b){
+    b.setAttribute("aria-pressed", b.getAttribute("data-view")===selectView ? "true":"false");
+  });
+}
+viewToggle.addEventListener("click", function(e){
+  var b = e.target.closest(".view-btn");
+  if(!b) return;
+  selectView = b.getAttribute("data-view")==="round" ? "round" : "region";
+  try{ localStorage.setItem(VIEW_KEY, selectView); }catch(err){}
+  applySelectView();
+});
+if(!SR) viewToggle.hidden = true;
+
+function renderRoundGrid(){
+  roundGrid.innerHTML = "";
+  if(!SR) return;
+  SR.table.forEach(function(e){
+    var round = e.round;
+    var isMix = !!e.mix;
+    var unitIds = SR.unitsFor(round).filter(regionById);
+    var ready = unitIds.length>0;
+    var btn = document.createElement("button");
+    btn.className = "region-card" + (isMix ? " mix" : "");
+    btn.type = "button";
+    btn.setAttribute("data-round", String(round));
+    btn.setAttribute("data-kind", isMix ? "mix" : "single");
+    btn.setAttribute("data-ready", ready ? "1" : "0");
+    btn.disabled = !ready;
+    var emoji, nameHtml, metaHtml;
+    var target = null;
+    if(!ready){
+      emoji = isMix ? "🧩" : "📕";
+      nameHtml = '第'+round+'回' + (isMix ? ' <span class="round-tag">まとめ（'+SR.rangeText(e.mix)+'）</span>' : '');
+      metaHtml = '<span class="prep-flag">じゅんび中</span>';
+    }else{
+      target = isMix
+        ? buildMixRegion(unitIds, "第"+round+"回 まとめ", null)
+        : regionById(unitIds[0]);
+      if(unitIds.length>1 && !isMix) target = buildMixRegion(unitIds, "第"+round+"回", null);
+      var wf = weakCount(target.id, target.questions);
+      emoji = isMix ? "🧩" : target.emoji;
+      nameHtml = '第'+round+'回 <span class="round-tag">' + (isMix ? 'まとめ（'+SR.rangeText(e.mix)+'）' : target.name) + '</span>';
+      var missing = SR.missingRounds(round);
+      metaHtml =
+        (isMix ? '<span class="mix-badge">まとめ</span>' : '')+
+        '<span>全'+target.questions.length+'問</span>'+
+        (wf.weak>0 ? '<span class="weak-flag">にがて '+wf.weak+'問</span>' : '')+
+        (wf.fresh>0 ? '<span>未挑戦 '+wf.fresh+'問</span>' : '')+
+        (missing.length ? '<span>'+SR.rangeText(missing)+'はじゅんび中</span>' : '');
+    }
+    btn.innerHTML =
+      '<span class="emoji">'+emoji+'</span>'+
+      '<span class="body">'+
+        '<span class="name">'+nameHtml+'</span>'+
+        '<span class="meta">'+metaHtml+'</span>'+
+      '</span>'+
+      '<span class="chevron">›</span>';
+    if(ready){
+      btn.addEventListener("click", function(){ selectRegion(target); });
+    }
+    roundGrid.appendChild(btn);
+  });
+}
+
+function renderRegionGrid(){
+  regionGrid.innerHTML = "";
+  var weakSummary = {};
+  REGIONS.forEach(function(region){
+    var count = region.questions.length;
+    var wf = count>0 ? weakCount(region.id, region.questions) : {weak:0, fresh:0};
+    var w = wf.weak;
+    weakSummary[region.id] = w;
+    var btn = document.createElement("button");
+    btn.className = "region-card";
+    btn.type = "button";
+    btn.disabled = count===0;
+    btn.innerHTML =
+      '<span class="emoji">'+region.emoji+'</span>'+
+      '<span class="body">'+
+        '<span class="name">'+region.name+roundTagHtml(region)+'</span>'+
+        '<span class="meta">'+
+          '<span>'+(count>0 ? "全"+count+"問" : "準備中")+'</span>'+
+          (w>0 ? '<span class="weak-flag">にがて '+w+'問</span>' : '')+
+          (wf.fresh>0 ? '<span>未挑戦 '+wf.fresh+'問</span>' : '')+
+        '</span>'+
+      '</span>'+
+      '<span class="chevron">›</span>';
+    if(count>0){
+      btn.addEventListener("click", function(){ selectRegion(region); });
+    }
+    regionGrid.appendChild(btn);
+  });
+  // 玄関（index.html）が「にがてが多い地方」を選ぶときに参照する軽いキャッシュ
+  try{ localStorage.setItem("kq-shakai-weak-summary-v1", JSON.stringify(weakSummary)); }catch(e){}
+}
+
+function selectRegion(region){
+  currentRegion = region;
+  mode = "choice";
+  activeCats = Object.keys(CATS);
+  useWeakOnly = false;
+  regionTitle.textContent = region.name + "たんけんクイズ";
+  regionLead.innerHTML = region.subtitle + (region.leadSuffix || "の地図から出題します。") + "全<b id=\"totalCount\">"+region.questions.length+"</b>問。1回は10問です。";
+  totalCountEl = $("totalCount"); // regionLead を書き換えたので参照を取り直す
+  modeGrid.querySelectorAll(".mode-btn").forEach(function(b){
+    b.setAttribute("aria-pressed", b.getAttribute("data-mode")==="choice" ? "true":"false");
+  });
+  renderCatChips();
+  refreshRegionStats();
+  screenRegions.hidden = true;
+  screenHome.hidden = false;
+}
+
+backToRegionsBtn.addEventListener("click", function(){
+  screenHome.hidden = true;
+  screenRegions.hidden = false;
+  renderRegionGrid();
+  renderRoundGrid();
+  refreshGlobalStats();
+});
+
+function renderCatChips(){
+  catChips.innerHTML = "";
+  Object.keys(CATS).forEach(function(key){
+    var count = currentRegion.questions.filter(function(q){return q.cat===key;}).length;
+    if(count===0) return; // この地方に存在しないカテゴリは出さない
+    var btn = document.createElement("button");
+    btn.className = "chip";
+    btn.type = "button";
+    btn.setAttribute("aria-pressed", activeCats.indexOf(key)>=0 ? "true":"false");
+    btn.innerHTML = CATS[key] + ' <span class="cnt">' + count + "</span>";
+    btn.addEventListener("click", function(){
+      var idx = activeCats.indexOf(key);
+      if(idx>=0){
+        if(activeCats.length>1) activeCats.splice(idx,1); // keep at least 1
+      } else {
+        activeCats.push(key);
+      }
+      renderCatChips();
+    });
+    catChips.appendChild(btn);
+  });
+}
+
+modeGrid.addEventListener("click", function(e){
+  var btn = e.target.closest(".mode-btn");
+  if(!btn) return;
+  mode = btn.getAttribute("data-mode");
+  modeGrid.querySelectorAll(".mode-btn").forEach(function(b){
+    b.setAttribute("aria-pressed", b===btn ? "true":"false");
+  });
+});
+
+var DOW_LABEL = ["日","月","火","水","木","金","土"];
+
+// 全地方合算のきろく（トップ画面）
+function refreshGlobalStats(){
+  var todayEntry = KQHub.getStatsFor(new Date(), SUBJECT);
+  statToday.textContent = todayEntry.correct + "/" + todayEntry.total;
+  var week = thisWeekTotals();
+  statWeek.textContent = week.correct + "/" + week.total;
+
+  var days = last7Days();
+  var todayStr = todayKey();
+  var maxTotal = 1;
+  days.forEach(function(d){
+    var e = KQHub.getStatsFor(d, SUBJECT);
+    if(e && e.total > maxTotal) maxTotal = e.total;
+  });
+  weekChart.innerHTML = "";
+  days.forEach(function(d){
+    var key = dateKey(d);
+    var e = KQHub.getStatsFor(d, SUBJECT);
+    var isToday = key === todayStr;
+    var pct = e.total>0 ? Math.max(10, Math.round(e.total/maxTotal*100)) : 0;
+
+    var col = document.createElement("div");
+    col.className = "col" + (isToday ? " today" : "");
+
+    var track = document.createElement("div");
+    track.className = "bar-track";
+    var fill = document.createElement("div");
+    fill.className = "bar-fill" + (e.total>0 ? (isToday ? " today" : " has-data") : "");
+    fill.style.height = pct + "%";
+    fill.title = key + "：" + e.correct + "/" + e.total + "問正解";
+    track.appendChild(fill);
+
+    var dow = document.createElement("div");
+    dow.className = "dow";
+    dow.textContent = DOW_LABEL[d.getDay()];
+
+    col.appendChild(track);
+    col.appendChild(dow);
+    weekChart.appendChild(col);
+  });
+}
+
+// 選択中の地方のきろく（地方ホーム画面）
+function refreshRegionStats(){
+  if(!currentRegion) return;
+  var rs;
+  if(currentRegion.isMix){
+    // ミックスは元の単元ごとの記録を合算して表示する
+    rs = { totalAnswered:0, totalCorrect:0 };
+    currentRegion.memberIds.forEach(function(id){
+      var m = regionStats(id);
+      rs.totalAnswered += m.totalAnswered; rs.totalCorrect += m.totalCorrect;
+    });
+  }else{
+    rs = regionStats(currentRegion.id);
+  }
+  var wf = weakCount(currentRegion.id, currentRegion.questions);
+  var w = wf.weak;
+  statPlayed.textContent = rs.totalAnswered;
+  statAcc.textContent = rs.totalAnswered>0 ? Math.round(rs.totalCorrect/rs.totalAnswered*100)+"%" : "–";
+  statWeak.textContent = w;
+  weakBadge.textContent = "にがて"+w+"問・未挑戦"+wf.fresh+"問";
+  weakBtn.disabled = false;
+}
+
+weakBtn.addEventListener("click", function(){
+  if(weakBtn.disabled) return;
+  useWeakOnly = true;
+  beginQuiz();
+});
+startBtn.addEventListener("click", function(){
+  useWeakOnly = false;
+  beginQuiz();
+});
+
+/* ============================================================
+   QUIZ FLOW
+============================================================ */
+var quizQueue = [];
+var quizIndex = 0;
+var quizResults = []; // {q, correct, userAnswer}
+var currentChoices = [];
+
+function beginQuiz(){
+  var regionId = currentRegion.id;
+  if(useWeakOnly){
+    var basePool = currentRegion.questions.slice();
+    var n0 = Math.min(10, basePool.length);
+    quizQueue = KQHub.weightedSample(basePool, function(q){ return fullKey(ridOf(q, regionId), q.id); }, n0);
+    quizIndex = 0;
+    quizResults = [];
+    screenHome.hidden = true;
+    screenResult.hidden = true;
+    screenQuiz.hidden = false;
+    renderQuestion();
+    return;
+  }
+  var pool = currentRegion.questions.filter(function(q){ return activeCats.indexOf(q.cat)>=0; });
+  if(pool.length===0) pool = currentRegion.questions.slice();
+  var n = Math.min(10, pool.length);
+  quizQueue = pickN(pool, n);
+  quizIndex = 0;
+  quizResults = [];
+  screenHome.hidden = true;
+  screenResult.hidden = true;
+  screenQuiz.hidden = false;
+  renderQuestion();
+}
+
+function renderQuestion(){
+  var q = quizQueue[quizIndex];
+  progressNum.textContent = (quizIndex+1)+"/"+quizQueue.length;
+  progressFill.style.width = ((quizIndex)/quizQueue.length*100)+"%";
+  qCatTag.textContent = CATS[q.cat];
+  qText.textContent = q.q;
+
+  answerPanel.hidden = true;
+  nextBtn.hidden = true;
+  selfGradeRow.hidden = true;
+
+  if(mode==="choice"){
+    choiceGrid.hidden = false;
+    writeBox.hidden = true;
+    revealBtn.hidden = true;
+    currentChoices = buildChoices(q);
+    choiceGrid.innerHTML = "";
+    var letters = ["A","B","C","D"];
+    currentChoices.forEach(function(choiceText, i){
+      var btn = document.createElement("button");
+      btn.className = "choice-btn";
+      btn.type = "button";
+      btn.innerHTML = '<span class="idx">'+letters[i]+'</span><span>'+choiceText+"</span>";
+      btn.addEventListener("click", function(){ onChoiceSelected(choiceText, btn); });
+      choiceGrid.appendChild(btn);
+    });
+  } else {
+    choiceGrid.hidden = true;
+    writeBox.hidden = false;
+    writeInput.value = "";
+    writeInput.disabled = false;
+    revealBtn.hidden = false;
+    setTimeout(function(){ writeInput.focus(); }, 50);
+  }
+}
+
+function onChoiceSelected(choiceText, btnEl){
+  var q = quizQueue[quizIndex];
+  var correct = choiceText === q.a;
+  Array.from(choiceGrid.children).forEach(function(btn){
+    btn.disabled = true;
+    var txt = btn.querySelector("span:last-child").textContent;
+    if(txt === q.a){ btn.classList.add("correct"); }
+    else if(btn===btnEl){ btn.classList.add("wrong"); }
+    else { btn.classList.add("dim"); }
+  });
+  showAnswer(correct);
+  finishQuestion(q, correct);
+}
+
+revealBtn.addEventListener("click", function(){
+  revealBtn.hidden = true;
+  writeInput.disabled = true;
+  var q = quizQueue[quizIndex];
+  answerPanel.hidden = false;
+  answerPanel.className = "answer-panel";
+  verdictText.textContent = "こたえ";
+  ansText.textContent = q.a;
+  ansKana.textContent = q.kana || "";
+  selfGradeRow.hidden = false;
+});
+
+gradeOkBtn.addEventListener("click", function(){ selfGrade(true); });
+gradeNgBtn.addEventListener("click", function(){ selfGrade(false); });
+
+function selfGrade(correct){
+  var q = quizQueue[quizIndex];
+  selfGradeRow.hidden = true;
+  answerPanel.className = "answer-panel " + (correct ? "ok":"ng");
+  verdictText.textContent = correct ? "⭕ せいかい！" : "❌ おしい！";
+  finishQuestion(q, correct, writeInput.value);
+}
+
+function showAnswer(correct){
+  answerPanel.hidden = false;
+  answerPanel.className = "answer-panel " + (correct ? "ok":"ng");
+  verdictText.textContent = correct ? "⭕ せいかい！" : "❌ ざんねん！";
+  var q = quizQueue[quizIndex];
+  ansText.textContent = q.a;
+  ansKana.textContent = q.kana || "";
+}
+
+function finishQuestion(q, correct, userAnswer){
+  recordAnswer(ridOf(q, currentRegion.id), q.id, correct);
+  quizResults.push({ q:q, correct:correct, userAnswer:userAnswer||"" });
+  progressFill.style.width = ((quizIndex+1)/quizQueue.length*100)+"%";
+  nextBtn.hidden = false;
+}
+
+nextBtn.addEventListener("click", function(){
+  quizIndex++;
+  if(quizIndex >= quizQueue.length){
+    showResult();
+  } else {
+    renderQuestion();
+  }
+});
+
+quitBtn.addEventListener("click", function(){
+  screenQuiz.hidden = true;
+  screenHome.hidden = false;
+  refreshRegionStats();
+});
+
+/* ============================================================
+   RESULT
+============================================================ */
+function showResult(){
+  screenQuiz.hidden = true;
+  screenResult.hidden = false;
+
+  var correctCount = quizResults.filter(function(r){return r.correct;}).length;
+  resultScore.textContent = correctCount;
+
+  var msgs;
+  if(correctCount===quizResults.length) msgs = "パーフェクト！すごい！🎉";
+  else if(correctCount>=quizResults.length*0.7) msgs = "よくできました！その調子！";
+  else if(correctCount>=quizResults.length*0.4) msgs = "もう少し！にがてを復習しよう";
+  else msgs = "だいじょうぶ、くり返せば覚えるよ";
+  resultMsg.textContent = msgs;
+
+  reviewList.innerHTML = "";
+  quizResults.forEach(function(r){
+    var div = document.createElement("div");
+    div.className = "review-item " + (r.correct?"ok":"ng");
+    div.innerHTML =
+      '<span class="mark">'+(r.correct?"⭕":"❌")+'</span>'+
+      '<span class="body">'+
+        '<span class="q">'+r.q.q+'</span>'+
+        '<span class="a">こたえ：<b>'+r.q.a+'</b></span>'+
+      '</span>';
+    reviewList.appendChild(div);
+  });
+
+  refreshRegionStats();
+}
+
+retryBtn.addEventListener("click", function(){
+  useWeakOnly = false;
+  beginQuiz();
+});
+homeBtn.addEventListener("click", function(){
+  screenResult.hidden = true;
+  screenHome.hidden = false;
+  refreshRegionStats();
+});
+
+/* ============================================================
+   BOOT
+============================================================ */
+renderRegionGrid();
+renderRoundGrid();
+applySelectView();
+refreshGlobalStats();
+
+// 玄関からの「今日のおすすめ」ワンタップ起動
+// ?start=weak&region=chubu のように渡された場合、その地方を選んで即にがて特訓を開始する
+(function applyDeepLinkStart(){
+  try{
+    var params = { get: function(n){ return KQHub.getParam(n); } };
+    if(params.get("start") !== "weak") return;
+    var region = null;
+    var roundsParam = params.get("rounds");
+    if(roundsParam && SR){
+      // ?start=weak&rounds=6,7 : テスト範囲の回（まとめ回も可）。単元が1つならその地方、複数ならミックス
+      var nums = roundsParam.split(",").map(Number).filter(function(n){ return n>0; });
+      var ids = SR.unitsForRounds(nums).filter(regionById);
+      if(ids.length===1) region = regionById(ids[0]);
+      else if(ids.length>1) region = buildMixRegion(ids, "テスト範囲 "+SR.rangeText(nums), null);
+    }else{
+      region = regionById(params.get("region"));
+    }
+    if(!region || !region.questions.length) return;
+    selectRegion(region);
+    useWeakOnly = true;
+    beginQuiz();
+  }catch(e){}
+})();
+
+})();
+</script>
+
+</body></html>

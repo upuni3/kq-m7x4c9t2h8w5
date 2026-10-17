@@ -1,0 +1,1622 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>国語 ことばクイズ</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap');
+
+  :root{
+    --bg:#fcebeb;
+    --paper:#fffbfa;
+    --ink:#791f1f;
+    --ink-soft:#a3615c;
+    --red:#c0392b;
+    --red-deep:#8f2a1f;
+    --accent:#c0392b;
+    --accent-deep:#8f2a1f;
+    --blue:#3f6fa0;
+    --ok:#3f8d4f;
+    --ok-bg:#e5f3e2;
+    --ng:#e0433a;
+    --ng-bg:#fde6e3;
+    --line: rgba(121,31,31,0.14);
+    --shadow: 0 10px 24px -12px rgba(121,31,31,0.22);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#241010;
+      --paper:#2e1616;
+      --ink:#f3d9d3;
+      --ink-soft:#c99b95;
+      --red:#e2836a;
+      --red-deep:#f0a288;
+      --accent:#e2836a;
+      --accent-deep:#f0a288;
+      --blue:#7fb0e0;
+      --ok:#7fce8f;
+      --ok-bg:#213524;
+      --ng:#ff8a75;
+      --ng-bg:#3a201d;
+      --line: rgba(243,217,211,0.16);
+      --shadow: 0 10px 26px -12px rgba(0,0,0,0.55);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#241010;
+    --paper:#2e1616;
+    --ink:#f3d9d3;
+    --ink-soft:#c99b95;
+    --red:#e2836a;
+    --red-deep:#f0a288;
+    --accent:#e2836a;
+    --accent-deep:#f0a288;
+    --blue:#7fb0e0;
+    --ok:#7fce8f;
+    --ok-bg:#213524;
+    --ng:#ff8a75;
+    --ng-bg:#3a201d;
+    --line: rgba(243,217,211,0.16);
+    --shadow: 0 10px 26px -12px rgba(0,0,0,0.55);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Zen Kaku Gothic New', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+    padding-inline:16px;
+    padding-block:24px;
+    min-height:100%;
+    display:flex;
+    justify-content:center;
+  }
+  .app{ width:100%; max-width:560px; display:flex; flex-direction:column; gap:16px; }
+
+  h1,h2,h3{ font-family:'Zen Maru Gothic', 'Zen Kaku Gothic New', sans-serif; margin:0; text-wrap:balance; }
+
+  .topbar{ display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+  .topbar .kicker{ font-size:12px; letter-spacing:.08em; color:var(--ink-soft); font-weight:700; }
+  .title{ font-size:22px; font-weight:900; color:var(--red-deep); }
+
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:20px;
+    box-shadow:var(--shadow);
+  }
+
+  .home-lead{ color:var(--ink-soft); font-size:14px; line-height:1.7; }
+  .stat-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px; }
+  .stat{ background:var(--bg); border:1px solid var(--line); border-radius:14px; padding:10px 8px; text-align:center; }
+  .stat .n{ font-size:20px; font-weight:900; font-variant-numeric:tabular-nums; color:var(--red-deep); }
+  .stat .l{ font-size:11px; color:var(--ink-soft); margin-top:2px; }
+
+  .section-label{ font-size:12px; font-weight:700; color:var(--ink-soft); letter-spacing:.06em; margin:4px 2px 0; }
+
+  .week-chart{ display:flex; align-items:flex-end; gap:8px; height:76px; margin-top:14px; padding:0 2px; }
+  .week-chart .col{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:5px; }
+  .week-chart .bar-track{ width:100%; max-width:26px; height:52px; display:flex; align-items:flex-end; border-radius:6px; background:var(--bg); border:1px solid var(--line); overflow:hidden; }
+  .week-chart .bar-fill{ width:100%; border-radius:5px 5px 0 0; background:var(--line); transition:height .25s ease; }
+  .week-chart .bar-fill.has-data{ background:var(--red); }
+  .week-chart .bar-fill.today{ background:var(--accent); }
+  .week-chart .dow{ font-size:10.5px; color:var(--ink-soft); font-weight:700; }
+  .week-chart .col.today .dow{ color:var(--accent-deep); }
+
+  .chip-wrap{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{
+    appearance:none; border:1.5px solid var(--line); background:var(--paper);
+    color:var(--ink); border-radius:999px; padding:8px 14px; font-size:13px;
+    cursor:pointer; font-weight:700; font-family:inherit;
+  }
+  .chip[aria-pressed="true"]{ background:var(--red); border-color:var(--red); color:#fff; }
+  .chip .cnt{ opacity:.7; font-weight:500; }
+
+  .weak-btn{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    width:100%; border:1.5px solid var(--line); background:var(--paper);
+    border-radius:16px; padding:14px 16px; cursor:pointer; font-family:inherit;
+    color:var(--ink);
+  }
+  .weak-btn strong{ font-size:15px; color:var(--accent-deep); }
+  .weak-btn span.sub{ display:block; font-size:11.5px; color:var(--ink-soft); font-weight:500; margin-top:2px; }
+  .weak-btn .badge{ background:var(--accent); color:#fff; font-weight:900; font-size:13px; border-radius:12px; padding:4px 10px; font-variant-numeric:tabular-nums; flex:none; text-align:center; }
+  .weak-btn .chevron{ flex:none; color:var(--ink-soft); font-size:18px; margin-left:2px; }
+  .weak-btn:disabled{ opacity:.4; cursor:not-allowed; }
+  .weak-btn:disabled .chevron{ display:none; }
+
+  .start-btn{
+    appearance:none; border:none; border-radius:16px; padding:16px;
+    background:var(--accent); color:#fff; font-family:inherit;
+    font-size:17px; font-weight:900; cursor:pointer; letter-spacing:.02em;
+    box-shadow: 0 8px 18px -6px rgba(192,57,43,0.5);
+  }
+  .start-btn:active{ transform:translateY(1px); }
+
+  .progress-row{ display:flex; align-items:center; gap:10px; }
+  .progress-track{ flex:1; height:8px; background:var(--line); border-radius:999px; overflow:hidden; }
+  .progress-fill{ height:100%; background:var(--red); border-radius:999px; transition:width .3s ease; }
+  .progress-num{ font-size:12px; font-weight:700; color:var(--ink-soft); font-variant-numeric:tabular-nums; flex:none; }
+
+  .quiz-card{ display:flex; flex-direction:column; gap:14px; }
+  .cat-tag{
+    align-self:flex-start; font-size:11px; font-weight:900; letter-spacing:.05em;
+    color:var(--red-deep); background:var(--bg); border:1px solid var(--line);
+    border-radius:999px; padding:4px 10px;
+  }
+  .question-text{ font-size:19px; font-weight:700; line-height:1.7; }
+  .question-text u{ text-decoration-thickness:2px; text-underline-offset:3px; }
+
+  .choice-grid{ display:grid; grid-template-columns:1fr; gap:10px; }
+  .choice-btn{
+    appearance:none; text-align:left; border:2px solid var(--line); background:var(--paper);
+    color:var(--ink); border-radius:14px; padding:13px 16px; font-size:15px; font-weight:700;
+    cursor:pointer; font-family:inherit; display:flex; gap:10px; align-items:flex-start; line-height:1.5;
+  }
+  .choice-btn .idx{
+    flex:none; width:24px; height:24px; border-radius:50%; background:var(--bg);
+    display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900;
+    color:var(--ink-soft); margin-top:1px;
+  }
+  .choice-btn:disabled{ cursor:default; }
+  .choice-btn.correct{ border-color:var(--ok); background:var(--ok-bg); color:var(--ok); }
+  .choice-btn.correct .idx{ background:var(--ok); color:#fff; }
+  .choice-btn.wrong{ border-color:var(--ng); background:var(--ng-bg); color:var(--ng); }
+  .choice-btn.wrong .idx{ background:var(--ng); color:#fff; }
+  .choice-btn.dim{ opacity:.45; }
+
+  .write-box{ display:flex; flex-direction:column; gap:6px; }
+  .write-box input[type=text]{
+    width:100%; border:2px solid var(--line); border-radius:14px; padding:14px 16px;
+    font-size:18px; font-family:inherit; background:var(--bg); color:var(--ink);
+  }
+  .write-box input[type=text]:focus{ outline:2px solid var(--red); outline-offset:1px; }
+  .write-hint{ font-size:11.5px; color:var(--ink-soft); text-align:right; }
+
+  .answer-panel{ border-radius:14px; padding:14px 16px; display:flex; flex-direction:column; gap:8px; animation: pop .18s ease; }
+  @keyframes pop{ from{ transform:scale(.97); opacity:0;} to{ transform:scale(1); opacity:1;} }
+  .answer-panel.ok{ background:var(--ok-bg); border:2px solid var(--ok); }
+  .answer-panel.ng{ background:var(--ng-bg); border:2px solid var(--ng); }
+  .answer-panel .verdict{ font-weight:900; font-size:15px; }
+  .answer-panel.ok .verdict{ color:var(--ok); }
+  .answer-panel.ng .verdict{ color:var(--ng); }
+  .answer-panel .ans-row{ display:flex; gap:14px; flex-wrap:wrap; }
+  .answer-panel .ans-item .lbl{ font-size:11px; color:var(--ink-soft); font-weight:700; }
+  .answer-panel .ans-item .val{ font-size:19px; font-weight:900; }
+
+  .next-btn{
+    appearance:none; border:none; border-radius:14px; padding:16px;
+    background:var(--accent); color:#fff; font-family:inherit;
+    font-size:17px; font-weight:900; cursor:pointer; letter-spacing:.02em;
+    box-shadow: 0 8px 18px -6px rgba(192,57,43,0.5);
+  }
+  .next-btn:active{ transform:translateY(1px); }
+
+  .quit-link{ align-self:center; background:none; border:none; color:var(--ink-soft); font-size:12.5px; text-decoration:underline; cursor:pointer; font-family:inherit; padding:6px; }
+
+  .score-hero{ text-align:center; display:flex; flex-direction:column; gap:6px; padding:6px 0 4px; }
+  .score-big{ font-size:52px; font-weight:900; color:var(--red-deep); font-variant-numeric:tabular-nums; line-height:1; }
+  .score-big span{ font-size:22px; color:var(--ink-soft); font-weight:700; }
+  .score-msg{ font-size:14px; color:var(--ink-soft); }
+
+  .review-list{ display:flex; flex-direction:column; gap:8px; }
+  .review-item{ display:flex; gap:10px; align-items:flex-start; border:1px solid var(--line); border-radius:12px; padding:10px 12px; background:var(--bg); }
+  .review-item .mark{ flex:none; font-weight:900; font-size:15px; margin-top:1px; }
+  .review-item.ok .mark{ color:var(--ok); }
+  .review-item.ng .mark{ color:var(--ng); }
+  .review-item .body{ display:flex; flex-direction:column; gap:2px; }
+  .review-item .q{ font-size:13.5px; font-weight:700; line-height:1.5; }
+  .review-item .a{ font-size:13px; color:var(--ink-soft); }
+  .review-item .a b{ color:var(--ink); }
+
+  .result-actions{ display:flex; flex-direction:column; gap:10px; }
+  .secondary-btn{ appearance:none; border:2px solid var(--line); background:var(--paper); color:var(--ink); border-radius:14px; padding:13px; font-size:14.5px; font-weight:900; cursor:pointer; font-family:inherit; }
+
+  [hidden]{ display:none !important; }
+  .foot-note{ text-align:center; font-size:11px; color:var(--ink-soft); padding-top:4px; }
+
+  .back-link{ align-self:flex-start; background:none; border:none; color:var(--ink-soft); font-size:12.5px; text-decoration:underline; cursor:pointer; font-family:inherit; padding:2px 0 0; display:flex; align-items:center; gap:2px; }
+  .unit-grid{ display:flex; flex-direction:column; gap:10px; }
+  .unit-card{
+    appearance:none; width:100%; text-align:left; border:2px solid var(--line);
+    background:var(--paper); border-radius:16px; padding:14px 16px; cursor:pointer;
+    font-family:inherit; color:var(--ink); display:flex; align-items:center; gap:12px;
+  }
+  .unit-card .emoji{ font-size:26px; flex:none; }
+  .unit-card .body{ flex:1; min-width:0; }
+  .unit-card .round-tag{ display:block; font-size:10.5px; font-weight:800; color:var(--ink-soft); letter-spacing:.04em; margin-bottom:1px; }
+  .unit-card .name{ font-weight:900; font-size:16px; }
+  .unit-card .meta{ font-size:12px; color:var(--ink-soft); margin-top:2px; display:flex; gap:8px; flex-wrap:wrap; }
+  .unit-card .meta .weak-flag{ color:var(--accent-deep); font-weight:700; }
+  .unit-card .chevron{ flex:none; color:var(--ink-soft); font-size:18px; }
+  .unit-card:disabled{ opacity:.45; cursor:not-allowed; }
+
+  .unit-list{ display:flex; flex-direction:column; gap:10px; }
+  .unit-row{ display:flex; align-items:center; gap:12px; border:2px solid var(--line); background:var(--paper); border-radius:16px; padding:12px 14px; cursor:pointer; }
+  .unit-row input[type=checkbox]{ width:22px; height:22px; accent-color: var(--accent); flex:none; }
+  .unit-row .body{ flex:1; min-width:0; }
+  .unit-row .round-tag{ display:block; font-size:10.5px; font-weight:800; color:var(--ink-soft); letter-spacing:.04em; margin-bottom:1px; }
+  .unit-row .name{ font-weight:900; font-size:15px; }
+  .unit-row .meta{ font-size:11.5px; color:var(--ink-soft); margin-top:2px; display:flex; gap:8px; flex-wrap:wrap; }
+  .unit-row .meta .weak-flag{ color:var(--accent-deep); font-weight:700; }
+
+  .row-actions{ display:flex; gap:10px; }
+  .link-btn{ appearance:none; background:none; border:none; color:var(--accent-deep); font-weight:700; font-size:13px; text-decoration:underline; cursor:pointer; font-family:inherit; padding:4px 0; }
+</style>
+
+<div class="app">
+
+  <!-- ===================== UNIT SELECT ===================== -->
+  <section id="screen-units">
+    <div class="topbar">
+      <div>
+        <div class="kicker">国語</div>
+        <div class="title">ことばクイズ</div>
+      </div>
+      <a class="link-btn" target="_top" href="index.html">🏠 玄関へ</a>
+    </div>
+
+    <div class="card">
+      <div class="section-label">きろく（全単元合算）</div>
+      <div class="stat-row">
+        <div class="stat"><div class="n" id="statToday">0/0</div><div class="l">今日</div></div>
+        <div class="stat"><div class="n" id="statWeek">0/0</div><div class="l">今週</div></div>
+      </div>
+      <div class="week-chart" id="weekChart"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">回をえらぶ（複数えらべます）</div>
+      <p class="home-lead" style="margin:0 0 10px;">1回だけ選べばその単元の練習に、複数選べば組分け・カリキュラムテスト対策のまとめ練習になります。</p>
+      <div class="unit-list" id="unitList"></div>
+      <div class="row-actions" style="margin-top:10px;">
+        <button class="link-btn" id="selectAllBtn" type="button">全部えらぶ</button>
+        <button class="link-btn" id="selectNoneBtn" type="button">えらびなおす</button>
+      </div>
+    </div>
+
+    <div class="card" id="catCard2" hidden>
+      <div class="section-label">出題はんい（カテゴリ）</div>
+      <div class="chip-wrap" id="catChips2"></div>
+    </div>
+
+    <button class="weak-btn" id="multiWeakBtn" disabled>
+      <span>
+        <strong>🔥 にがて特訓モード</strong>
+        <span class="sub">えらんだ回から、にがてな問題ほど出やすい10問</span>
+      </span>
+      <span class="badge" id="multiWeakBadge">0問</span>
+      <span class="chevron">›</span>
+    </button>
+
+    <div class="card">
+      <p class="home-lead">えらんだ回から全<b id="multiTotalCount">0</b>問。ランダムで10問出題します。</p>
+      <button class="start-btn" id="multiStartBtn" disabled>はじめる</button>
+    </div>
+
+    <p class="foot-note">成績はこの端末のブラウザだけに保存されます</p>
+  </section>
+
+  <!-- ===================== QUIZ ===================== -->
+  <section id="screen-quiz" hidden>
+    <div class="progress-row">
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-num" id="progressNum">1/10</div>
+    </div>
+
+    <div class="card quiz-card">
+      <span class="cat-tag" id="qCatTag">意味→ことば</span>
+      <div class="question-text" id="qText">問題文がここに入ります</div>
+
+      <!-- choice mode -->
+      <div class="choice-grid" id="choiceGrid" hidden></div>
+
+      <!-- write mode -->
+      <div class="write-box" id="writeBox" hidden>
+        <input type="text" id="writeInput" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="ここに答えを入力">
+        <div class="write-hint">⏎キーでも答え合わせできます</div>
+      </div>
+
+      <div class="answer-panel" id="answerPanel" hidden>
+        <div class="verdict" id="verdictText"></div>
+        <div class="ans-row" id="ansRow">
+          <div class="ans-item" id="userAnsItem" hidden><div class="lbl">あなたの答え</div><div class="val" id="userAnsVal"></div></div>
+          <div class="ans-item"><div class="lbl">正解</div><div class="val" id="ansVal"></div></div>
+        </div>
+      </div>
+
+      <button class="next-btn" id="nextBtn" hidden>つぎへ →</button>
+    </div>
+
+    <button class="quit-link" id="quitBtn">やめてホームにもどる</button>
+  </section>
+
+  <!-- ===================== RESULT ===================== -->
+  <section id="screen-result" hidden>
+    <div class="card score-hero">
+      <div class="section-label">けっか</div>
+      <div class="score-big"><span id="resultScore">0</span><span id="resultTotalLabel">/10問 正解</span></div>
+      <div class="score-msg" id="resultMsg"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">今回のふりかえり</div>
+      <div class="review-list" id="reviewList"></div>
+    </div>
+
+    <div class="result-actions">
+      <button class="start-btn" id="retryBtn">もう一度やる</button>
+      <button class="secondary-btn" id="homeBtn">ホームにもどる</button>
+    </div>
+  </section>
+
+</div>
+
+<script>window.KQ_STATIC=true;window.KQ_PAGE="kokugo";window.KQ_REPORT_URL="https://script.google.com/macros/s/AKfycby687LvFEfQsD0mvNnzUHikwb67ZGJ7fzP9yeC81q5SbpD043nhpPnTEmRS_3NTuwZw0w/exec";</script>
+<script src="common.js"></script>
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   DATA — 出典: 予習シリーズ 国語 4年下 第6回 和語②
+   カテゴリ記号:
+     A = 意味→ことば（入力）
+     B = 文の穴うめ（入力）
+     C = 文中の意味（4択）
+============================================================ */
+var CATS = { A:"意味→ことば", B:"文の穴うめ", C:"文中の意味" };
+
+var QUESTIONS_WAGO2 = [
+  // --- A. 意味→ことば（入力） ---
+  {id:"A01", cat:"A", type:"choice", q:"手足をふり動かしてもがくこと。じたばたすることを表すことばは？", a:"あがく", group:"からだ2"},
+  {id:"A02", cat:"A", type:"choice", q:"前を向いたまま後ろへ下がることを表すことばは？", a:"あとずさり", group:"態度2"},
+  {id:"A03", cat:"A", type:"choice", q:"いやである。よくない。という意味のことばは？", a:"いまわしい", group:"気持ち2"},
+  {id:"A04", cat:"A", type:"choice", q:"年が若く、まだもの慣れない感じがすることを表すことばは？", a:"ういういしい", group:"ようす2"},
+  {id:"A05", cat:"A", type:"choice", q:"自分のしたことの善し悪しを考えてみること（反省すること）を表すことばは？", a:"かえりみる", group:"態度2"},
+  {id:"A06", cat:"A", type:"choice", q:"小さく、ちょっとしたさま。控えめなさまを表すことばは？", a:"ささやか", group:"ようす2"},
+  {id:"A07", cat:"A", type:"choice", q:"苦しさやつらさなどに耐えて切り抜けることを表すことばは？", a:"しのぐ", group:"ようす2"},
+  {id:"A08", cat:"A", type:"choice", q:"緊張・恐怖のあまり体が自由に動かなくなることを表すことばは？", a:"すくむ", group:"からだ2"},
+  {id:"A09", cat:"A", type:"choice", q:"良くないことをさせるように仕向けること。おだててすすめることを表すことばは？", a:"そそのかす", group:"態度2"},
+  {id:"A10", cat:"A", type:"choice", q:"下手である。うまいやり方ではないという意味のことばは？", a:"つたない", group:"ようす2"},
+  {id:"A11", cat:"A", type:"choice", q:"あやまちや罪を取り立てて責めること。非難することを表すことばは？", a:"とがめる", group:"態度2"},
+  {id:"A12", cat:"A", type:"choice", q:"気にもとめず、ものごとをいいかげんにしておくさまを表すことばは？", a:"なおざり", group:"態度2"},
+  {id:"A13", cat:"A", type:"choice", q:"ひどく悲しむこと。泣くことを表すことばは？", a:"なげく", group:"気持ち2"},
+  {id:"A14", cat:"A", type:"choice", q:"なみひととおりのことではない、という意味のことばは？", a:"なみなみならぬ", group:"気持ち2"},
+  {id:"A15", cat:"A", type:"choice", q:"遠慮すること。気兼ねすること。ひかえめにすることを表すことばは？", a:"はばかる", group:"態度2"},
+  {id:"A16", cat:"A", type:"choice", q:"他人の言うことなどを素直に受け取らないで、自分だけひどい扱いをされたように思いこむことを表すことばは？", a:"ひがむ", group:"気持ち2"},
+  {id:"A17", cat:"A", type:"choice", q:"大勢の人が一カ所にすきまなく集まって、押し合いへし合いすることを表すことばは？", a:"ひしめく", group:"からだ2"},
+  {id:"A18", cat:"A", type:"choice", q:"川や池、湖など水のあるところのすぐそば。きわを表すことばは？", a:"ほとり", group:"ようす2"},
+  {id:"A19", cat:"A", type:"choice", q:"まぶたを瞬間的に開けたり閉じたりすること（まばたくこと）を表すことばは？", a:"またたく", group:"からだ2"},
+  {id:"A20", cat:"A", type:"choice", q:"家族や男女同士が、よく気が合って、仲がよいことを表すことばは？", a:"むつまじい", group:"ようす2"},
+
+  // --- B. 文の穴うめ（4択・選択肢は自動） ---
+  {id:"B01", cat:"B", type:"choice", group:"ことば", q:"自らの行いを（　　）。\n（善し悪しを考えてみる。）", a:"かえりみる"},
+  {id:"B02", cat:"B", type:"choice", group:"ことば", q:"妻が夫の死を（　　）。\n（ひどく悲しむ。泣く。）", a:"なげく"},
+  {id:"B03", cat:"B", type:"choice", group:"ことば", q:"にくまれっ子、世に（　　）。\n（はばをきかせる。）", a:"はばかる"},
+  {id:"B04", cat:"B", type:"choice", group:"ことば", q:"結果は出てしまったのだから、今さら（　　）なよ。\n（困難な状況を逃れようと必死になる。）", a:"あがく"},
+  {id:"B05", cat:"B", type:"choice", group:"ことば", q:"暗い海に漁船の灯りが（　　）。\n（光がちらちらと強くなったり弱くなったりする。）", a:"またたく"},
+  {id:"B06", cat:"B", type:"choice", group:"ことば", q:"目張りをしてすきま風を防ぎ、冬の寒さを（　　）。\n（耐える。乗りきる。）", a:"しのぐ"},
+  {id:"B07", cat:"B", type:"choice", group:"ことば", q:"恥ずかしさで身の（　　）思いだ。\n（小さくなる。縮こまる。）", a:"すくむ"},
+  {id:"B08", cat:"B", type:"choice", group:"ことば", q:"アイドルを一目見ようとコンサートホールの出口前に（　　）若者たち。\n（大勢の人が一カ所にすきまなく集まる。）", a:"ひしめく"},
+  {id:"B09", cat:"B", type:"choice", group:"ことば", q:"自分だけ無視されたと思って（　　）。\n（ものごとを素直に受け取らないで、ひねくれる。）", a:"ひがむ"},
+  {id:"B10", cat:"B", type:"choice", group:"ことば", q:"素直に考えないで、しつこく失敗を（　　）。\n（あやまちを取り立てて、非難する。）", a:"とがめる"},
+
+  // --- C. 文中の意味（4択・選択肢は自動） ---
+  {id:"C01", cat:"C", type:"choice", group:"意味", q:"「相手が勢いよく迫ってきたので、思わず<u>あとずさり</u>した。」の<u>あとずさり</u>の意味は？", a:"前を向いたまま後ろへ下がること。"},
+  {id:"C02", cat:"C", type:"choice", group:"意味", q:"「格下相手に試合に負けた、<u>いまわしい</u>思い出がよみがえる。」の<u>いまわしい</u>の意味は？", a:"いやである。よくない。"},
+  {id:"C03", cat:"C", type:"choice", group:"意味", q:"「<u>ういういしい</u>新入生の姿を見てほほえむ。」の<u>ういういしい</u>の意味は？", a:"年が若く、まだもの慣れない感じがする。"},
+  {id:"C04", cat:"C", type:"choice", group:"意味", q:"「<u>なみなみならぬ</u>努力をして、ようやくプロになった。」の<u>なみなみならぬ</u>の意味は？", a:"なみひととおりのことではない。大変な。"},
+  {id:"C05", cat:"C", type:"choice", group:"意味", q:"「お世話になった人に<u>ささやか</u>なプレゼントを用意する。」の<u>ささやか</u>の意味は？", a:"小さく、ちょっとしたさま。"},
+  {id:"C06", cat:"C", type:"choice", group:"意味", q:"「学業を<u>なおざり</u>にして遊んでばかりいると後で困るよ。」の<u>なおざり</u>の意味は？", a:"ものごとをいいかげんにしておくさま。"},
+  {id:"C07", cat:"C", type:"choice", group:"意味", q:"「昔、山の中の一軒家に、仲<u>むつまじい</u>夫婦が住んでいた。」の<u>むつまじい</u>の意味は？", a:"よく気が合って、仲が良い。"},
+  {id:"C08", cat:"C", type:"choice", group:"意味", q:"「<u>つたない</u>絵を見せるのははずかしい。」の<u>つたない</u>の意味は？", a:"下手である。うまいやり方ではない。"},
+
+  // --- C続き（新規・文中の意味） ---
+  {id:"C09", cat:"C", type:"choice", group:"意味-からだ2", q:"「池に落ちて、必死に<u>あがいて</u>岸に上がろうとした。」の<u>あがく</u>の意味は？", a:"手足をふり動かしてもがくこと。じたばたすること。", choices:["手足をふり動かしてもがくこと。じたばたすること。","緊張や恐怖のあまり、体が自由に動かなくなること。","大勢の人が一カ所にすきまなく集まって、押し合いへし合いすること。","まぶたを瞬間的に開けたり閉じたりすること。"]},
+  {id:"C10", cat:"C", type:"choice", group:"意味-態度2", q:"「試合に負けた原因を一人静かに<u>かえりみた</u>。」の<u>かえりみる</u>の意味は？", a:"自分のしたことの善し悪しを考えてみること。", choices:["自分のしたことの善し悪しを考えてみること。","あやまちや罪を取り立てて責めること。非難すること。","遠慮すること。気兼ねすること。ひかえめにすること。","良くないことをさせるように仕向けること。おだててすすめること。"]},
+  {id:"C11", cat:"C", type:"choice", group:"意味-ようす2", q:"「ストーブ一つで厳しい冬の寒さを<u>しのいだ</u>。」の<u>しのぐ</u>の意味は？", a:"苦しさやつらさなどに耐えて切り抜けること。", choices:["苦しさやつらさなどに耐えて切り抜けること。","水のあるところのすぐそば。きわ。","下手である。うまいやり方ではないこと。","年が若く、まだもの慣れない感じがすること。"]},
+  {id:"C12", cat:"C", type:"choice", group:"意味-からだ2", q:"「暗闇から大きな物音がして、思わず足が<u>すくんだ</u>。」の<u>すくむ</u>の意味は？", a:"緊張や恐怖のあまり、体が自由に動かなくなること。", choices:["緊張や恐怖のあまり、体が自由に動かなくなること。","手足をふり動かしてもがくこと。じたばたすること。","大勢の人が一カ所にすきまなく集まって、押し合いへし合いすること。","まぶたを瞬間的に開けたり閉じたりすること。"]},
+  {id:"C13", cat:"C", type:"choice", group:"意味-態度2", q:"「友達に<u>そそのかされて</u>、いたずらをしてしまった。」の<u>そそのかす</u>の意味は？", a:"良くないことをさせるように仕向けること。おだててすすめること。", choices:["良くないことをさせるように仕向けること。おだててすすめること。","自分のしたことの善し悪しを考えてみること。","あやまちや罪を取り立てて責めること。非難すること。","遠慮すること。気兼ねすること。ひかえめにすること。"]},
+  {id:"C14", cat:"C", type:"choice", group:"意味-態度2", q:"「何度も同じ失敗をした弟を<u>とがめた</u>。」の<u>とがめる</u>の意味は？", a:"あやまちや罪を取り立てて責めること。非難すること。", choices:["あやまちや罪を取り立てて責めること。非難すること。","自分のしたことの善し悪しを考えてみること。","良くないことをさせるように仕向けること。おだててすすめること。","遠慮すること。気兼ねすること。ひかえめにすること。"]},
+  {id:"C15", cat:"C", type:"choice", group:"意味-気持ち2", q:"「飼っていた犬が死んでしまい、家族で<u>なげいた</u>。」の<u>なげく</u>の意味は？", a:"ひどく悲しむこと。泣くこと。", choices:["ひどく悲しむこと。泣くこと。","いやである。よくないこと。","なみひととおりのことではないこと。大変なこと。","素直に受け取らないで、自分だけひどい扱いをされたと思いこむこと。"]},
+  {id:"C16", cat:"C", type:"choice", group:"意味-態度2", q:"「体調が悪いので、今日の外出は<u>はばかった</u>。」の<u>はばかる</u>の意味は？", a:"遠慮すること。気兼ねすること。ひかえめにすること。", choices:["遠慮すること。気兼ねすること。ひかえめにすること。","自分のしたことの善し悪しを考えてみること。","あやまちや罪を取り立てて責めること。非難すること。","良くないことをさせるように仕向けること。おだててすすめること。"]},
+  {id:"C17", cat:"C", type:"choice", group:"意味-気持ち2", q:"「自分だけ誘われなかったと知って、つい<u>ひがんで</u>しまった。」の<u>ひがむ</u>の意味は？", a:"素直に受け取らないで、自分だけひどい扱いをされたと思いこむこと。", choices:["素直に受け取らないで、自分だけひどい扱いをされたと思いこむこと。","いやである。よくないこと。","なみひととおりのことではないこと。大変なこと。","ひどく悲しむこと。泣くこと。"]},
+  {id:"C18", cat:"C", type:"choice", group:"意味-からだ2", q:"「開店前から行列ができ、客が入り口に<u>ひしめいて</u>いた。」の<u>ひしめく</u>の意味は？", a:"大勢の人が一カ所にすきまなく集まって、押し合いへし合いすること。", choices:["大勢の人が一カ所にすきまなく集まって、押し合いへし合いすること。","手足をふり動かしてもがくこと。じたばたすること。","緊張や恐怖のあまり、体が自由に動かなくなること。","まぶたを瞬間的に開けたり閉じたりすること。"]},
+  {id:"C19", cat:"C", type:"choice", group:"意味-ようす2", q:"「湖の<u>ほとり</u>でお弁当を食べた。」の<u>ほとり</u>の意味は？", a:"水のあるところのすぐそば。きわ。", choices:["水のあるところのすぐそば。きわ。","苦しさやつらさなどに耐えて切り抜けること。","下手である。うまいやり方ではないこと。","家族や男女同士が、よく気が合って、仲がよいこと。"]},
+  {id:"C20", cat:"C", type:"choice", group:"意味-からだ2", q:"「星が夜空で<u>またたいて</u>いた。」の<u>またたく</u>の意味は？", a:"まぶたを瞬間的に開けたり閉じたりすること。", choices:["まぶたを瞬間的に開けたり閉じたりすること。","手足をふり動かしてもがくこと。じたばたすること。","緊張や恐怖のあまり、体が自由に動かなくなること。","大勢の人が一カ所にすきまなく集まって、押し合いへし合いすること。"]}
+];
+
+/* ============================================================
+   DATA — 出典: 予習シリーズ 国語 4年上 第1回 和語①
+============================================================ */
+var QUESTIONS_WAGO1 = [
+  // --- A. 意味→ことば（4択） ---
+  {id:"W1A01", cat:"A", type:"choice", group:"気持ち1", q:"疑う。あやしいと思うことを表すことばは？", a:"いぶかる"},
+  {id:"W1A02", cat:"A", type:"choice", group:"態度1", q:"やり方や品性が下劣でいやしいことを表すことばは？", a:"あさましい"},
+  {id:"W1A03", cat:"A", type:"choice", group:"態度1", q:"人の機嫌をとって、気に入られるようなことばかり言うことを表すことばは？", a:"こびる"},
+  {id:"W1A04", cat:"A", type:"choice", group:"ようす1", q:"かたむきが急で、登るのが難しいさまを表すことばは？", a:"けわしい"},
+  {id:"W1A05", cat:"A", type:"choice", group:"ようす1", q:"動作や話し方などがなめらかでないさまを表すことばは？", a:"ぎこちない"},
+  {id:"W1A06", cat:"A", type:"choice", group:"行動1", q:"ものごとの意味も考えずに、そのまま受け入れることを表すことばは？", a:"うのみ"},
+  {id:"W1A07", cat:"A", type:"choice", group:"行動1", q:"ものごとを早くするように仕向けることを表すことばは？", a:"うながす"},
+  {id:"W1A08", cat:"A", type:"choice", group:"ようす1", q:"何事もないかのように振る舞うさまを表すことばは？", a:"さりげない"},
+  {id:"W1A09", cat:"A", type:"choice", group:"行動1", q:"つらいことをがまんして、じっとこらえることを表すことばは？", a:"しのぶ"},
+  {id:"W1A10", cat:"A", type:"choice", group:"気持ち1", q:"心の底から深く感じるさまを表すことばは？", a:"しみじみ"},
+  {id:"W1A11", cat:"A", type:"choice", group:"行動1", q:"方法や手段がないことを表すことばは？", a:"すべがない"},
+  {id:"W1A12", cat:"A", type:"choice", group:"態度1", q:"目上の人の考えや命令などに従わずに反抗することを表すことばは？", a:"そむく"},
+  {id:"W1A13", cat:"A", type:"choice", group:"態度1", q:"軽く見ること。ばかにすることを表すことばは？", a:"ないがしろ"},
+  {id:"W1A14", cat:"A", type:"choice", group:"態度1", q:"相手のよくない点を問いつめて、責めることを表すことばは？", a:"なじる"},
+  {id:"W1A15", cat:"A", type:"choice", group:"行動1", q:"声を出したり手をぱたぱたさせて、ほめたりからかったりすることを表すことばは？", a:"はやしたてる"},
+  {id:"W1A16", cat:"A", type:"choice", group:"気持ち1", q:"一つのものごとに夢中になるさまを表すことばは？", a:"ひたむき"},
+  {id:"W1A17", cat:"A", type:"choice", group:"気持ち1", q:"自分の思う通りに事が進み、ひそかに満足の笑みをうかべることを表すことばは？", a:"ほくそえむ"},
+  {id:"W1A18", cat:"A", type:"choice", group:"ようす1", q:"どうしてよいか分からず、うろたえているようすを表すことばは？", a:"まごまご"},
+  {id:"W1A19", cat:"A", type:"choice", group:"行動1", q:"虫が食うように少しずつ悪くすることを表すことばは？", a:"むしばむ"},
+  {id:"W1A20", cat:"A", type:"choice", group:"行動1", q:"他をさしおいて、ある一つのことばかりであるさまを表すことばは？", a:"もっぱら"},
+
+  // --- B. 文の穴うめ（4択・選択肢は自動） ---
+  {id:"W1B01", cat:"B", type:"choice", group:"ことば1", q:"（　　）手つきでおはしを使う。\n（動作などがなめらかでない。）", a:"ぎこちない"},
+  {id:"W1B02", cat:"B", type:"choice", group:"ことば1", q:"ずるをして勝負に勝とうなんて、（　　）根性だ。\n（品性が下劣である。）", a:"あさましい"},
+  {id:"W1B03", cat:"B", type:"choice", group:"ことば1", q:"医者が（　　）表情で、病名を告げる。\n（怒りや緊張のため、言葉や表情などがとげとげしいさま。）", a:"けわしい"},
+  {id:"W1B04", cat:"B", type:"choice", group:"ことば1", q:"（　　）ふうをよそおって、噂が本当か聞き出す。\n（何事もないように振る舞うさま。）", a:"さりげない"},
+
+  // --- C. 文中の意味（4択・選択肢は自動） ---
+  {id:"W1C01", cat:"C", type:"choice", group:"意味1", q:"「<u>ひたむき</u>な努力を続け、志望校に合格する。」の<u>ひたむき</u>の意味は？", a:"我慢強く、こりずに打ち込むさま。"},
+  {id:"W1C02", cat:"C", type:"choice", group:"意味1", q:"「妹は兄の言うことをなんでも<u>うのみ</u>にする。」の<u>うのみ</u>の意味は？", a:"ものごとの意味を考えずに、そのまま受け入れること。"},
+  {id:"W1C03", cat:"C", type:"choice", group:"意味1", q:"「<u>こびる</u>ような笑みをうかべてみんなの前に立った。」の<u>こびる</u>の意味は？", a:"人の機嫌をとって、気に入られるような態度をとること。"},
+  {id:"W1C04", cat:"C", type:"choice", group:"意味1", q:"「恥を<u>しのんで</u>、恥ずかしい体験を話す。」の<u>しのぶ</u>の意味は？", a:"つらいことをがまんして、耐えること。"},
+  {id:"W1C05", cat:"C", type:"choice", group:"意味1", q:"「中学の入学式で<u>しみじみ</u>と我が子の成長を感じる。」の<u>しみじみ</u>の意味は？", a:"心の底から深く感じるさま。"},
+  {id:"W1C06", cat:"C", type:"choice", group:"意味1", q:"「後輩の意見を<u>ないがしろ</u>にしてはいけない。」の<u>ないがしろ</u>の意味は？", a:"軽く見ること。ばかにすること。"},
+  {id:"W1C07", cat:"C", type:"choice", group:"意味1", q:"「病魔が祖父の体を<u>むしばむ</u>。」の<u>むしばむ</u>の意味は？", a:"虫が葉を食うように少しずつ悪くすること。"},
+  {id:"W1C08", cat:"C", type:"choice", group:"意味1", q:"「仕返しが計画通りにうまくいったので、1人<u>ほくそえんだ</u>。」の<u>ほくそえむ</u>の意味は？", a:"自分の思う通りに事が進んで、ひとりひそかに笑うこと。"},
+  {id:"W1C09", cat:"C", type:"choice", group:"意味1", q:"「姉の言うことが本当とは思えず、<u>いぶかる</u>。」の<u>いぶかる</u>の意味は？", a:"疑うこと。"},
+  {id:"W1C10", cat:"C", type:"choice", group:"意味1", q:"「上司の命令に<u>そむく</u>。」の<u>そむく</u>の意味は？", a:"さからうこと。"},
+  {id:"W1C11", cat:"C", type:"choice", group:"意味1", q:"「休日は<u>もっぱら</u>テレビを観て過ごす。」の<u>もっぱら</u>の意味は？", a:"ひたすら。"},
+
+  // --- C続き（新規・文中の意味） ---
+  {id:"W1C12", cat:"C", type:"choice", group:"意味-態度1", q:"「お金のためなら手段を選ばない<u>あさましい</u>行動に、あきれてしまった。」の<u>あさましい</u>の意味は？", a:"やり方や品性が下劣で、いやしいこと。", choices:["やり方や品性が下劣で、いやしいこと。","人の機嫌をとって、気に入られるようなことばかり言うこと。","目上の人の考えや命令などに従わずに、反抗すること。","相手のよくない点を問いつめて、責めること。"]},
+  {id:"W1C13", cat:"C", type:"choice", group:"意味-ようす1", q:"「山道はしだいに<u>けわしく</u>なり、息が切れた。」の<u>けわしい</u>の意味は？", a:"かたむきが急で、登るのが難しいさま。", choices:["かたむきが急で、登るのが難しいさま。","動作や話し方などが、なめらかでないさま。","何事もないかのように振る舞うさま。","どうしてよいか分からず、うろたえているようす。"]},
+  {id:"W1C14", cat:"C", type:"choice", group:"意味-ようす1", q:"「初めて着物を着たので、<u>ぎこちない</u>動きになってしまった。」の<u>ぎこちない</u>の意味は？", a:"動作や話し方などが、なめらかでないさま。", choices:["動作や話し方などが、なめらかでないさま。","かたむきが急で、登るのが難しいさま。","何事もないかのように振る舞うさま。","どうしてよいか分からず、うろたえているようす。"]},
+  {id:"W1C15", cat:"C", type:"choice", group:"意味-行動1", q:"「先生が出発を<u>うながした</u>ので、みんな急いで準備をした。」の<u>うながす</u>の意味は？", a:"ものごとを早くするように仕向けること。", choices:["ものごとを早くするように仕向けること。","方法や手段がないこと。","声を出したり手をぱたぱたさせて、ほめたりからかったりすること。","つらいことをがまんして、じっとこらえること。"]},
+  {id:"W1C16", cat:"C", type:"choice", group:"意味-ようす1", q:"「<u>さりげない</u>態度で、サプライズの準備を進めた。」の<u>さりげない</u>の意味は？", a:"何事もないかのように振る舞うさま。", choices:["何事もないかのように振る舞うさま。","かたむきが急で、登るのが難しいさま。","動作や話し方などが、なめらかでないさま。","どうしてよいか分からず、うろたえているようす。"]},
+  {id:"W1C17", cat:"C", type:"choice", group:"意味-行動1", q:"「財布を落としてしまい、家に帰る<u>すべがない</u>。」の<u>すべがない</u>の意味は？", a:"方法や手段がないこと。", choices:["方法や手段がないこと。","ものごとを早くするように仕向けること。","声を出したり手をぱたぱたさせて、ほめたりからかったりすること。","他をさしおいて、ある一つのことばかりであるさま。"]},
+  {id:"W1C18", cat:"C", type:"choice", group:"意味-態度1", q:"「約束を破った友人を強く<u>なじった</u>。」の<u>なじる</u>の意味は？", a:"相手のよくない点を問いつめて、責めること。", choices:["相手のよくない点を問いつめて、責めること。","やり方や品性が下劣で、いやしいこと。","人の機嫌をとって、気に入られるようなことばかり言うこと。","目上の人の考えや命令などに従わずに、反抗すること。"]},
+  {id:"W1C19", cat:"C", type:"choice", group:"意味-行動1", q:"「失敗した友達を、みんなで<u>はやしたてて</u>しまった。」の<u>はやしたてる</u>の意味は？", a:"声を出したり手をぱたぱたさせて、ほめたりからかったりすること。", choices:["声を出したり手をぱたぱたさせて、ほめたりからかったりすること。","ものごとを早くするように仕向けること。","方法や手段がないこと。","虫が葉を食うように少しずつ悪くすること。"]},
+  {id:"W1C20", cat:"C", type:"choice", group:"意味-ようす1", q:"「初めての駅で、出口が分からず<u>まごまご</u>してしまった。」の<u>まごまご</u>の意味は？", a:"どうしてよいか分からず、うろたえているようす。", choices:["どうしてよいか分からず、うろたえているようす。","かたむきが急で、登るのが難しいさま。","動作や話し方などが、なめらかでないさま。","何事もないかのように振る舞うさま。"]}
+];
+
+var CATS_KANYOKU = { A:"意味→ことば", B:"体の一部をこたえる", C:"文の穴うめ", D:"文中の意味" };
+
+var QUESTIONS_KANYOKU1 = [
+  // --- A. 意味→ことば（4択・選択肢は自動） ---
+  {id:"W2A01", cat:"A", type:"choice", group:"口2", q:"口数が少なく、あまりしゃべらないことを表すことばは？", a:"口が重い"},
+  {id:"W2A02", cat:"A", type:"choice", group:"口2", q:"言ってはいけないことは、むやみにしゃべらないことを表すことばは？", a:"口がかたい"},
+  {id:"W2A03", cat:"A", type:"choice", group:"口2", q:"言ってはいけないことを、うっかり言ってしまうことを表すことばは？", a:"口がすべる"},
+  {id:"W2A04", cat:"A", type:"choice", group:"口2", q:"言い争いに負けていないで、理屈や負けおしみをいくらでも言ってしまうことを表すことばは？", a:"口が減らない"},
+  {id:"W2A05", cat:"A", type:"choice", group:"口2", q:"人やものごとをずけずけと言うような話し方をするさまを表すことばは？", a:"口が悪い"},
+  {id:"W2A06", cat:"A", type:"choice", group:"口2", q:"口先だけのうまい言葉にだまされることを表すことばは？", a:"口車にのる"},
+  {id:"W2A07", cat:"A", type:"choice", group:"口2", q:"話し合いなどで、最初に発言することを表すことばは？", a:"口を切る"},
+  {id:"W2A08", cat:"A", type:"choice", group:"からだ2-他", q:"味の良し悪しが分かり、おいしいものを好むことを表すことばは？", a:"舌が肥える"},
+  {id:"W2A09", cat:"A", type:"choice", group:"からだ2-他", q:"おいしさのあまり、思わず舌をならすことを表すことばは？", a:"舌鼓を打つ"},
+  {id:"W2A10", cat:"A", type:"choice", group:"手2", q:"仕事などが一段落して、ひまができることを表すことばは？", a:"手が空く"},
+  {id:"W2A11", cat:"A", type:"choice", group:"手2", q:"時間や労力が必要でやっかいだ、ということを表すことばは？", a:"手がかかる"},
+  {id:"W2A12", cat:"A", type:"choice", group:"手2", q:"緊張や興奮で手のひらに汗をかくほどはらはらすることを表すことばは？", a:"手に汗をにぎる"},
+  {id:"W2A13", cat:"A", type:"choice", group:"手2", q:"話し合いの決着をつけることを表すことばは？", a:"手を打つ"},
+  {id:"W2A14", cat:"A", type:"choice", group:"手2", q:"あまり好ましくないつきあいをやめることを表すことばは？", a:"手を切る"},
+  {id:"W2A15", cat:"A", type:"choice", group:"手2", q:"あるものごとに関係をもちはじめる、やりはじめることを表すことばは？", a:"手を染める"},
+  {id:"W2A16", cat:"A", type:"choice", group:"手2", q:"しなければならないことを省略し、気が利いて要領よくやることを表すことばは？", a:"手を抜く"},
+  {id:"W2A17", cat:"A", type:"choice", group:"鼻2", q:"意気込みがはげしく、やる気満々であることを表すことばは？", a:"鼻息が荒い"},
+  {id:"W2A18", cat:"A", type:"choice", group:"鼻2", q:"他人の言うことにまともに返事もしないで、冷淡な態度であつかうことを表すことばは？", a:"鼻であしらう"},
+  {id:"W2A19", cat:"A", type:"choice", group:"鼻2", q:"自分がすぐれていることを見せつけ、いかにも得意そうにふるまうことを表すことばは？", a:"鼻にかける"},
+  {id:"W2A20", cat:"A", type:"choice", group:"鼻2", q:"同じことが何度もくり返され、あきあきしていやになることを表すことばは？", a:"鼻につく"},
+  {id:"W2A21", cat:"A", type:"choice", group:"からだ2-他", q:"まじめな気持ちや態度になることを表すことばは？", a:"ひざを正す"},
+  {id:"W2A22", cat:"A", type:"choice", group:"からだ2-他", q:"悲しみのあまり、胸が締めつけられるような感じがすることを表すことばは？", a:"胸がつぶれる"},
+  {id:"W2A23", cat:"A", type:"choice", group:"からだ2-他", q:"自分の持っている能力や値打ち以上のことだ、ということを表すことばは？", a:"身に余る"},
+  {id:"W2A24", cat:"A", type:"choice", group:"からだ2-他", q:"自分の地位や能力などをじゅうぶんにわきまえることを表すことばは？", a:"身の程を知る"},
+  {id:"W2A25", cat:"A", type:"choice", group:"目2", q:"ものの価値を見分け、評価する能力があることを表すことばは？", a:"目が肥える"},
+  {id:"W2A26", cat:"A", type:"choice", group:"目2", q:"眠りから覚めて、心の迷いが去って本来の正しい心にもどることを表すことばは？", a:"目が覚める"},
+  {id:"W2A27", cat:"A", type:"choice", group:"目2", q:"かわいくてたまらないことを表すことばは？", a:"目に入れても痛くない"},
+  {id:"W2A28", cat:"A", type:"choice", group:"目2", q:"無視して、見ようともしない、相手にしないことを表すことばは？", a:"目もくれない"},
+  {id:"W2A29", cat:"A", type:"choice", group:"からだ2-他", q:"遠くまででかけていくことを表すことばは？", a:"足をのばす"},
+  {id:"W2A30", cat:"A", type:"choice", group:"からだ2-他", q:"目の前のものがとても欲しいのに、手を出せずにいることを表すことばは？", a:"指をくわえる"},
+  {id:"W2A31", cat:"A", type:"choice", group:"からだ2-他", q:"同じくらいの実力を持っている人が、対等の関係にならぶことを表すことばは？", a:"肩を並べる"},
+  {id:"W2A32", cat:"A", type:"choice", group:"からだ2-他", q:"すぐれた技能を持っていることを表すことばは？", a:"腕が立つ"},
+
+  // --- B. 体の一部をこたえる（4択・選択肢は自動） ---
+  {id:"W2B01", cat:"B", type:"choice", group:"B2-karada", q:"（　　）をのばす。\n（遠くまででかけていく。）\n（漢字1字で答えよう）", a:"足"},
+  {id:"W2B02", cat:"B", type:"choice", group:"B2-karada", q:"（　　）がかかる。\n（時間や労力が必要でやっかいだ。）\n（漢字1字で答えよう）", a:"手"},
+  {id:"W2B03", cat:"B", type:"choice", group:"B2-karada", q:"（　　）がすべる。\n（言ってはいけないことをうっかり言ってしまう。）\n（漢字1字で答えよう）", a:"口"},
+  {id:"W2B04", cat:"B", type:"choice", group:"B2-karada", q:"（　　）をくわえる。\n（目の前のものがとても欲しいのに手を出せずにいる。）\n（漢字1字で答えよう）", a:"指"},
+  {id:"W2B05", cat:"B", type:"choice", group:"B2-karada", q:"（　　）を並べる。\n（同じくらいの実力を持っている人が、対等の関係にならぶ。）\n（漢字1字で答えよう）", a:"肩"},
+  {id:"W2B06", cat:"B", type:"choice", group:"B2-karada", q:"（　　）を打つ。\n（話し合いの決着をつける。）\n（漢字1字で答えよう）", a:"手"},
+  {id:"W2B07", cat:"B", type:"choice", group:"B2-karada", q:"（　　）にかける。\n（すぐれていることを見せつけ、いかにも得意そうにふるまう。）\n（漢字1字で答えよう）", a:"鼻"},
+  {id:"W2B08", cat:"B", type:"choice", group:"B2-karada", q:"（　　）が立つ。\n（すぐれた技能を持っている。）\n（漢字1字で答えよう）", a:"腕"},
+  {id:"W2B09", cat:"B", type:"choice", group:"B2-karada", q:"（　　）であしらう。\n（他人の言うことにまともに返事もしないで、冷淡な態度であつかう。）\n（漢字1字で答えよう）", a:"鼻"},
+  {id:"W2B10", cat:"B", type:"choice", group:"B2-karada", q:"（　　）もくれない。\n（無視して、見ようともしない。相手にしない。）\n（漢字1字で答えよう）", a:"目"},
+  {id:"W2B11", cat:"B", type:"choice", group:"B2-karada", q:"（　　）が重い。\n（あまりしゃべらない。）\n（漢字1字で答えよう）", a:"口"},
+  {id:"W2B12", cat:"B", type:"choice", group:"B2-karada", q:"（　　）が肥える。\n（ものの価値を見分け、評価する能力がある。）\n（漢字1字で答えよう）", a:"目"},
+  {id:"W2B13", cat:"B", type:"choice", group:"B2-karada", q:"（　　）を切る。\n（あまり好ましくないつきあいをやめる。）\n（漢字1字で答えよう）", a:"手"},
+  {id:"W2B14", cat:"B", type:"choice", group:"B2-karada", q:"次の3つの慣用句に共通して入る、体の一部を表す漢字は？\n（　　）を付ける・（　　）が覚める・（　　）を光らす", a:"目"},
+  {id:"W2B15", cat:"B", type:"choice", group:"B2-karada", q:"次の3つの慣用句に共通して入る、体の一部を表す漢字は？\n（　　）車にのる・（　　）がかたい・（　　）が減らない", a:"口"},
+  {id:"W2B16", cat:"B", type:"choice", group:"B2-karada", q:"次の3つの慣用句に共通して入る、体の一部を表す漢字は？\n（　　）に汗をにぎる・（　　）が空く・（　　）を抜く", a:"手"},
+
+  // --- C. 文の穴うめ（4択・選択肢は自動） ---
+  {id:"W2C01", cat:"C", type:"choice", group:"意味2", q:"「自分の失敗のせいでたくさんの人に迷惑をかけてしまい、みんなに（　　）。」の（　　）に入る慣用句は？", a:"顔向けできない"},
+  {id:"W2C02", cat:"C", type:"choice", group:"意味2", q:"「料理じょうずの母親のおかげで、（　　）。」の（　　）に入る慣用句は？", a:"舌が肥える"},
+  {id:"W2C03", cat:"C", type:"choice", group:"意味2", q:"「次の試合に勝てば全国大会に出場できるとあって、みんなの（　　）。」の（　　）に入る慣用句は？", a:"鼻息が荒い"},
+  {id:"W2C04", cat:"C", type:"choice", group:"意味2", q:"「彼は（　　）から、だまされないように気を付けなければならない。」の（　　）に入る慣用句は？", a:"口がうまい"},
+  {id:"W2C05", cat:"C", type:"choice", group:"意味2", q:"「このような素晴らしい賞をいただき、（　　）光栄です。」の（　　）に入る慣用句は？", a:"身に余る"},
+
+  // --- D. 文中の意味（新規・4択） ---
+  {id:"W2D01", cat:"D", type:"choice", group:"意味2-口", q:"「彼は<u>口が重く</u>、聞かれたことに短く答えるだけだった。」の<u>口が重い</u>の意味は？", a:"口数が少なく、あまりしゃべらないこと。", choices:["口数が少なく、あまりしゃべらないこと。","言ってはいけないことは、むやみにしゃべらないこと。","言ってはいけないことを、うっかり言ってしまうこと。","人やものごとをずけずけと言うような話し方をするさま。"]},
+  {id:"W2D02", cat:"D", type:"choice", group:"意味2-口", q:"「秘密をあかさない彼は<u>口がかたい</u>人として知られている。」の<u>口がかたい</u>の意味は？", a:"言ってはいけないことは、むやみにしゃべらないこと。", choices:["言ってはいけないことは、むやみにしゃべらないこと。","口数が少なく、あまりしゃべらないこと。","言ってはいけないことを、うっかり言ってしまうこと。","言い争いに負けていないで、理屈や負けおしみをいくらでも言ってしまうこと。"]},
+  {id:"W2D03", cat:"D", type:"choice", group:"意味2-口", q:"「友達の秘密を、つい<u>口がすべって</u>話してしまった。」の<u>口がすべる</u>の意味は？", a:"言ってはいけないことを、うっかり言ってしまうこと。", choices:["言ってはいけないことを、うっかり言ってしまうこと。","言ってはいけないことは、むやみにしゃべらないこと。","人やものごとをずけずけと言うような話し方をするさま。","口先だけのうまい言葉にだまされること。"]},
+  {id:"W2D04", cat:"D", type:"choice", group:"意味2-口", q:"「注意されても<u>口が減らない</u>弟に、母はあきれていた。」の<u>口が減らない</u>の意味は？", a:"言い争いに負けていないで、理屈や負けおしみをいくらでも言ってしまうこと。", choices:["言い争いに負けていないで、理屈や負けおしみをいくらでも言ってしまうこと。","口数が少なく、あまりしゃべらないこと。","人やものごとをずけずけと言うような話し方をするさま。","話し合いなどで、最初に発言すること。"]},
+  {id:"W2D05", cat:"D", type:"choice", group:"意味2-口", q:"「あの人は<u>口が悪い</u>が、本当はやさしい性格だ。」の<u>口が悪い</u>の意味は？", a:"人やものごとをずけずけと言うような話し方をするさま。", choices:["人やものごとをずけずけと言うような話し方をするさま。","言ってはいけないことは、むやみにしゃべらないこと。","言ってはいけないことを、うっかり言ってしまうこと。","口先だけのうまい言葉にだまされること。"]},
+  {id:"W2D06", cat:"D", type:"choice", group:"意味2-口", q:"「うまい話に<u>口車にのって</u>、損をしてしまった。」の<u>口車にのる</u>の意味は？", a:"口先だけのうまい言葉にだまされること。", choices:["口先だけのうまい言葉にだまされること。","言い争いに負けていないで、理屈や負けおしみをいくらでも言ってしまうこと。","話し合いなどで、最初に発言すること。","口数が少なく、あまりしゃべらないこと。"]},
+  {id:"W2D07", cat:"D", type:"choice", group:"意味2-口", q:"「静まり返った会議室で、班長が<u>口を切った</u>。」の<u>口を切る</u>の意味は？", a:"話し合いなどで、最初に発言すること。", choices:["話し合いなどで、最初に発言すること。","人やものごとをずけずけと言うような話し方をするさま。","口先だけのうまい言葉にだまされること。","言ってはいけないことは、むやみにしゃべらないこと。"]},
+  {id:"W2D08", cat:"D", type:"choice", group:"意味2-手", q:"「ちょうど<u>手が空いた</u>ところなので、手伝いますよ。」の<u>手が空く</u>の意味は？", a:"仕事などが一段落して、ひまができること。", choices:["仕事などが一段落して、ひまができること。","時間や労力が必要でやっかいだ、ということ。","あまり好ましくないつきあいをやめること。","しなければならないことを省略し、気が利いて要領よくやること。"]},
+  {id:"W2D09", cat:"D", type:"choice", group:"意味2-手", q:"「小さな子どもの世話は<u>手がかかる</u>。」の<u>手がかかる</u>の意味は？", a:"時間や労力が必要でやっかいだ、ということ。", choices:["時間や労力が必要でやっかいだ、ということ。","仕事などが一段落して、ひまができること。","緊張や興奮で手のひらに汗をかくほどはらはらすること。","話し合いの決着をつけること。"]},
+  {id:"W2D10", cat:"D", type:"choice", group:"意味2-手", q:"「<u>手に汗をにぎる</u>ような、はらはらする試合展開だった。」の<u>手に汗をにぎる</u>の意味は？", a:"緊張や興奮で手のひらに汗をかくほどはらはらすること。", choices:["緊張や興奮で手のひらに汗をかくほどはらはらすること。","時間や労力が必要でやっかいだ、ということ。","話し合いの決着をつけること。","あるものごとに関係をもちはじめる、やりはじめること。"]},
+  {id:"W2D11", cat:"D", type:"choice", group:"意味2-手", q:"「両者が話し合い、ようやく<u>手を打った</u>。」の<u>手を打つ</u>の意味は？", a:"話し合いの決着をつけること。", choices:["話し合いの決着をつけること。","仕事などが一段落して、ひまができること。","あまり好ましくないつきあいをやめること。","あるものごとに関係をもちはじめる、やりはじめること。"]},
+  {id:"W2D12", cat:"D", type:"choice", group:"意味2-手", q:"「よくない仲間と<u>手を切る</u>決心をした。」の<u>手を切る</u>の意味は？", a:"あまり好ましくないつきあいをやめること。", choices:["あまり好ましくないつきあいをやめること。","仕事などが一段落して、ひまができること。","時間や労力が必要でやっかいだ、ということ。","しなければならないことを省略し、気が利いて要領よくやること。"]},
+  {id:"W2D13", cat:"D", type:"choice", group:"意味2-手", q:"「若いころ、ある事業に<u>手を染めた</u>。」の<u>手を染める</u>の意味は？", a:"あるものごとに関係をもちはじめる、やりはじめること。", choices:["あるものごとに関係をもちはじめる、やりはじめること。","緊張や興奮で手のひらに汗をかくほどはらはらすること。","話し合いの決着をつけること。","しなければならないことを省略し、気が利いて要領よくやること。"]},
+  {id:"W2D14", cat:"D", type:"choice", group:"意味2-手", q:"「忙しいからといって、掃除の<u>手を抜いて</u>はいけない。」の<u>手を抜く</u>の意味は？", a:"しなければならないことを省略し、気が利いて要領よくやること。", choices:["しなければならないことを省略し、気が利いて要領よくやること。","仕事などが一段落して、ひまができること。","あまり好ましくないつきあいをやめること。","あるものごとに関係をもちはじめる、やりはじめること。"]},
+  {id:"W2D15", cat:"D", type:"choice", group:"意味2-鼻", q:"「決勝進出が決まり、チーム全員の<u>鼻息が荒い</u>。」の<u>鼻息が荒い</u>の意味は？", a:"意気込みがはげしく、やる気満々であること。", choices:["意気込みがはげしく、やる気満々であること。","他人の言うことにまともに返事もしないで、冷淡な態度であつかうこと。","自分がすぐれていることを見せつけ、いかにも得意そうにふるまうこと。","同じことが何度もくり返され、あきあきしていやになること。"]},
+  {id:"W2D16", cat:"D", type:"choice", group:"意味2-鼻", q:"「相談に行ったのに<u>鼻であしらわれて</u>しまった。」の<u>鼻であしらう</u>の意味は？", a:"他人の言うことにまともに返事もしないで、冷淡な態度であつかうこと。", choices:["他人の言うことにまともに返事もしないで、冷淡な態度であつかうこと。","意気込みがはげしく、やる気満々であること。","自分がすぐれていることを見せつけ、いかにも得意そうにふるまうこと。","同じことが何度もくり返され、あきあきしていやになること。"]},
+  {id:"W2D17", cat:"D", type:"choice", group:"意味2-鼻", q:"「成績がいいことを<u>鼻にかけて</u>、友達に自慢する。」の<u>鼻にかける</u>の意味は？", a:"自分がすぐれていることを見せつけ、いかにも得意そうにふるまうこと。", choices:["自分がすぐれていることを見せつけ、いかにも得意そうにふるまうこと。","意気込みがはげしく、やる気満々であること。","他人の言うことにまともに返事もしないで、冷淡な態度であつかうこと。","同じことが何度もくり返され、あきあきしていやになること。"]},
+  {id:"W2D18", cat:"D", type:"choice", group:"意味2-鼻", q:"「同じ自慢話が何度も続き、<u>鼻について</u>きた。」の<u>鼻につく</u>の意味は？", a:"同じことが何度もくり返され、あきあきしていやになること。", choices:["同じことが何度もくり返され、あきあきしていやになること。","意気込みがはげしく、やる気満々であること。","他人の言うことにまともに返事もしないで、冷淡な態度であつかうこと。","自分がすぐれていることを見せつけ、いかにも得意そうにふるまうこと。"]},
+  {id:"W2D19", cat:"D", type:"choice", group:"意味2-目", q:"「美術館に通い続け、絵を見る<u>目が肥えた</u>。」の<u>目が肥える</u>の意味は？", a:"ものの価値を見分け、評価する能力があること。", choices:["ものの価値を見分け、評価する能力があること。","眠りから覚めて、心の迷いが去って本来の正しい心にもどること。","かわいくてたまらないこと。","無視して、見ようともしない、相手にしないこと。"]},
+  {id:"W2D20", cat:"D", type:"choice", group:"意味2-目", q:"「失敗を重ねて、ようやく<u>目が覚めた</u>。」の<u>目が覚める</u>の意味は？", a:"眠りから覚めて、心の迷いが去って本来の正しい心にもどること。", choices:["眠りから覚めて、心の迷いが去って本来の正しい心にもどること。","ものの価値を見分け、評価する能力があること。","かわいくてたまらないこと。","無視して、見ようともしない、相手にしないこと。"]},
+  {id:"W2D21", cat:"D", type:"choice", group:"意味2-目", q:"「孫は<u>目に入れても痛くない</u>ほど、かわいい存在だ。」の<u>目に入れても痛くない</u>の意味は？", a:"かわいくてたまらないこと。", choices:["かわいくてたまらないこと。","ものの価値を見分け、評価する能力があること。","眠りから覚めて、心の迷いが去って本来の正しい心にもどること。","無視して、見ようともしない、相手にしないこと。"]},
+  {id:"W2D22", cat:"D", type:"choice", group:"意味2-目", q:"「周りの誘いには<u>目もくれず</u>、勉強を続けた。」の<u>目もくれない</u>の意味は？", a:"無視して、見ようともしない、相手にしないこと。", choices:["無視して、見ようともしない、相手にしないこと。","ものの価値を見分け、評価する能力があること。","眠りから覚めて、心の迷いが去って本来の正しい心にもどること。","かわいくてたまらないこと。"]},
+  {id:"W2D23", cat:"D", type:"choice", group:"意味2-他", q:"「料理じょうずの母のおかげで<u>舌が肥えた</u>。」の<u>舌が肥える</u>の意味は？", a:"味の良し悪しが分かり、おいしいものを好むこと。", choices:["味の良し悪しが分かり、おいしいものを好むこと。","おいしさのあまり、思わず舌をならすこと。","自分の持っている能力や値打ち以上のことだ、ということ。","すぐれた技能を持っていること。"]},
+  {id:"W2D24", cat:"D", type:"choice", group:"意味2-他", q:"「名物料理のおいしさに、思わず<u>舌鼓を打った</u>。」の<u>舌鼓を打つ</u>の意味は？", a:"おいしさのあまり、思わず舌をならすこと。", choices:["おいしさのあまり、思わず舌をならすこと。","味の良し悪しが分かり、おいしいものを好むこと。","悲しみのあまり、胸が締めつけられるような感じがすること。","目の前のものがとても欲しいのに、手を出せずにいること。"]},
+  {id:"W2D25", cat:"D", type:"choice", group:"意味2-他", q:"「校長先生の話が始まると、全員<u>ひざを正して</u>聞いた。」の<u>ひざを正す</u>の意味は？", a:"まじめな気持ちや態度になること。", choices:["まじめな気持ちや態度になること。","自分の地位や能力などをじゅうぶんにわきまえること。","同じくらいの実力を持っている人が、対等の関係にならぶこと。","遠くまででかけていくこと。"]},
+  {id:"W2D26", cat:"D", type:"choice", group:"意味2-他", q:"「悲しい知らせを聞いて、<u>胸がつぶれる</u>思いだった。」の<u>胸がつぶれる</u>の意味は？", a:"悲しみのあまり、胸が締めつけられるような感じがすること。", choices:["悲しみのあまり、胸が締めつけられるような感じがすること。","おいしさのあまり、思わず舌をならすこと。","目の前のものがとても欲しいのに、手を出せずにいること。","すぐれた技能を持っていること。"]},
+  {id:"W2D27", cat:"D", type:"choice", group:"意味2-他", q:"「このような大きな賞をいただき、<u>身に余る</u>光栄です。」の<u>身に余る</u>の意味は？", a:"自分の持っている能力や値打ち以上のことだ、ということ。", choices:["自分の持っている能力や値打ち以上のことだ、ということ。","自分の地位や能力などをじゅうぶんにわきまえること。","まじめな気持ちや態度になること。","味の良し悪しが分かり、おいしいものを好むこと。"]},
+  {id:"W2D28", cat:"D", type:"choice", group:"意味2-他", q:"「周りの実力を見て、自分の<u>身の程を知った</u>。」の<u>身の程を知る</u>の意味は？", a:"自分の地位や能力などをじゅうぶんにわきまえること。", choices:["自分の地位や能力などをじゅうぶんにわきまえること。","自分の持っている能力や値打ち以上のことだ、ということ。","まじめな気持ちや態度になること。","同じくらいの実力を持っている人が、対等の関係にならぶこと。"]},
+  {id:"W2D29", cat:"D", type:"choice", group:"意味2-他", q:"「せっかく旅行に来たので、隣の町まで<u>足をのばした</u>。」の<u>足をのばす</u>の意味は？", a:"遠くまででかけていくこと。", choices:["遠くまででかけていくこと。","まじめな気持ちや態度になること。","同じくらいの実力を持っている人が、対等の関係にならぶこと。","目の前のものがとても欲しいのに、手を出せずにいること。"]},
+  {id:"W2D30", cat:"D", type:"choice", group:"意味2-他", q:"「買えないおもちゃを、<u>指をくわえて</u>見ているしかなかった。」の<u>指をくわえる</u>の意味は？", a:"目の前のものがとても欲しいのに、手を出せずにいること。", choices:["目の前のものがとても欲しいのに、手を出せずにいること。","おいしさのあまり、思わず舌をならすこと。","悲しみのあまり、胸が締めつけられるような感じがすること。","すぐれた技能を持っていること。"]},
+  {id:"W2D31", cat:"D", type:"choice", group:"意味2-他", q:"「努力を続け、ようやく強豪チームと<u>肩を並べる</u>実力をつけた。」の<u>肩を並べる</u>の意味は？", a:"同じくらいの実力を持っている人が、対等の関係にならぶこと。", choices:["同じくらいの実力を持っている人が、対等の関係にならぶこと。","まじめな気持ちや態度になること。","自分の地位や能力などをじゅうぶんにわきまえること。","遠くまででかけていくこと。"]},
+  {id:"W2D32", cat:"D", type:"choice", group:"意味2-他", q:"「あの職人はとても<u>腕が立つ</u>と評判だ。」の<u>腕が立つ</u>の意味は？", a:"すぐれた技能を持っていること。", choices:["すぐれた技能を持っていること。","味の良し悪しが分かり、おいしいものを好むこと。","悲しみのあまり、胸が締めつけられるような感じがすること。","目の前のものがとても欲しいのに、手を出せずにいること。"]}
+];
+
+var CATS_SANJI = { A:"意味→ことば", B:"文の穴うめ", C:"ことば→意味" };
+
+var QUESTIONS_SANJI1 = [
+  // --- A. 意味→ことば（4択・選択肢は自動） ---
+  {id:"W3A01", cat:"A", type:"choice", group:"できごと3", q:"大げさで現実にはあり得ないこと。誇張した表現を表すことばは？", a:"絵空事"},
+  {id:"W3A02", cat:"A", type:"choice", group:"気持ち3", q:"得意の絶頂であるさま。喜びで夢中になるさまを表すことばは？", a:"有頂天"},
+  {id:"W3A03", cat:"A", type:"choice", group:"できごと3", q:"相手を考慮しないで、自分の側の都合だけによるさまを表すことばは？", a:"一方的"},
+  {id:"W3A04", cat:"A", type:"choice", group:"ようす3", q:"わき目もふらず、まっしぐらに走るさまを表すことばは？", a:"一目散"},
+  {id:"W3A05", cat:"A", type:"choice", group:"できごと3", q:"放置できない重大な出来事。たいへんな事件を表すことばは？", a:"一大事"},
+  {id:"W3A06", cat:"A", type:"choice", group:"役割3", q:"実力が同じぐらいの、ちょうどよい競争相手を表すことばは？", a:"好敵手"},
+  {id:"W3A07", cat:"A", type:"choice", group:"気持ち3", q:"珍しいことや知らないことなどに興味をもつ心を表すことばは？", a:"好奇心"},
+  {id:"W3A08", cat:"A", type:"choice", group:"性格3", q:"互いにうちとけて、協力し合うことを表すことばは？", a:"協調性"},
+  {id:"W3A09", cat:"A", type:"choice", group:"性格3", q:"細かいところまできちんとしているさまを表すことばは？", a:"几帳面"},
+  {id:"W3A10", cat:"A", type:"choice", group:"ようす3", q:"あれこれと気遣って、精神的に疲れることを表すことばは？", a:"気苦労"},
+  {id:"W3A11", cat:"A", type:"choice", group:"できごと3", q:"きわめてわずかなへだたり。わずかな違いを表すことばは？", a:"紙一重"},
+  {id:"W3A12", cat:"A", type:"choice", group:"できごと3", q:"あまることと、足りないことを表すことばは？", a:"過不足"},
+  {id:"W3A13", cat:"A", type:"choice", group:"できごと3", q:"これまでとは違う新しい時代を開くと思われるほど目覚ましいさまを表すことばは？", a:"画期的"},
+  {id:"W3A14", cat:"A", type:"choice", group:"役割3", q:"深く考えず、その場だけをごまかすような浅い工夫や技巧を表すことばは？", a:"小手先"},
+  {id:"W3A15", cat:"A", type:"choice", group:"ようす3", q:"眺めにおもしろみや味わいがなく、単調であることを表すことばは？", a:"殺風景"},
+  {id:"W3A16", cat:"A", type:"choice", group:"ようす3", q:"新しく活動を始める場所。新しい世界を表すことばは？", a:"新天地"},
+  {id:"W3A17", cat:"A", type:"choice", group:"役割3", q:"争っている一方に力を貸すことを表すことばは？", a:"助太刀"},
+  {id:"W3A18", cat:"A", type:"choice", group:"性格3", q:"世の中の人に対する体裁や見栄を表すことばは？", a:"世間体"},
+  {id:"W3A19", cat:"A", type:"choice", group:"役割3", q:"家庭や団体の中心となって、それを支える人を表すことばは？", a:"大黒柱"},
+  {id:"W3A20", cat:"A", type:"choice", group:"ようす3", q:"進むことも退くこともできず、その場で動けなくなることを表すことばは？", a:"立往生"},
+  {id:"W3A21", cat:"A", type:"choice", group:"役割3", q:"ものごとの中心となって重要な役割を果たす人を表すことばは？", a:"立役者"},
+  {id:"W3A22", cat:"A", type:"choice", group:"気持ち3", q:"深く心に感じて、言葉に表せないほどであることを表すことばは？", a:"感無量"},
+  {id:"W3A23", cat:"A", type:"choice", group:"できごと3", q:"勝敗や運命の重大な分かれ目を表すことばは？", a:"天王山"},
+  {id:"W3A24", cat:"A", type:"choice", group:"気持ち3", q:"いいかげんで気のない返事を表すことばは？", a:"生返事"},
+  {id:"W3A25", cat:"A", type:"choice", group:"性格3", q:"のんきで何も気にかけない、考えのないさまを表すことばは？", a:"能天気"},
+  {id:"W3A26", cat:"A", type:"choice", group:"役割3", q:"一つの方法がだめな場合に備えて、もう一つの方法も用意しておくことを表すことばは？", a:"二段構え"},
+  {id:"W3A27", cat:"A", type:"choice", group:"役割3", q:"力量に比べて、役目が軽いことを表すことばは？", a:"役不足"},
+  {id:"W3A28", cat:"A", type:"choice", group:"性格3", q:"不機嫌そうな顔つきを表すことばは？", a:"仏頂面"},
+  {id:"W3A29", cat:"A", type:"choice", group:"ようす3", q:"心配がなく、安心できるさまを表すことばは？", a:"大丈夫"},
+
+  // --- B. 文の穴うめ（4択・選択肢は自動） ---
+  {id:"W3B01", cat:"B", type:"choice", group:"ことば3", q:"「音大の付属中学に入学できれば、将来留学するという夢が（　　）ではなくなる。」\n（大げさで現実にはあり得ないこと。）", a:"絵空事"},
+  {id:"W3B02", cat:"B", type:"choice", group:"ことば3", q:"「連戦連勝で決勝戦まで勝ち進み、みんなは（　　）になっていた。」\n（得意の絶頂であるさま。喜びで夢中になるさま。）", a:"有頂天"},
+  {id:"W3B03", cat:"B", type:"choice", group:"ことば3", q:"「14対0という大差をつけて（　　）な勝利を収めた。」\n（相手を考慮しないで自分の側の都合だけによるさま。）", a:"一方的"},
+  {id:"W3B04", cat:"B", type:"choice", group:"ことば3", q:"「はげしい後悔と恐怖が同時におそってきて、（　　）に逃げだした。」\n（わき目もふらず、まっしぐらに走るさま。）", a:"一目散"},
+  {id:"W3B05", cat:"B", type:"choice", group:"ことば3", q:"「二十センチの積雪は、雪に慣れていないこの地域の人々にとっては（　　）だった。」\n（放置できない重大な出来事。）", a:"一大事"},
+  {id:"W3B06", cat:"B", type:"choice", group:"ことば3", q:"「幼なじみの中野くんは、勉強だけでなくサッカーにおいても（　　）であった。」\n（実力が同じぐらいの、ちょうどよい競争相手。）", a:"好敵手"},
+  {id:"W3B07", cat:"B", type:"choice", group:"ことば3", q:"「幼い頃から（　　）が強く、気になることはとことん調べてきた。」\n（珍しいことなどに興味をもつ心。）", a:"好奇心"},
+  {id:"W3B08", cat:"B", type:"choice", group:"ことば3", q:"「彼は（　　）があり、常に他人の言葉に耳をかたむける。」\n（互いにうちとけて、協力し合うこと。）", a:"協調性"},
+  {id:"W3B09", cat:"B", type:"choice", group:"ことば3", q:"「ずぼらな私と違い、弟は（　　）な性格で、机の上はいつも整理されている。」\n（細かいところまできちんとしているさま。）", a:"几帳面"},
+  {id:"W3B10", cat:"B", type:"choice", group:"ことば3", q:"「大会の期間中、マネージャーは（　　）が絶えない。」\n（あれこれと気遣って、精神的に疲れること。）", a:"気苦労"},
+  {id:"W3B11", cat:"B", type:"choice", group:"ことば3", q:"「二人の実力の差は（　　）だ。」\n（きわめてわずかなへだたり。）", a:"紙一重"},
+  {id:"W3B12", cat:"B", type:"choice", group:"ことば3", q:"「売り上げ金に（　　）がないかどうか、伝票と照合する。」\n（あまることと、足りないこと。）", a:"過不足"},
+  {id:"W3B13", cat:"B", type:"choice", group:"ことば3", q:"「衣料品産業に革命を起こした（　　）なデザイン。」\n（これまでとは違う新しい時代を開くほど目覚ましいさま。）", a:"画期的"},
+  {id:"W3B14", cat:"B", type:"choice", group:"B3-kanji", q:"次の2つの三字熟語に共通して入る漢字は？\n立往（　　）・（　　）返事", a:"生"},
+  {id:"W3B15", cat:"B", type:"choice", group:"B3-kanji", q:"次の2つの三字熟語に共通して入る漢字は？\n几帳（　　）・仏頂（　　）", a:"面"},
+  {id:"W3B16", cat:"B", type:"choice", group:"B3-kanji", q:"次の2つの三字熟語に共通して入る漢字は？\n一大（　　）・絵空（　　）", a:"事"},
+  {id:"W3B17", cat:"B", type:"choice", group:"B3-kanji", q:"次の2つの三字熟語に共通して入る漢字は？\n紙（　　）重・（　　）方的", a:"一"},
+
+  // --- C. ことば→意味（4択・選択肢は自動） ---
+  {id:"W3C01", cat:"C", type:"choice", group:"意味3", q:"「役不足」の意味として最も適切なものは？", a:"力量に比べて、役目が軽いこと。"},
+  {id:"W3C02", cat:"C", type:"choice", group:"意味3", q:"「気苦労」の意味として最も適切なものは？", a:"あれこれと気遣って、精神的に疲れること。"},
+  {id:"W3C03", cat:"C", type:"choice", group:"意味3", q:"「助太刀」の意味として最も適切なものは？", a:"争っている一方に力を貸すこと。"},
+  {id:"W3C04", cat:"C", type:"choice", group:"意味3", q:"「立役者」の意味として最も適切なものは？", a:"ものごとの中心となって重要な役割を果たす人。"},
+  {id:"W3C05", cat:"C", type:"choice", group:"意味3", q:"「有頂天」の意味として最も適切なものは？", a:"得意の絶頂であるさま。喜びで、夢中になるさま。"},
+  {id:"W3C06", cat:"C", type:"choice", group:"意味3", q:"「殺風景」の意味として最も適切なものは？", a:"眺めにおもしろみや味わいがなく、単調であること。"},
+  {id:"W3C07", cat:"C", type:"choice", group:"意味3", q:"「好敵手」の意味として最も適切なものは？", a:"実力が同じぐらいの、ちょうどよい競争相手。"},
+  {id:"W3C08", cat:"C", type:"choice", group:"意味3", q:"「天王山」の意味として最も適切なものは？", a:"勝敗や運命の重大な分かれ目。"},
+
+  // --- C続き（新規・ことば→意味） ---
+  {id:"W3C09", cat:"C", type:"choice", group:"意味-できごと3", q:"「絵空事」の意味として最も適切なものは？", a:"大げさで現実にはあり得ないこと。誇張した表現。", choices:["大げさで現実にはあり得ないこと。誇張した表現。","放置できない重大な出来事。たいへんな事件。","相手を考慮しないで、自分の側の都合だけによるさま。","これまでとは違う新しい時代を開くと思われるほど目覚ましいさま。"]},
+  {id:"W3C10", cat:"C", type:"choice", group:"意味-できごと3", q:"「一大事」の意味として最も適切なものは？", a:"放置できない重大な出来事。たいへんな事件。", choices:["放置できない重大な出来事。たいへんな事件。","相手を考慮しないで、自分の側の都合だけによるさま。","これまでとは違う新しい時代を開くと思われるほど目覚ましいさま。","きわめてわずかなへだたり。わずかな違い。"]},
+  {id:"W3C11", cat:"C", type:"choice", group:"意味-できごと3", q:"「一方的」の意味として最も適切なものは？", a:"相手を考慮しないで、自分の側の都合だけによるさま。", choices:["相手を考慮しないで、自分の側の都合だけによるさま。","これまでとは違う新しい時代を開くと思われるほど目覚ましいさま。","きわめてわずかなへだたり。わずかな違い。","あまることと、足りないこと。"]},
+  {id:"W3C12", cat:"C", type:"choice", group:"意味-できごと3", q:"「画期的」の意味として最も適切なものは？", a:"これまでとは違う新しい時代を開くと思われるほど目覚ましいさま。", choices:["これまでとは違う新しい時代を開くと思われるほど目覚ましいさま。","きわめてわずかなへだたり。わずかな違い。","あまることと、足りないこと。","勝敗や運命の重大な分かれ目。"]},
+  {id:"W3C13", cat:"C", type:"choice", group:"意味-できごと3", q:"「紙一重」の意味として最も適切なものは？", a:"きわめてわずかなへだたり。わずかな違い。", choices:["きわめてわずかなへだたり。わずかな違い。","あまることと、足りないこと。","勝敗や運命の重大な分かれ目。","大げさで現実にはあり得ないこと。誇張した表現。"]},
+  {id:"W3C14", cat:"C", type:"choice", group:"意味-できごと3", q:"「過不足」の意味として最も適切なものは？", a:"あまることと、足りないこと。", choices:["あまることと、足りないこと。","勝敗や運命の重大な分かれ目。","大げさで現実にはあり得ないこと。誇張した表現。","放置できない重大な出来事。たいへんな事件。"]},
+  {id:"W3C15", cat:"C", type:"choice", group:"意味-性格3", q:"「協調性」の意味として最も適切なものは？", a:"互いにうちとけて、協力し合うこと。", choices:["互いにうちとけて、協力し合うこと。","細かいところまできちんとしているさま。","のんきで何も気にかけない、考えのないさま。","不機嫌そうな顔つき。"]},
+  {id:"W3C16", cat:"C", type:"choice", group:"意味-性格3", q:"「几帳面」の意味として最も適切なものは？", a:"細かいところまできちんとしているさま。", choices:["細かいところまできちんとしているさま。","のんきで何も気にかけない、考えのないさま。","不機嫌そうな顔つき。","世の中の人に対する体裁や見栄。"]},
+  {id:"W3C17", cat:"C", type:"choice", group:"意味-性格3", q:"「能天気」の意味として最も適切なものは？", a:"のんきで何も気にかけない、考えのないさま。", choices:["のんきで何も気にかけない、考えのないさま。","不機嫌そうな顔つき。","世の中の人に対する体裁や見栄。","互いにうちとけて、協力し合うこと。"]},
+  {id:"W3C18", cat:"C", type:"choice", group:"意味-性格3", q:"「仏頂面」の意味として最も適切なものは？", a:"不機嫌そうな顔つき。", choices:["不機嫌そうな顔つき。","世の中の人に対する体裁や見栄。","互いにうちとけて、協力し合うこと。","細かいところまできちんとしているさま。"]},
+  {id:"W3C19", cat:"C", type:"choice", group:"意味-性格3", q:"「世間体」の意味として最も適切なものは？", a:"世の中の人に対する体裁や見栄。", choices:["世の中の人に対する体裁や見栄。","互いにうちとけて、協力し合うこと。","細かいところまできちんとしているさま。","のんきで何も気にかけない、考えのないさま。"]},
+  {id:"W3C20", cat:"C", type:"choice", group:"意味-気持ち3", q:"「好奇心」の意味として最も適切なものは？", a:"珍しいことや知らないことなどに興味をもつ心。", choices:["珍しいことや知らないことなどに興味をもつ心。","深く心に感じて、言葉に表せないほどであること。","いいかげんで気のない返事。","得意の絶頂であるさま。喜びで、夢中になるさま。"]},
+  {id:"W3C21", cat:"C", type:"choice", group:"意味-気持ち3", q:"「感無量」の意味として最も適切なものは？", a:"深く心に感じて、言葉に表せないほどであること。", choices:["深く心に感じて、言葉に表せないほどであること。","いいかげんで気のない返事。","得意の絶頂であるさま。喜びで、夢中になるさま。","珍しいことや知らないことなどに興味をもつ心。"]},
+  {id:"W3C22", cat:"C", type:"choice", group:"意味-気持ち3", q:"「生返事」の意味として最も適切なものは？", a:"いいかげんで気のない返事。", choices:["いいかげんで気のない返事。","得意の絶頂であるさま。喜びで、夢中になるさま。","珍しいことや知らないことなどに興味をもつ心。","深く心に感じて、言葉に表せないほどであること。"]},
+  {id:"W3C23", cat:"C", type:"choice", group:"意味-役割3", q:"「大黒柱」の意味として最も適切なものは？", a:"家庭や団体の中心となって、それを支える人。", choices:["家庭や団体の中心となって、それを支える人。","深く考えず、その場だけをごまかすような浅い工夫や技巧。","一つの方法がだめな場合に備えて、もう一つの方法も用意しておくこと。","実力が同じぐらいの、ちょうどよい競争相手。"]},
+  {id:"W3C24", cat:"C", type:"choice", group:"意味-役割3", q:"「小手先」の意味として最も適切なものは？", a:"深く考えず、その場だけをごまかすような浅い工夫や技巧。", choices:["深く考えず、その場だけをごまかすような浅い工夫や技巧。","一つの方法がだめな場合に備えて、もう一つの方法も用意しておくこと。","実力が同じぐらいの、ちょうどよい競争相手。","ものごとの中心となって重要な役割を果たす人。"]},
+  {id:"W3C25", cat:"C", type:"choice", group:"意味-役割3", q:"「二段構え」の意味として最も適切なものは？", a:"一つの方法がだめな場合に備えて、もう一つの方法も用意しておくこと。", choices:["一つの方法がだめな場合に備えて、もう一つの方法も用意しておくこと。","実力が同じぐらいの、ちょうどよい競争相手。","ものごとの中心となって重要な役割を果たす人。","力量に比べて、役目が軽いこと。"]},
+  {id:"W3C26", cat:"C", type:"choice", group:"意味-ようす3", q:"「一目散」の意味として最も適切なものは？", a:"わき目もふらず、まっしぐらに走るさま。", choices:["わき目もふらず、まっしぐらに走るさま。","進むことも退くこともできず、その場で動けなくなること。","新しく活動を始める場所。新しい世界。","心配がなく、安心できるさま。"]},
+  {id:"W3C27", cat:"C", type:"choice", group:"意味-ようす3", q:"「立往生」の意味として最も適切なものは？", a:"進むことも退くこともできず、その場で動けなくなること。", choices:["進むことも退くこともできず、その場で動けなくなること。","新しく活動を始める場所。新しい世界。","心配がなく、安心できるさま。","眺めにおもしろみや味わいがなく、単調であること。"]},
+  {id:"W3C28", cat:"C", type:"choice", group:"意味-ようす3", q:"「新天地」の意味として最も適切なものは？", a:"新しく活動を始める場所。新しい世界。", choices:["新しく活動を始める場所。新しい世界。","心配がなく、安心できるさま。","眺めにおもしろみや味わいがなく、単調であること。","あれこれと気遣って、精神的に疲れること。"]},
+  {id:"W3C29", cat:"C", type:"choice", group:"意味-ようす3", q:"「大丈夫」の意味として最も適切なものは？", a:"心配がなく、安心できるさま。", choices:["心配がなく、安心できるさま。","眺めにおもしろみや味わいがなく、単調であること。","あれこれと気遣って、精神的に疲れること。","わき目もふらず、まっしぐらに走るさま。"]}
+];
+
+var CATS_DOKUN = { A:"文に合う漢字を選ぶ", B:"文の穴うめ（漢字で書く）" };
+
+var QUESTIONS_DOKUN1 = [
+  // --- A. 文に合う漢字を選ぶ（4択・選択肢は自動、読みが同じ仲間から出題） ---
+  {id:"W4A01", cat:"A", type:"choice", group:"とる", q:"運動会で徒競走の写真を（　　）る。\n（カメラで写真をうつしとる。）\n読み方が「とる」で、意味に合う正しい漢字は？", a:"撮"},
+  {id:"W4A02", cat:"A", type:"choice", group:"とる", q:"テストで高い点数を（　　）る。\n（点数や資格などを手に入れる。）\n読み方が「とる」で、意味に合う正しい漢字は？", a:"取"},
+  {id:"W4A03", cat:"A", type:"choice", group:"とる", q:"新しい社員を（　　）る。\n（人を選んでやとい入れる。）\n読み方が「とる」で、意味に合う正しい漢字は？", a:"採"},
+  {id:"W4A04", cat:"A", type:"choice", group:"とる", q:"川であみを使って魚を（　　）る。\n（動くものをつかまえる。）\n読み方が「とる」で、意味に合う正しい漢字は？", a:"捕"},
+  {id:"W4A05", cat:"A", type:"choice", group:"はかる", q:"体重計で体重を（　　）る。\n（重さをはかる。）\n読み方が「はかる」で、意味に合う正しい漢字は？", a:"量"},
+  {id:"W4A06", cat:"A", type:"choice", group:"はかる", q:"ストップウォッチで時間を（　　）る。\n（時間の長さをはかる。）\n読み方が「はかる」で、意味に合う正しい漢字は？", a:"計"},
+  {id:"W4A07", cat:"A", type:"choice", group:"はかる", q:"メジャーを使って部屋の面積を（　　）る。\n（長さや広さなどをはかる。）\n読み方が「はかる」で、意味に合う正しい漢字は？", a:"測"},
+  {id:"W4A08", cat:"A", type:"choice", group:"はかる", q:"話し合いで問題の解決を（　　）る。\n（工夫してものごとをうまく進めようとする。）\n読み方が「はかる」で、意味に合う正しい漢字は？", a:"図"},
+  {id:"W4A09", cat:"A", type:"choice", group:"おさめる", q:"むかしの王が国を（　　）める。\n（政治を行い、世の中を安定させる。）\n読み方が「おさめる」で、意味に合う正しい漢字は？", a:"治"},
+  {id:"W4A10", cat:"A", type:"choice", group:"おさめる", q:"期限までに税金を（　　）める。\n（お金や品物などをきちんと渡す。）\n読み方が「おさめる」で、意味に合う正しい漢字は？", a:"納"},
+  {id:"W4A11", cat:"A", type:"choice", group:"おさめる", q:"大学で経済学を（　　）める。\n（学んで自分の身につける。）\n読み方が「おさめる」で、意味に合う正しい漢字は？", a:"修"},
+  {id:"W4A12", cat:"A", type:"choice", group:"おさめる", q:"商売で大きな利益を（　　）める。\n（成果や利益などを自分のものとして手に入れる。）\n読み方が「おさめる」で、意味に合う正しい漢字は？", a:"収"},
+  {id:"W4A13", cat:"A", type:"choice", group:"かえる", q:"学校が終わって家に（　　）る。\n（もといた場所へもどる。）\n読み方が「かえる」で、意味に合う正しい漢字は？", a:"帰"},
+  {id:"W4A14", cat:"A", type:"choice", group:"かえる", q:"落とし物が持ち主に（　　）る。\n（もとの持ち主やもとの状態にもどる。）\n読み方が「かえる」で、意味に合う正しい漢字は？", a:"返"},
+  {id:"W4A15", cat:"A", type:"choice", group:"かえる", q:"古い服を新しいものに（　　）える。\n（別のものにする。）\n読み方が「かえる」で、意味に合う正しい漢字は？", a:"変"},
+  {id:"W4A16", cat:"A", type:"choice", group:"かえる", q:"委員長の役目を友達に（　　）える。\n（他のものやほかの人でおきかえる。）\n読み方が「かえる」で、意味に合う正しい漢字は？", a:"代"},
+
+  // --- B. 文の穴うめ（4択・選択肢は自動・漢字1字で答えよう） ---
+  {id:"W4B01", cat:"B", type:"choice", group:"B4-ku", q:"「友達の話をしっかり（　　）く。」\n（音や声を耳で感じ取る。）\n（漢字1字で答えよう）", a:"聞"},
+  {id:"W4B02", cat:"B", type:"choice", group:"B4-ku", q:"「かぜ薬がよく（　　）く。」\n（薬などのはたらきが現れる。）\n（漢字1字で答えよう）", a:"効"},
+  {id:"W4B03", cat:"B", type:"choice", group:"B4-ku", q:"「コンサートでクラシック音楽を（　　）く。」\n（心を落ち着けて注意深く耳をすます。）\n（漢字1字で答えよう）", a:"聴"},
+  {id:"W4B04", cat:"B", type:"choice", group:"B4-su", q:"「黒板の文字をノートに（　　）す。」\n（そっくりそのまま書き取る。）\n（漢字1字で答えよう）", a:"写"},
+  {id:"W4B05", cat:"B", type:"choice", group:"B4-su", q:"「鏡に自分の姿を（　　）す。」\n（物の形や影をうつし出す。）\n（漢字1字で答えよう）", a:"映"},
+  {id:"W4B06", cat:"B", type:"choice", group:"B4-su", q:"「感謝の気持ちを言葉で（　　）す。」\n（心の中にあることを外に出して示す。）\n（漢字1字で答えよう）", a:"表"},
+  {id:"W4B07", cat:"B", type:"choice", group:"B4-su", q:"「雲の間からかくれていた太陽が姿を（　　）す。」\n（かくれていたものが見えるようになる。）\n（漢字1字で答えよう）", a:"現"},
+  {id:"W4B08", cat:"B", type:"choice", group:"B4-dou", q:"「学級会で司会を（　　）める。」\n（役目を受け持つ。）\n（漢字1字で答えよう）", a:"務"},
+  {id:"W4B09", cat:"B", type:"choice", group:"B4-dou", q:"「合格に向けて（　　）める。」\n（力をつくしてがんばる。）\n（漢字1字で答えよう）", a:"努"},
+  {id:"W4B10", cat:"B", type:"choice", group:"B4-dou", q:"「兄は銀行に（　　）めている。」\n（会社などではたらく。）\n（漢字1字で答えよう）", a:"勤"},
+  {id:"W4B11", cat:"B", type:"choice", group:"B4-dou", q:"「屋上から星空を（　　）る。」\n（目で物の形や様子をとらえる。）\n（漢字1字で答えよう）", a:"見"},
+  {id:"W4B12", cat:"B", type:"choice", group:"B4-dou", q:"「お医者さんが患者を（　　）る。」\n（病状を調べる。）\n（漢字1字で答えよう）", a:"診"},
+  {id:"W4B13", cat:"B", type:"choice", group:"B4-su", q:"「こわれた目覚まし時計を（　　）す。」\n（もとの良い状態にする。）\n（漢字1字で答えよう）", a:"直"},
+  {id:"W4B14", cat:"B", type:"choice", group:"B4-su", q:"「病院に通ってかぜを（　　）す。」\n（病気やけがをよくする。）\n（漢字1字で答えよう）", a:"治"},
+  {id:"W4B15", cat:"B", type:"choice", group:"B4-ku", q:"「朝になると花屋のドアが（　　）く。」\n（しまっていたものがひらく。）\n（漢字1字で答えよう）", a:"開"},
+  {id:"W4B16", cat:"B", type:"choice", group:"B4-ku", q:"「電車の座席が一つ（　　）く。」\n（うまっていた場所にすきまができる。）\n（漢字1字で答えよう）", a:"空"}
+];
+
+var CATS_R7 = { A:"意味→ことば", B:"ことばの一部を漢字で答える", C:"文の穴うめ", D:"文中の意味" };
+
+var QUESTIONS_R7 = [
+  // --- A. 意味→ことば（4択・選択肢は自動） ---
+  {id:"W7A01", cat:"A", type:"choice", group:"息顔7", q:"おどろいて、思わず一瞬呼吸を止めることを表すことばは？", a:"息をのむ"},
+  {id:"W7A02", cat:"A", type:"choice", group:"息顔7", q:"お互いの気持ちや調子がぴったり合うことを表すことばは？", a:"息が合う"},
+  {id:"W7A03", cat:"A", type:"choice", group:"息顔7", q:"音を立てないように呼吸をおさえて、じっとすることを表すことばは？", a:"息を殺す"},
+  {id:"W7A04", cat:"A", type:"choice", group:"気7", q:"気乗りがせず、ゆううつな気持ちであることを表すことばは？", a:"気が重い"},
+  {id:"W7A05", cat:"A", type:"choice", group:"気7", q:"遠慮する必要がなく、気楽にうちとけられることを表すことばは？", a:"気が置けない"},
+  {id:"W7A06", cat:"A", type:"choice", group:"気7", q:"細やかなところまで気配りができることを表すことばは？", a:"気が利く"},
+  {id:"W7A07", cat:"A", type:"choice", group:"気7", q:"心配になって、いつまでも忘れずにいることを表すことばは？", a:"気にかける"},
+  {id:"W7A08", cat:"A", type:"choice", group:"気7", q:"相手を信頼して、警戒する気持ちをときほぐすことを表すことばは？", a:"気を許す"},
+  {id:"W7A09", cat:"A", type:"choice", group:"心胸腹7", q:"深く感動することを表すことばは？", a:"心を打たれる"},
+  {id:"W7A10", cat:"A", type:"choice", group:"心胸腹7", q:"真心をもって物事を行うことを表すことばは？", a:"心をこめる"},
+  {id:"W7A11", cat:"A", type:"choice", group:"心胸腹7", q:"相手のためを思いながら、あえて厳しい態度をとることを表すことばは？", a:"心を鬼にする"},
+  {id:"W7A12", cat:"A", type:"choice", group:"心胸腹7", q:"心配ごとがなくなって、ほっと安心することを表すことばは？", a:"胸をなでおろす"},
+  {id:"W7A13", cat:"A", type:"choice", group:"心胸腹7", q:"自信をもって、誇らしげな態度をとることを表すことばは？", a:"胸をはる"},
+  {id:"W7A14", cat:"A", type:"choice", group:"心胸腹7", q:"覚悟を決めることを表すことばは？", a:"腹を決める"},
+  {id:"W7A15", cat:"A", type:"choice", group:"心胸腹7", q:"怒りの気持ちがわきあがることを表すことばは？", a:"腹が立つ"},
+  {id:"W7A16", cat:"A", type:"choice", group:"息顔7", q:"知り合いや友人が多いことを表すことばは？", a:"顔が広い"},
+
+  // --- B. ことばの一部を漢字で答える（4択・選択肢は自動） ---
+  {id:"W7B01", cat:"B", type:"choice", group:"B7-karada", q:"（　　）をのむ。\n（おどろいて、思わず一瞬呼吸を止める。）\n（漢字1字で答えよう）", a:"息"},
+  {id:"W7B02", cat:"B", type:"choice", group:"B7-karada", q:"（　　）が置けない。\n（遠慮する必要がなく、気楽にうちとけられる。）\n（漢字1字で答えよう）", a:"気"},
+  {id:"W7B03", cat:"B", type:"choice", group:"B7-karada", q:"（　　）を配る。\n（あちこちに注意がゆきとどくようにする。）\n（漢字1字で答えよう）", a:"気"},
+  {id:"W7B04", cat:"B", type:"choice", group:"B7-karada", q:"（　　）をこめる。\n（真心をもって物事を行う。）\n（漢字1字で答えよう）", a:"心"},
+  {id:"W7B05", cat:"B", type:"choice", group:"B7-karada", q:"（　　）を鬼にする。\n（相手のためを思い、あえて厳しい態度をとる。）\n（漢字1字で答えよう）", a:"心"},
+  {id:"W7B06", cat:"B", type:"choice", group:"B7-karada", q:"（　　）をなでおろす。\n（心配ごとがなくなって、ほっと安心する。）\n（漢字1字で答えよう）", a:"胸"},
+  {id:"W7B07", cat:"B", type:"choice", group:"B7-karada", q:"（　　）をはる。\n（自信をもって、誇らしげな態度をとる。）\n（漢字1字で答えよう）", a:"胸"},
+  {id:"W7B08", cat:"B", type:"choice", group:"B7-karada", q:"（　　）を割る。\n（本当の気持ちをかくさずに打ち明ける。）\n（漢字1字で答えよう）", a:"腹"},
+  {id:"W7B09", cat:"B", type:"choice", group:"B7-karada", q:"（　　）から火が出る。\n（恥ずかしさで顔が真っ赤になる。）\n（漢字1字で答えよう）", a:"顔"},
+  {id:"W7B10", cat:"B", type:"choice", group:"B7-karada", q:"（　　）をつぶす。\n（人の面目や名誉を傷つける。）\n（漢字1字で答えよう）", a:"顔"},
+
+  // --- C. 文の穴うめ（4択・選択肢は自動） ---
+  {id:"W7C01", cat:"C", type:"choice", group:"文脈7", q:"「思いがけない知らせに、思わず（　　）。」の（　　）に入る慣用句は？", a:"息をのんだ"},
+  {id:"W7C02", cat:"C", type:"choice", group:"文脈7", q:"「幼いころからの付き合いで、二人は何をするにも（　　）。」の（　　）に入る慣用句は？", a:"息が合う"},
+  {id:"W7C03", cat:"C", type:"choice", group:"文脈7", q:"「厳しいことを言うのはつらいが、弟のためを思って（　　）ことにした。」の（　　）に入る慣用句は？", a:"心を鬼にする"},
+  {id:"W7C04", cat:"C", type:"choice", group:"文脈7", q:"「行方不明だった犬が無事に見つかり、家族は（　　）。」の（　　）に入る慣用句は？", a:"胸をなでおろした"},
+  {id:"W7C05", cat:"C", type:"choice", group:"文脈7", q:"「大勢の前で名前を呼びまちがえられ、（　　）思いをした。」の（　　）に入る慣用句は？", a:"顔から火が出る"},
+  {id:"W7C06", cat:"C", type:"choice", group:"文脈7", q:"「大切にしていた自転車をこわされて、思わず（　　）。」の（　　）に入る慣用句は？", a:"腹が立った"},
+
+  // --- D. 文中の意味（新規・4択） ---
+  {id:"W7D01", cat:"D", type:"choice", group:"意味7-気", q:"「明日の発表のことを考えると<u>気が重い</u>。」の<u>気が重い</u>の意味は？", a:"気乗りがせず、ゆううつな気持ちであること。", choices:["気乗りがせず、ゆううつな気持ちであること。","遠慮する必要がなく、気楽にうちとけられること。","細やかなところまで気配りができること。","相手を信頼して、警戒する気持ちをときほぐすこと。"]},
+  {id:"W7D02", cat:"D", type:"choice", group:"意味7-気", q:"「幼なじみの彼とは<u>気が置けない</u>仲だ。」の<u>気が置けない</u>の意味は？", a:"遠慮する必要がなく、気楽にうちとけられること。", choices:["遠慮する必要がなく、気楽にうちとけられること。","気乗りがせず、ゆううつな気持ちであること。","細やかなところまで気配りができること。","心配になって、いつまでも忘れずにいること。"]},
+  {id:"W7D03", cat:"D", type:"choice", group:"意味7-気", q:"「彼女はいつも<u>気が利く</u>ので、助かっている。」の<u>気が利く</u>の意味は？", a:"細やかなところまで気配りができること。", choices:["細やかなところまで気配りができること。","遠慮する必要がなく、気楽にうちとけられること。","心配になって、いつまでも忘れずにいること。","相手を信頼して、警戒する気持ちをときほぐすこと。"]},
+  {id:"W7D04", cat:"D", type:"choice", group:"意味7-気", q:"「入院した友人のことを、いつも<u>気にかけて</u>いる。」の<u>気にかける</u>の意味は？", a:"心配になって、いつまでも忘れずにいること。", choices:["心配になって、いつまでも忘れずにいること。","気乗りがせず、ゆううつな気持ちであること。","細やかなところまで気配りができること。","相手を信頼して、警戒する気持ちをときほぐすこと。"]},
+  {id:"W7D05", cat:"D", type:"choice", group:"意味7-気", q:"「初めて会った人にも、すぐに<u>気を許して</u>しまう性格だ。」の<u>気を許す</u>の意味は？", a:"相手を信頼して、警戒する気持ちをときほぐすこと。", choices:["相手を信頼して、警戒する気持ちをときほぐすこと。","気乗りがせず、ゆううつな気持ちであること。","遠慮する必要がなく、気楽にうちとけられること。","心配になって、いつまでも忘れずにいること。"]},
+  {id:"W7D06", cat:"D", type:"choice", group:"意味7-息顔", q:"「花火の美しさに、思わず<u>息をのんだ</u>。」の<u>息をのむ</u>の意味は？", a:"おどろいて、思わず一瞬呼吸を止めること。", choices:["おどろいて、思わず一瞬呼吸を止めること。","お互いの気持ちや調子がぴったり合うこと。","音を立てないように呼吸をおさえて、じっとすること。","知り合いや友人が多いこと。"]},
+  {id:"W7D07", cat:"D", type:"choice", group:"意味7-息顔", q:"「長年の相棒だけに、二人は<u>息が合う</u>。」の<u>息が合う</u>の意味は？", a:"お互いの気持ちや調子がぴったり合うこと。", choices:["お互いの気持ちや調子がぴったり合うこと。","おどろいて、思わず一瞬呼吸を止めること。","音を立てないように呼吸をおさえて、じっとすること。","知り合いや友人が多いこと。"]},
+  {id:"W7D08", cat:"D", type:"choice", group:"意味7-息顔", q:"「見つからないように<u>息を殺して</u>かくれていた。」の<u>息を殺す</u>の意味は？", a:"音を立てないように呼吸をおさえて、じっとすること。", choices:["音を立てないように呼吸をおさえて、じっとすること。","おどろいて、思わず一瞬呼吸を止めること。","お互いの気持ちや調子がぴったり合うこと。","知り合いや友人が多いこと。"]},
+  {id:"W7D09", cat:"D", type:"choice", group:"意味7-息顔", q:"「父は商店街で<u>顔が広く</u>、知らない人がいないほどだ。」の<u>顔が広い</u>の意味は？", a:"知り合いや友人が多いこと。", choices:["知り合いや友人が多いこと。","おどろいて、思わず一瞬呼吸を止めること。","お互いの気持ちや調子がぴったり合うこと。","音を立てないように呼吸をおさえて、じっとすること。"]},
+  {id:"W7D10", cat:"D", type:"choice", group:"意味7-心胸腹", q:"「主人公の生き方に<u>心を打たれた</u>。」の<u>心を打たれる</u>の意味は？", a:"深く感動すること。", choices:["深く感動すること。","真心をもって物事を行うこと。","相手のためを思いながら、あえて厳しい態度をとること。","自信をもって、誇らしげな態度をとること。"]},
+  {id:"W7D11", cat:"D", type:"choice", group:"意味7-心胸腹", q:"「おばあちゃんに<u>心をこめて</u>手紙を書いた。」の<u>心をこめる</u>の意味は？", a:"真心をもって物事を行うこと。", choices:["真心をもって物事を行うこと。","深く感動すること。","相手のためを思いながら、あえて厳しい態度をとること。","心配ごとがなくなって、ほっと安心すること。"]},
+  {id:"W7D12", cat:"D", type:"choice", group:"意味7-心胸腹", q:"「厳しいことを言うのはつらいが、弟のために<u>心を鬼にした</u>。」の<u>心を鬼にする</u>の意味は？", a:"相手のためを思いながら、あえて厳しい態度をとること。", choices:["相手のためを思いながら、あえて厳しい態度をとること。","深く感動すること。","真心をもって物事を行うこと。","覚悟を決めること。"]},
+  {id:"W7D13", cat:"D", type:"choice", group:"意味7-心胸腹", q:"「迷子の子が見つかり、家族は<u>胸をなでおろした</u>。」の<u>胸をなでおろす</u>の意味は？", a:"心配ごとがなくなって、ほっと安心すること。", choices:["心配ごとがなくなって、ほっと安心すること。","自信をもって、誇らしげな態度をとること。","覚悟を決めること。","怒りの気持ちがわきあがること。"]},
+  {id:"W7D14", cat:"D", type:"choice", group:"意味7-心胸腹", q:"「金メダルを胸に、<u>胸をはって</u>行進した。」の<u>胸をはる</u>の意味は？", a:"自信をもって、誇らしげな態度をとること。", choices:["自信をもって、誇らしげな態度をとること。","心配ごとがなくなって、ほっと安心すること。","覚悟を決めること。","怒りの気持ちがわきあがること。"]},
+  {id:"W7D15", cat:"D", type:"choice", group:"意味7-心胸腹", q:"「何を言われても動じないよう、<u>腹を決めて</u>本番に向かった。」の<u>腹を決める</u>の意味は？", a:"覚悟を決めること。", choices:["覚悟を決めること。","相手のためを思いながら、あえて厳しい態度をとること。","自信をもって、誇らしげな態度をとること。","怒りの気持ちがわきあがること。"]},
+  {id:"W7D16", cat:"D", type:"choice", group:"意味7-心胸腹", q:"「大切にしていた本を汚されて、思わず<u>腹が立った</u>。」の<u>腹が立つ</u>の意味は？", a:"怒りの気持ちがわきあがること。", choices:["怒りの気持ちがわきあがること。","心配ごとがなくなって、ほっと安心すること。","自信をもって、誇らしげな態度をとること。","覚悟を決めること。"]}
+];
+
+var CATS_R8 = { A:"文に合う漢字を選ぶ", B:"文の穴うめ（漢字で書く）" };
+
+var QUESTIONS_R8 = [
+  // --- A. 文に合う漢字を選ぶ（4択・選択肢は自動、読みが同じ仲間から出題） ---
+  {id:"W8A01", cat:"A", type:"choice", group:"たいしょう・かんしん", q:"小学生を（　　）としたアンケート調査を行う。\n（調査や行動などが向けられる相手。）\n読み方が「たいしょう」で、文に合う正しい漢字は？", a:"対象"},
+  {id:"W8A02", cat:"A", type:"choice", group:"たいしょう・かんしん", q:"この図形は左右（　　）になっている。\n（つり合いがとれていること。）\n読み方が「たいしょう」で、文に合う正しい漢字は？", a:"対称"},
+  {id:"W8A03", cat:"A", type:"choice", group:"たいしょう・かんしん", q:"二つのグラフを（　　）してちがいを調べる。\n（他のものとくらべ合わせること。）\n読み方が「たいしょう」で、文に合う正しい漢字は？", a:"対照"},
+  {id:"W8A04", cat:"A", type:"choice", group:"たいしょう・かんしん", q:"弟の思いやりある行動に（　　）した。\n（立派だと深く感じ入ること。）\n読み方が「かんしん」で、文に合う正しい漢字は？", a:"感心"},
+  {id:"W8A05", cat:"A", type:"choice", group:"たいしょう・かんしん", q:"環境問題に（　　）を持つ。\n（あることに心をひかれ、興味を持つこと。）\n読み方が「かんしん」で、文に合う正しい漢字は？", a:"関心"},
+  {id:"W8A06", cat:"A", type:"choice", group:"たいしょう・かんしん", q:"上司の（　　）を買おうとおせじを言う。\n（人に気に入られようとする心。）\n読み方が「かんしん」で、文に合う正しい漢字は？", a:"歓心"},
+
+  {id:"W8A07", cat:"A", type:"choice", group:"ほしょう・ついきゅう", q:"「品質は（　　）します」と店員が言った。\n（責任を持って大丈夫だと請け合うこと。）\n読み方が「ほしょう」で、文に合う正しい漢字は？", a:"保証"},
+  {id:"W8A08", cat:"A", type:"choice", group:"ほしょう・ついきゅう", q:"憲法は国民の権利を（　　）している。\n（害がないよう、責任を持って守ること。）\n読み方が「ほしょう」で、文に合う正しい漢字は？", a:"保障"},
+  {id:"W8A09", cat:"A", type:"choice", group:"ほしょう・ついきゅう", q:"事故で受けた被害を（　　）する。\n（あたえた損害を埋め合わせること。）\n読み方が「ほしょう」で、文に合う正しい漢字は？", a:"補償"},
+  {id:"W8A10", cat:"A", type:"choice", group:"ほしょう・ついきゅう", q:"幸福を（　　）して生きる。\n（目的のものを手に入れようと追い求めること。）\n読み方が「ついきゅう」で、文に合う正しい漢字は？", a:"追求"},
+  {id:"W8A11", cat:"A", type:"choice", group:"ほしょう・ついきゅう", q:"事故の原因を科学的に（　　）する。\n（物事の本質を深く調べ、明らかにすること。）\n読み方が「ついきゅう」で、文に合う正しい漢字は？", a:"追究"},
+  {id:"W8A12", cat:"A", type:"choice", group:"ほしょう・ついきゅう", q:"事件の責任を（　　）する。\n（あやまちや責任を問いただすこと。）\n読み方が「ついきゅう」で、文に合う正しい漢字は？", a:"追及"},
+
+  {id:"W8A13", cat:"A", type:"choice", group:"こうせい", q:"物語の（　　）を工夫して書く。\n（いくつかの部分を組み立てて全体をつくること。）\n読み方が「こうせい」で、文に合う正しい漢字は？", a:"構成"},
+  {id:"W8A14", cat:"A", type:"choice", group:"こうせい", q:"印刷する前に文章の（　　）をする。\n（印刷物の誤りを比べて正すこと。）\n読み方が「こうせい」で、文に合う正しい漢字は？", a:"校正"},
+  {id:"W8A15", cat:"A", type:"choice", group:"こうせい", q:"あやまちを悔い、（　　）の道を歩む。\n（悪い状態から正しい状態に立ち直ること。）\n読み方が「こうせい」で、文に合う正しい漢字は？", a:"更生"},
+  {id:"W8A16", cat:"A", type:"choice", group:"こうせい", q:"会社の（　　）施設を利用する。\n（人々の生活を豊かにすること。）\n読み方が「こうせい」で、文に合う正しい漢字は？", a:"厚生"},
+
+  // --- B. 文の穴うめ（4択・選択肢は自動） ---
+  {id:"W8B01", cat:"B", type:"choice", group:"B8-jukugo", q:"「テストの結果は（　　）に良かった。」\n（思いがけないこと。）\n読み方「いがい」\n（漢字２字で答えよう）", a:"意外"},
+  {id:"W8B02", cat:"B", type:"choice", group:"B8-jukugo", q:"「国語（　　）の教科はすべて得意だ。」\n（それを除いて、ほかのもの。）\n読み方「いがい」\n（漢字２字で答えよう）", a:"以外"},
+  {id:"W8B03", cat:"B", type:"choice", group:"B8-jukugo", q:"「アンケートに（　　）する。」\n（質問や要求にこたえること。）\n読み方「かいとう」\n（漢字２字で答えよう）", a:"回答"},
+  {id:"W8B04", cat:"B", type:"choice", group:"B8-jukugo", q:"「算数の問題の（　　）を確かめる。」\n（問題を解いて、こたえを出すこと。）\n読み方「かいとう」\n（漢字２字で答えよう）", a:"解答"},
+  {id:"W8B05", cat:"B", type:"choice", group:"B8-jukugo", q:"「工場で大きな（　　）が動いている。」\n（動力で動く、しくみを持つ装置。）\n読み方「きかい」\n（漢字２字で答えよう）", a:"機械"},
+  {id:"W8B06", cat:"B", type:"choice", group:"B8-jukugo", q:"「この（　　）に自分の意見を伝えよう。」\n（何かをするのにちょうどよい時。チャンス。）\n読み方「きかい」\n（漢字２字で答えよう）", a:"機会"},
+  {id:"W8B07", cat:"B", type:"choice", group:"B8-jukugo", q:"「バスに乗って会場まで（　　）する。」\n（場所を移ること。）\n読み方「いどう」\n（漢字２字で答えよう）", a:"移動"},
+  {id:"W8B08", cat:"B", type:"choice", group:"B8-jukugo", q:"「父が来月、営業部へ（　　）になった。」\n（地位や勤務先などが変わること。）\n読み方「いどう」\n（漢字２字で答えよう）", a:"異動"},
+  {id:"W8B09", cat:"B", type:"choice", group:"B8-jukugo", q:"「誕生日会に友達を（　　）する。」\n（人を招いてもてなすこと。）\n読み方「しょうたい」\n（漢字２字で答えよう）", a:"招待"},
+  {id:"W8B10", cat:"B", type:"choice", group:"B8-jukugo", q:"「怪しい人物の（　　）を確かめる。」\n（本当のすがた。）\n読み方「しょうたい」\n（漢字２字で答えよう）", a:"正体"},
+  {id:"W8B11", cat:"B", type:"choice", group:"B8-jukugo", q:"「気象庁が台風の（　　）を予測する。」\n（進んでいく道。）\n読み方「しんろ」\n（漢字２字で答えよう）", a:"進路"},
+  {id:"W8B12", cat:"B", type:"choice", group:"B8-jukugo", q:"「船が（　　）を北に変える。」\n（船や飛行機の進む方向。）\n読み方「しんろ」\n（漢字２字で答えよう）", a:"針路"},
+  {id:"W8B13", cat:"B", type:"choice", group:"B8-jukugo", q:"「クラスのみんながその計画に（　　）した。」\n（聞き入れて認めること。）\n読み方「しょうち」\n（漢字２字で答えよう）", a:"承知"},
+  {id:"W8B14", cat:"B", type:"choice", group:"B8-jukugo", q:"「大会を自国で開けるよう（　　）を目指す。」\n（行事や会合などを、その土地に招き寄せること。）\n読み方「しょうち」\n（漢字２字で答えよう）", a:"招致"}
+];
+/* ============================================================
+   DATA — 第9回 同訓異字②
+   A = 文に合う漢字を選ぶ（4択・選択肢は自動、読みが同じ仲間から出題）
+   B = 文の穴うめ（漢字で書く・記述）
+============================================================ */
+var CATS_R9 = { A:"文に合う漢字を選ぶ", B:"文の穴うめ（漢字で書く）" };
+
+var QUESTIONS_R9 = [
+  // --- A. 文に合う漢字を選ぶ（4択・選択肢は自動、読みが同じ仲間から出題） ---
+  {id:"W9A01", cat:"A", type:"choice", group:"つく", q:"待ち合わせ場所に予定より早く（　　）く。\n（目的の場所に到達する。）\n読み方が「つく」で、意味に合う正しい漢字は？", a:"着"},
+  {id:"W9A02", cat:"A", type:"choice", group:"つく", q:"新しいくつに泥が（　　）く。\n（あるものにくっつく。）\n読み方が「つく」で、意味に合う正しい漢字は？", a:"付"},
+  {id:"W9A03", cat:"A", type:"choice", group:"つく", q:"将来は医者の仕事に（　　）く。\n（ある地位や職業に身を置く。）\n読み方が「つく」で、意味に合う正しい漢字は？", a:"就"},
+  {id:"W9A04", cat:"A", type:"choice", group:"つく", q:"バスケットボールを（　　）く。\n（先のとがったものなどで、勢いよく押しあてる。）\n読み方が「つく」で、意味に合う正しい漢字は？", a:"突"},
+  {id:"W9A05", cat:"A", type:"choice", group:"たつ", q:"教室の前に（　　）って発表する。\n（その場に身を起こし、じっとする。）\n読み方が「たつ」で、意味に合う正しい漢字は？", a:"立"},
+  {id:"W9A06", cat:"A", type:"choice", group:"たつ", q:"駅前に新しいビルが（　　）つ。\n（建物などがつくられる。）\n読み方が「たつ」で、意味に合う正しい漢字は？", a:"建"},
+  {id:"W9A07", cat:"A", type:"choice", group:"たつ", q:"行方不明の友人と連絡が（　　）つ。\n（続いていたものごとがなくなる。）\n読み方が「たつ」で、意味に合う正しい漢字は？", a:"絶"},
+  {id:"W9A08", cat:"A", type:"choice", group:"たつ", q:"医師にすすめられ、たばこを（　　）つ。\n（きっぱりとやめる。切りはなす。）\n読み方が「たつ」で、意味に合う正しい漢字は？", a:"断"},
+  {id:"W9A09", cat:"A", type:"choice", group:"とまる", q:"信号が赤になり、車が（　　）まる。\n（動いていたものが動かなくなる。）\n読み方が「とまる」で、意味に合う正しい漢字は？", a:"止"},
+  {id:"W9A10", cat:"A", type:"choice", group:"とまる", q:"合格の知らせが心に（　　）まる。\n（その場所に残る。とどまる。）\n読み方が「とまる」で、意味に合う正しい漢字は？", a:"留"},
+  {id:"W9A11", cat:"A", type:"choice", group:"とまる", q:"旅行先の旅館に（　　）まる。\n（よその家やホテルなどで夜を過ごす。）\n読み方が「とまる」で、意味に合う正しい漢字は？", a:"泊"},
+  {id:"W9A12", cat:"A", type:"choice", group:"とまる", q:"バスがバス停に（　　）まる。\n（乗り物が止まる。）\n読み方が「とまる」で、意味に合う正しい漢字は？", a:"停"},
+  {id:"W9A13", cat:"A", type:"choice", group:"かける", q:"お茶わんのふちが（　　）ける。\n（一部がこわれてなくなる。）\n読み方が「かける」で、意味に合う正しい漢字は？", a:"欠"},
+  {id:"W9A14", cat:"A", type:"choice", group:"かける", q:"壁に時計を（　　）ける。\n（物をひっかけてつるす。）\n読み方が「かける」で、意味に合う正しい漢字は？", a:"掛"},
+  {id:"W9A15", cat:"A", type:"choice", group:"かける", q:"運動場を全力で（　　）ける。\n（勢いよく走る。）\n読み方が「かける」で、意味に合う正しい漢字は？", a:"駆"},
+  {id:"W9A16", cat:"A", type:"choice", group:"かける", q:"川に新しい橋を（　　）ける。\n（一方から他方へかけわたす。）\n読み方が「かける」で、意味に合う正しい漢字は？", a:"架"},
+
+  // --- B. 文の穴うめ（4択・選択肢は自動・漢字1字で答えよう） ---
+  {id:"W9B01", cat:"B", type:"choice", group:"B9-dou1", q:"「階段を（　　）がる。」\n（高い場所へ移動する。）\n（漢字１字で答えよう）", a:"上"},
+  {id:"W9B02", cat:"B", type:"choice", group:"B9-dou1", q:"「授賞式で選手の名前が（　　）がる。」\n（人々の話題や評価の対象になる。表彰などで発表される。）\n（漢字１字で答えよう）", a:"挙"},
+  {id:"W9B03", cat:"B", type:"choice", group:"B9-dou1", q:"「大きな地震が（　　）こる。」\n（ものごとが発生する。）\n（漢字１字で答えよう）", a:"起"},
+  {id:"W9B04", cat:"B", type:"choice", group:"B9-dou1", q:"「いたずらをして父に（　　）られる。」\n（いかる。腹を立てる。）\n（漢字１字で答えよう）", a:"怒"},
+  {id:"W9B05", cat:"B", type:"choice", group:"B9-ku4", q:"「感動して思わず（　　）く。」\n（悲しみや喜びなどで涙を流す。）\n（漢字１字で答えよう）", a:"泣"},
+  {id:"W9B06", cat:"B", type:"choice", group:"B9-ku4", q:"「小鳥が朝から元気に（　　）く。」\n（動物が声を出す。）\n（漢字１字で答えよう）", a:"鳴"},
+  {id:"W9B07", cat:"B", type:"choice", group:"B9-dou2", q:"「祖父母は田舎に（　　）んでいる。」\n（その場所で生活する。）\n（漢字１字で答えよう）", a:"住"},
+  {id:"W9B08", cat:"B", type:"choice", group:"B9-dou2", q:"「宿題が思ったより早く（　　）んだ。」\n（ものごとが終わる。）\n（漢字１字で答えよう）", a:"済"},
+  {id:"W9B09", cat:"B", type:"choice", group:"B9-ku4", q:"「洗濯物がよく（　　）く。」\n（水分がなくなる。）\n（漢字１字で答えよう）", a:"乾"},
+  {id:"W9B10", cat:"B", type:"choice", group:"B9-ku4", q:"「長い時間歩いて、のどが（　　）く。」\n（水分がほしくなる。）\n（漢字１字で答えよう）", a:"渇"},
+  {id:"W9B11", cat:"B", type:"choice", group:"B9-dou2", q:"「白いご飯に麦が（　　）じる。」\n（別のものが一緒になって、区別しにくくなる。）\n（漢字１字で答えよう）", a:"混"},
+  {id:"W9B12", cat:"B", type:"choice", group:"B9-dou2", q:"「観客の中に外国人が（　　）じる。」\n（いくつかのものが一緒になるが、それぞれ区別できる。）\n（漢字１字で答えよう）", a:"交"},
+  {id:"W9B13", cat:"B", type:"choice", group:"B9-dou2", q:"「呼び鈴を（　　）す。」\n（力を加えて動かす。）\n（漢字１字で答えよう）", a:"押"},
+  {id:"W9B14", cat:"B", type:"choice", group:"B9-dou2", q:"「学級委員に友達を（　　）す。」\n（すすめる。おしすすめる。）\n（漢字１字で答えよう）", a:"推"},
+  {id:"W9B15", cat:"B", type:"choice", group:"B9-dou1", q:"「険しい山道を（　　）る。」\n（高い場所へ移動する。）\n（漢字１字で答えよう）", a:"登"},
+  {id:"W9B16", cat:"B", type:"choice", group:"B9-dou1", q:"「うわさが人々の口に（　　）る。」\n（話題になる。）\n（漢字１字で答えよう）", a:"上"},
+  {id:"W9B17", cat:"B", type:"choice", group:"B9-dou2", q:"「強風でかさが（　　）れる。」\n（引き裂かれて穴があく。こわれる。）\n（漢字１字で答えよう）", a:"破"},
+  {id:"W9B18", cat:"B", type:"choice", group:"B9-dou2", q:"「決勝戦で強豪チームに（　　）れる。」\n（勝負に負ける。）\n（漢字１字で答えよう）", a:"敗"}
+];
+
+/* ============================================================
+   DATA — 第11回 和語③
+   A = 意味→ことば（4択）
+   B = 文の穴うめ（入力）
+   C = 文中の意味（4択）
+============================================================ */
+var CATS_R11 = { A:"意味→ことば", B:"文の穴うめ", C:"文中の意味" };
+
+var QUESTIONS_R11 = [
+  // --- A. 意味→ことば（4択） ---
+  {id:"W11A01", cat:"A", type:"choice", group:"気持ち11", q:"かわいくてたまらない。大切に思う気持ちを表すことばは？", a:"いとおしい"},
+  {id:"W11A02", cat:"A", type:"choice", group:"態度11", q:"下品で、欲張りなようすを表すことばは？", a:"いやしい"},
+  {id:"W11A03", cat:"A", type:"choice", group:"動作11", q:"がっかりして、首を前に垂れることを表すことばは？", a:"うなだれる"},
+  {id:"W11A04", cat:"A", type:"choice", group:"ことば11", q:"水分をあたえる。豊かにすることを表すことばは？", a:"うるおす"},
+  {id:"W11A05", cat:"A", type:"choice", group:"動作11", q:"ゆっくりと。落ち着いて行動するさまを表すことばは？", a:"おもむろに"},
+  {id:"W11A06", cat:"A", type:"choice", group:"態度11", q:"意地を張って、考えや態度を変えないさまを表すことばは？", a:"かたくな"},
+  {id:"W11A07", cat:"A", type:"choice", group:"動作11", q:"困難な状況をなんとか乗りこえることを表すことばは？", a:"きりぬける"},
+  {id:"W11A08", cat:"A", type:"choice", group:"態度11", q:"思いやりがないことを表すことばは？", a:"こころない"},
+  {id:"W11A09", cat:"A", type:"choice", group:"動作11", q:"言動をひかえめにする。遠慮することを表すことばは？", a:"さしひかえる"},
+  {id:"W11A10", cat:"A", type:"choice", group:"ことば11", q:"まるで～のように、という意味のことばは？", a:"さながら"},
+  {id:"W11A11", cat:"A", type:"choice", group:"ことば11", q:"昔から伝わる習慣。ならわしを表すことばは？", a:"しきたり"},
+  {id:"W11A12", cat:"A", type:"choice", group:"気持ち11", q:"さわやかで気持ちがよいさまを表すことばは？", a:"すがすがしい"},
+  {id:"W11A13", cat:"A", type:"choice", group:"ことば11", q:"使われなくなる。おとろえることを表すことばは？", a:"すたれる"},
+  {id:"W11A14", cat:"A", type:"choice", group:"気持ち11", q:"相手の勢いに押されて、ひるむこと。動揺することを表すことばは？", a:"たじろぐ"},
+  {id:"W11A15", cat:"A", type:"choice", group:"気持ち11", q:"恥ずかしがって、てれるようすを表すことばは？", a:"はにかむ"},
+  {id:"W11A16", cat:"A", type:"choice", group:"態度11", q:"親しみがなく、他人のような態度をとることを表すことばは？", a:"よそよそしい"},
+
+  // --- B. 文の穴うめ（4択・選択肢は自動／一部は選択肢を指定） ---
+  {id:"W11B01", cat:"B", type:"choice", group:"ことば11", q:"けがをしたペットを見て、（　　）気持ちになった。\n（かわいくてたまらない。大切に思う。）", a:"いとおしい"},
+  {id:"W11B02", cat:"B", type:"choice", q:"試合に負けて、選手たちは肩を落として（　　）。\n（がっかりして、首を前に垂れる。）", a:"うなだれた", choices:["うなだれた","たじろいだ","はにかんだ","すたれた"]},
+  {id:"W11B03", cat:"B", type:"choice", q:"久しぶりの雨が、かわいた大地を（　　）。\n（水分をあたえる。豊かにする。）", a:"うるおした", choices:["うるおした","さしひかえた","すたれた","きりぬけた"]},
+  {id:"W11B04", cat:"B", type:"choice", q:"仲間と力を合わせて、この難局を（　　）。\n（困難な状況をなんとか乗りこえる。）", a:"きりぬけた", choices:["きりぬけた","たじろいだ","うなだれた","すたれた"]},
+  {id:"W11B05", cat:"B", type:"choice", q:"何度説得しても、彼は（　　）に自分の意見を変えなかった。\n（意地を張って、考えを変えない。）", a:"かたくな", choices:["かたくな","こころない","いやしい","よそよそしい"]},
+  {id:"W11B06", cat:"B", type:"choice", group:"ことば11", q:"体調がすぐれないので、今日の外出は（　　）ことにした。\n（言動をひかえめにする。遠慮する。）", a:"さしひかえる"},
+  {id:"W11B07", cat:"B", type:"choice", q:"昔ながらの行事が、しだいに（　　）。\n（使われなくなる。おとろえる。）", a:"すたれていった", choices:["すたれていった","きりぬけていった","うなだれていった","たじろいでいった"]},
+  {id:"W11B08", cat:"B", type:"choice", q:"対戦相手の思いがけない反撃に（　　）。\n（勢いに押されて、ひるむ。）", a:"たじろいだ", choices:["たじろいだ","うなだれた","すたれた","きりぬけた"]},
+
+  // --- C. 文中の意味（4択・選択肢は自動） ---
+  {id:"W11C01", cat:"C", type:"choice", group:"意味11", q:"「お金のためなら何でもするなんて、<u>いやしい</u>考え方だ。」の<u>いやしい</u>の意味は？", a:"下品で、欲張りである。"},
+  {id:"W11C02", cat:"C", type:"choice", group:"意味11", q:"「先生は<u>おもむろに</u>口を開き、静かに話し始めた。」の<u>おもむろに</u>の意味は？", a:"ゆっくりと。落ち着いて。"},
+  {id:"W11C03", cat:"C", type:"choice", group:"意味11", q:"「<u>こころない</u>ひと言に深く傷つけられた。」の<u>こころない</u>の意味は？", a:"思いやりがない。"},
+  {id:"W11C04", cat:"C", type:"choice", group:"意味11", q:"「その公園は、<u>さながら</u>絵画のような美しさだった。」の<u>さながら</u>の意味は？", a:"まるで～のように。"},
+  {id:"W11C05", cat:"C", type:"choice", group:"意味11", q:"「この村には、昔からの<u>しきたり</u>が今も残っている。」の<u>しきたり</u>の意味は？", a:"昔から伝わる習慣。ならわし。"},
+  {id:"W11C06", cat:"C", type:"choice", group:"意味11", q:"「朝の公園を歩くと、<u>すがすがしい</u>気分になる。」の<u>すがすがしい</u>の意味は？", a:"さわやかで気持ちがよい。"},
+  {id:"W11C07", cat:"C", type:"choice", group:"意味11", q:"「初めて会う人の前で<u>はにかんで</u>いた。」の<u>はにかむ</u>の意味は？", a:"恥ずかしがって、てれる。"},
+  {id:"W11C08", cat:"C", type:"choice", group:"意味11", q:"「妹は転校してから、なんとなく<u>よそよそしい</u>態度をとるようになった。」の<u>よそよそしい</u>の意味は？", a:"親しみがなく、他人のような態度をとること。"},
+
+  // --- C続き（新規・文中の意味） ---
+  {id:"W11C09", cat:"C", type:"choice", group:"意味-気持ち11", q:"「生まれたばかりの赤ちゃんを見て、<u>いとおしい</u>と思った。」の<u>いとおしい</u>の意味は？", a:"かわいくてたまらない。大切に思う気持ち。", choices:["かわいくてたまらない。大切に思う気持ち。","相手の勢いに押されて、ひるむこと。動揺すること。","さわやかで気持ちがよいさま。","恥ずかしがって、てれるようす。"]},
+  {id:"W11C10", cat:"C", type:"choice", group:"意味-動作11", q:"「テストの結果が悪くて、肩を落として<u>うなだれた</u>。」の<u>うなだれる</u>の意味は？", a:"がっかりして、首を前に垂れること。", choices:["がっかりして、首を前に垂れること。","困難な状況をなんとか乗りこえること。","言動をひかえめにすること。遠慮すること。","ゆっくりと。落ち着いて行動するさま。"]},
+  {id:"W11C11", cat:"C", type:"choice", group:"意味-ことば11", q:"「夏の夕立が、かわいた田畑を<u>うるおした</u>。」の<u>うるおす</u>の意味は？", a:"水分をあたえること。豊かにすること。", choices:["水分をあたえること。豊かにすること。","まるで～のように、という意味。","昔から伝わる習慣。ならわし。","使われなくなること。おとろえること。"]},
+  {id:"W11C12", cat:"C", type:"choice", group:"意味-態度11", q:"「何度説明しても、彼は<u>かたくな</u>に意見を変えなかった。」の<u>かたくな</u>の意味は？", a:"意地を張って、考えや態度を変えないさま。", choices:["意地を張って、考えや態度を変えないさま。","思いやりがないこと。","親しみがなく、他人のような態度をとること。","下品で、欲張りなようす。"]},
+  {id:"W11C13", cat:"C", type:"choice", group:"意味-動作11", q:"「仲間と助け合って、この難局を<u>きりぬけた</u>。」の<u>きりぬける</u>の意味は？", a:"困難な状況をなんとか乗りこえること。", choices:["困難な状況をなんとか乗りこえること。","がっかりして、首を前に垂れること。","言動をひかえめにすること。遠慮すること。","ゆっくりと。落ち着いて行動するさま。"]},
+  {id:"W11C14", cat:"C", type:"choice", group:"意味-動作11", q:"「体調がよくないので、今日の外出は<u>さしひかえた</u>。」の<u>さしひかえる</u>の意味は？", a:"言動をひかえめにすること。遠慮すること。", choices:["言動をひかえめにすること。遠慮すること。","がっかりして、首を前に垂れること。","困難な状況をなんとか乗りこえること。","ゆっくりと。落ち着いて行動するさま。"]},
+  {id:"W11C15", cat:"C", type:"choice", group:"意味-ことば11", q:"「昔ながらの行事が、しだいに<u>すたれて</u>いった。」の<u>すたれる</u>の意味は？", a:"使われなくなること。おとろえること。", choices:["使われなくなること。おとろえること。","水分をあたえること。豊かにすること。","まるで～のように、という意味。","昔から伝わる習慣。ならわし。"]},
+  {id:"W11C16", cat:"C", type:"choice", group:"意味-気持ち11", q:"「思いがけない反論に、思わず<u>たじろいだ</u>。」の<u>たじろぐ</u>の意味は？", a:"相手の勢いに押されて、ひるむこと。動揺すること。", choices:["相手の勢いに押されて、ひるむこと。動揺すること。","かわいくてたまらない。大切に思う気持ち。","さわやかで気持ちがよいさま。","恥ずかしがって、てれるようす。"]}
+];
+var CATS_R12 = { A:"意味→ことわざ", B:"文の穴うめ", C:"ことわざ→意味" };
+
+var QUESTIONS_R12 = [
+  // --- A. 意味→ことわざ（4択・選択肢は自動） ---
+  {id:"W12A01", cat:"A", type:"choice", group:"ことわざ12A", q:"不正なことをして得たお金はむだづかいしがちで、すぐになくなってしまうこと。これを表すことわざは？", a:"悪銭身につかず"},
+  {id:"W12A02", cat:"A", type:"choice", group:"ことわざ12A", q:"あせらずに、幸運がめぐってくるのを気長に待つのがよいということ。これを表すことわざは？", a:"果報は寝て待て"},
+  {id:"W12A03", cat:"A", type:"choice", group:"ことわざ12A", q:"子を思う親の深い愛情を知らないで、子どもは勝手にふるまうものだということ。これを表すことわざは？", a:"親の心子知らず"},
+  {id:"W12A04", cat:"A", type:"choice", group:"ことわざ12A", q:"中途半端で、どちらの役にも立たないこと。これを表すことわざは？", a:"帯に短したすきに長し"},
+  {id:"W12A05", cat:"A", type:"choice", group:"ことわざ12A", q:"ただでさえ強いものが、さらに強さを増すこと。これを表すことわざは？", a:"鬼に金棒"},
+  {id:"W12A06", cat:"A", type:"choice", group:"ことわざ12A", q:"人がらは家がらよりも、育てられた環境によって形づくられるということ。これを表すことわざは？", a:"氏より育ち"},
+  {id:"W12A07", cat:"A", type:"choice", group:"ことわざ12A", q:"急いでいるときほど、危険な近道より安全な遠回りを選ぶほうがよいということ。これを表すことわざは？", a:"急がば回れ"},
+  {id:"W12A08", cat:"A", type:"choice", group:"ことわざ12A", q:"目先のことさえよければ、あとはどうなってもかまわないということ。これを表すことわざは？", a:"後は野となれ山となれ"},
+  {id:"W12A09", cat:"A", type:"choice", group:"ことわざ12A", q:"一部だけを隠して、全部隠したつもりになっていること。これを表すことわざは？", a:"頭かくして尻かくさず"},
+  {id:"W12A10", cat:"A", type:"choice", group:"ことわざ12A", q:"十分に用心したうえで物事を行うこと。これを表すことわざは？", a:"石橋を叩いて渡る"},
+  {id:"W12A11", cat:"A", type:"choice", group:"ことわざ12A", q:"小さな力でも根気よく続ければ、いつか大きなことを成しとげられるということ。これを表すことわざは？", a:"雨垂れ石をうがつ"},
+  {id:"W12A12", cat:"A", type:"choice", group:"ことわざ12A", q:"もめごとのあとは、かえって前より物事がしっかりと落ち着くこと。これを表すことわざは？", a:"雨降って地固まる"},
+  {id:"W12A13", cat:"A", type:"choice", group:"ことわざ12A", q:"値打ちのわからない人には、どんなに価値のあるものを与えても役に立たないこと。これを表すことわざは？", a:"猫に小判"},
+  {id:"W12A14", cat:"A", type:"choice", group:"ことわざ12A", q:"いくら意見をしても、まったく効きめがないこと。これを表すことわざは？", a:"馬の耳に念仏"},
+  {id:"W12A15", cat:"A", type:"choice", group:"ことわざ12A", q:"身近なことはかえって気づきにくいということ。これを表すことわざは？", a:"灯台下暗し"},
+
+  // --- B. 文の穴うめ（4択・選択肢は自動） ---
+  {id:"W12B01", cat:"B", type:"choice", group:"B12-kotowaza", q:"「（　　）に金棒。」\n（ただでさえ強いものが、さらに強さを増すこと。）", a:"鬼"},
+  {id:"W12B02", cat:"B", type:"choice", group:"B12-kotowaza", q:"「猫に（　　）。」\n（値打ちのわからない人には、価値のあるものを与えても役に立たないこと。）", a:"小判"},
+  {id:"W12B03", cat:"B", type:"choice", group:"B12-kotowaza", q:"「馬の耳に（　　）。」\n（いくら意見をしても、まったく効きめがないこと。）", a:"念仏"},
+  {id:"W12B04", cat:"B", type:"choice", group:"B12-kotowaza", q:"「弘法にも（　　）の誤り。」\n（どんなに名人であっても、時には失敗することがあるということ。）\n（漢字１字で答えよう）", a:"筆"},
+  {id:"W12B05", cat:"B", type:"choice", group:"B12-kotowaza", q:"「七転び（　　）起き。」\n（何度失敗してもくじけず、そのたびに立ち直ること。）\n（漢字１字で答えよう）", a:"八"},
+  {id:"W12B06", cat:"B", type:"choice", group:"B12-kotowaza", q:"「（　　）も積もれば山となる。」\n（わずかなものでも積み重なれば、やがて大きなものになるということ。）\n（漢字１字で答えよう）", a:"塵"},
+  {id:"W12B07", cat:"B", type:"choice", group:"B12-kotowaza", q:"「（　　）台下暗し。」\n（身近なことはかえって気づきにくいということ。）\n（漢字１字で答えよう）", a:"灯"},
+  {id:"W12B08", cat:"B", type:"choice", group:"B12-kotowaza", q:"「転ばぬ先の（　　）。」\n（失敗しないように、前もって準備をしておくこと。）", a:"杖"},
+  {id:"W12B09", cat:"B", type:"choice", group:"B12-kotowaza", q:"「情けは（　　）のためならず。」\n（人に親切にしておくと、めぐりめぐって自分によい報いが返ってくるということ。）\n（漢字１字で答えよう）", a:"人"},
+  {id:"W12B10", cat:"B", type:"choice", group:"B12-kotowaza", q:"「石橋を（　　）いて渡る。」\n（十分に用心したうえで物事を行うこと。）\n（漢字１字で答えよう）", a:"叩"},
+  {id:"W12B11", cat:"B", type:"choice", group:"B12-kotowaza", q:"「雨垂れ（　　）をうがつ。」\n（小さな力でも根気よく続ければ、いつか大きなことを成しとげられるということ。）\n（漢字１字で答えよう）", a:"石"},
+  {id:"W12B12", cat:"B", type:"choice", group:"B12-kotowaza", q:"「頭かくして（　　）かくさず。」\n（一部だけを隠して、全部隠したつもりになっていること。）", a:"尻"},
+  {id:"W12B13", cat:"B", type:"choice", group:"B12-kotowaza", q:"「帯に短し（　　）に長し。」\n（中途半端で、どちらの役にも立たないこと。）", a:"たすき"},
+
+  // --- C. ことわざ→意味（4択・選択肢は自動） ---
+  {id:"W12C01", cat:"C", type:"choice", group:"意味12C", q:"「悪銭身につかず」の意味として最も適切なものは？", a:"不正なことをして得たお金はむだづかいしがちで、すぐになくなってしまうこと。"},
+  {id:"W12C02", cat:"C", type:"choice", group:"意味12C", q:"「果報は寝て待て」の意味として最も適切なものは？", a:"あせらずに、幸運がめぐってくるのを気長に待つのがよいということ。"},
+  {id:"W12C03", cat:"C", type:"choice", group:"意味12C", q:"「親の心子知らず」の意味として最も適切なものは？", a:"子を思う親の深い愛情を知らないで、子どもは勝手にふるまうものだということ。"},
+  {id:"W12C04", cat:"C", type:"choice", group:"意味12C", q:"「帯に短したすきに長し」の意味として最も適切なものは？", a:"中途半端で、どちらの役にも立たないこと。"},
+  {id:"W12C05", cat:"C", type:"choice", group:"意味12C", q:"「鬼に金棒」の意味として最も適切なものは？", a:"ただでさえ強いものが、さらに強さを増すこと。"},
+  {id:"W12C06", cat:"C", type:"choice", group:"意味12C", q:"「氏より育ち」の意味として最も適切なものは？", a:"人がらは家がらよりも、育てられた環境によって形づくられるということ。"},
+  {id:"W12C07", cat:"C", type:"choice", group:"意味12C", q:"「急がば回れ」の意味として最も適切なものは？", a:"急いでいるときほど、危険な近道より安全な遠回りを選ぶほうがよいということ。"},
+  {id:"W12C08", cat:"C", type:"choice", group:"意味12C", q:"「後は野となれ山となれ」の意味として最も適切なものは？", a:"目先のことさえよければ、あとはどうなってもかまわないということ。"},
+  {id:"W12C09", cat:"C", type:"choice", group:"意味12C", q:"「頭かくして尻かくさず」の意味として最も適切なものは？", a:"一部だけを隠して、全部隠したつもりになっていること。"},
+  {id:"W12C10", cat:"C", type:"choice", group:"意味12C", q:"「石橋を叩いて渡る」の意味として最も適切なものは？", a:"十分に用心したうえで物事を行うこと。"},
+  {id:"W12C11", cat:"C", type:"choice", group:"意味12C", q:"「雨垂れ石をうがつ」の意味として最も適切なものは？", a:"小さな力でも根気よく続ければ、いつか大きなことを成しとげられるということ。"},
+  {id:"W12C12", cat:"C", type:"choice", group:"意味12C", q:"「雨降って地固まる」の意味として最も適切なものは？", a:"もめごとのあとは、かえって前より物事がしっかりと落ち着くこと。"},
+  {id:"W12C13", cat:"C", type:"choice", group:"意味12C", q:"「猫に小判」の意味として最も適切なものは？", a:"値打ちのわからない人には、どんなに価値のあるものを与えても役に立たないこと。"},
+  {id:"W12C14", cat:"C", type:"choice", group:"意味12C", q:"「馬の耳に念仏」の意味として最も適切なものは？", a:"いくら意見をしても、まったく効きめがないこと。"},
+  {id:"W12C15", cat:"C", type:"choice", group:"意味12C", q:"「灯台下暗し」の意味として最も適切なものは？", a:"身近なことはかえって気づきにくいということ。"}
+];
+
+var CATS_R13 = { A:"類義語を選ぶ", B:"文の穴うめ" };
+
+var QUESTIONS_R13 = [
+  // --- A. 類義語を選ぶ（4択・選択肢は自動） ---
+  {id:"W13A01", cat:"A", type:"choice", group:"類義語13A", q:"「発見」の類義語（意味がよく似たことば）として最も適切なものは？", a:"発明"},
+  {id:"W13A02", cat:"A", type:"choice", group:"類義語13A", q:"「適当」の類義語として最も適切なものは？", a:"適切"},
+  {id:"W13A03", cat:"A", type:"choice", group:"類義語13A", q:"「推量」の類義語として最も適切なものは？", a:"推測"},
+  {id:"W13A04", cat:"A", type:"choice", group:"類義語13A", q:"「真相」の類義語として最も適切なものは？", a:"真実"},
+  {id:"W13A05", cat:"A", type:"choice", group:"類義語13A", q:"「情勢」の類義語として最も適切なものは？", a:"形勢"},
+  {id:"W13A06", cat:"A", type:"choice", group:"類義語13A", q:"「光景」の類義語として最も適切なものは？", a:"風景"},
+  {id:"W13A07", cat:"A", type:"choice", group:"類義語13A", q:"「公開」の類義語として最も適切なものは？", a:"公表"},
+  {id:"W13A08", cat:"A", type:"choice", group:"類義語13A", q:"「決心」の類義語として最も適切なものは？", a:"決定"},
+  {id:"W13A09", cat:"A", type:"choice", group:"類義語13A", q:"「経験」の類義語として最も適切なものは？", a:"体験"},
+  {id:"W13A10", cat:"A", type:"choice", group:"類義語13A", q:"「口調」の類義語として最も適切なものは？", a:"語調"},
+  {id:"W13A11", cat:"A", type:"choice", group:"類義語13A", q:"「去年」の類義語として最も適切なものは？", a:"昨年"},
+  {id:"W13A12", cat:"A", type:"choice", group:"類義語13A", q:"「救助」の類義語として最も適切なものは？", a:"救援"},
+  {id:"W13A13", cat:"A", type:"choice", group:"類義語13A", q:"「用意」の類義語として最も適切なものは？", a:"準備"},
+  {id:"W13A14", cat:"A", type:"choice", group:"類義語13A", q:"「関心」の類義語として最も適切なものは？", a:"興味"},
+  {id:"W13A15", cat:"A", type:"choice", group:"類義語13A", q:"「返事」の類義語として最も適切なものは？", a:"応答"},
+  {id:"W13A16", cat:"A", type:"choice", group:"類義語13A", q:"「任務」の類義語として最も適切なものは？", a:"使命"},
+  {id:"W13A17", cat:"A", type:"choice", group:"類義語13A", q:"「広告」の類義語として最も適切なものは？", a:"宣伝"},
+  {id:"W13A18", cat:"A", type:"choice", group:"類義語13A", q:"「原始」の類義語として最も適切なものは？", a:"未開"},
+  {id:"W13A19", cat:"A", type:"choice", group:"類義語13A", q:"「有名」の類義語として最も適切なものは？", a:"著名"},
+  {id:"W13A20", cat:"A", type:"choice", group:"類義語13A", q:"「未来」の類義語として最も適切なものは？", a:"将来"},
+
+  // --- B. 文の穴うめ（4択・選択肢は自動） ---
+  {id:"W13B01", cat:"B", type:"choice", group:"類義語13A", q:"「事件の犯人について、いろいろな（　　）が飛び交った。」\n（あれこれ想像すること。「推量」と同じ意味のことば。）", a:"推測"},
+  {id:"W13B02", cat:"B", type:"choice", group:"類義語13A", q:"「状況に応じた（　　）な判断が求められる。」\n（ちょうどよく当てはまること。「適当」と同じ意味のことば。）", a:"適切"},
+  {id:"W13B03", cat:"B", type:"choice", group:"類義語13A", q:"「農業を（　　）することで、食べ物の大切さを学んだ。」\n（自分で実際にやってみること。「経験」と同じ意味のことば。）", a:"体験"},
+  {id:"W13B04", cat:"B", type:"choice", group:"類義語13A", q:"「遠足に向けて持ち物の（　　）を整えた。」\n（前もって必要なものをそろえておくこと。「用意」と同じ意味のことば。）", a:"準備"},
+  {id:"W13B05", cat:"B", type:"choice", group:"類義語13A", q:"「妹は昆虫に強い（　　）を持っている。」\n（あるものごとに心がひかれること。「関心」と同じ意味のことば。）", a:"興味"},
+  {id:"W13B06", cat:"B", type:"choice", group:"類義語13A", q:"「消防士には人命を守るという重要な（　　）がある。」\n（果たさなければならない務め。「任務」と同じ意味のことば。）", a:"使命"},
+  {id:"W13B07", cat:"B", type:"choice", group:"類義語13A", q:"「新商品のテレビ（　　）が話題になっている。」\n（世間に広く知らせること。「広告」と同じ意味のことば。）", a:"宣伝"},
+  {id:"W13B08", cat:"B", type:"choice", group:"類義語13A", q:"「その画家は世界的に（　　）な人物だ。」\n（広く名前が知られていること。「有名」と同じ意味のことば。）", a:"著名"},
+  {id:"W13B09", cat:"B", type:"choice", group:"類義語13A", q:"「彼女は（　　）、医者になりたいと話している。」\n（これから先のこと。「未来」と同じ意味のことば。）", a:"将来"},
+  {id:"W13B10", cat:"B", type:"choice", group:"類義語13A", q:"「エジソンは数多くの（　　）品を残した。」\n（それまでになかったものを新しく作り出すこと。「発見」と近い意味のことば。）", a:"発明"},
+  {id:"W13B11", cat:"B", type:"choice", group:"類義語13A", q:"「被災地に向けて（　　）物資が送られた。」\n（困っている人を助けること。「救助」と同じ意味のことば。）", a:"救援"},
+  {id:"W13B12", cat:"B", type:"choice", group:"類義語13A", q:"「呼びかけに対して、はっきりとした（　　）があった。」\n（問いかけに答えること。「返事」と同じ意味のことば。）", a:"応答"}
+];
+
+var CATS_R14 = { A:"対義語を選ぶ", B:"文の穴うめ" };
+
+var QUESTIONS_R14 = [
+  // --- A. 対義語を選ぶ（4択・選択肢は自動） ---
+  {id:"W14A01", cat:"A", type:"choice", group:"対義語14A", q:"「往路」の対義語（意味が反対のことば）として最も適切なものは？", a:"復路"},
+  {id:"W14A02", cat:"A", type:"choice", group:"対義語14A", q:"「往信」の対義語として最も適切なものは？", a:"返信"},
+  {id:"W14A03", cat:"A", type:"choice", group:"対義語14A", q:"「安心」の対義語として最も適切なものは？", a:"不安"},
+  {id:"W14A04", cat:"A", type:"choice", group:"対義語14A", q:"「成功」の対義語として最も適切なものは？", a:"失敗"},
+  {id:"W14A05", cat:"A", type:"choice", group:"対義語14A", q:"「増加」の対義語として最も適切なものは？", a:"減少"},
+  {id:"W14A06", cat:"A", type:"choice", group:"対義語14A", q:"「最高」の対義語として最も適切なものは？", a:"最低"},
+  {id:"W14A07", cat:"A", type:"choice", group:"対義語14A", q:"「登山」の対義語として最も適切なものは？", a:"下山"},
+  {id:"W14A08", cat:"A", type:"choice", group:"対義語14A", q:"「有名」の対義語として最も適切なものは？", a:"無名"},
+  {id:"W14A09", cat:"A", type:"choice", group:"対義語14A", q:"「当番」の対義語として最も適切なものは？", a:"非番"},
+  {id:"W14A10", cat:"A", type:"choice", group:"対義語14A", q:"「満足」の対義語として最も適切なものは？", a:"不満"},
+  {id:"W14A11", cat:"A", type:"choice", group:"対義語14A", q:"「需要」の対義語として最も適切なものは？", a:"供給"},
+  {id:"W14A12", cat:"A", type:"choice", group:"対義語14A", q:"「集合」の対義語として最も適切なものは？", a:"解散"},
+  {id:"W14A13", cat:"A", type:"choice", group:"対義語14A", q:"「原因」の対義語として最も適切なものは？", a:"結果"},
+  {id:"W14A14", cat:"A", type:"choice", group:"対義語14A", q:"「理想」の対義語として最も適切なものは？", a:"現実"},
+  {id:"W14A15", cat:"A", type:"choice", group:"対義語14A", q:"「賛成」の対義語として最も適切なものは？", a:"反対"},
+  {id:"W14A16", cat:"A", type:"choice", group:"対義語14A", q:"「拡大」の対義語として最も適切なものは？", a:"縮小"},
+  {id:"W14A17", cat:"A", type:"choice", group:"対義語14A", q:"「複雑」の対義語として最も適切なものは？", a:"単純"},
+  {id:"W14A18", cat:"A", type:"choice", group:"対義語14A", q:"「義務」の対義語として最も適切なものは？", a:"権利"},
+  {id:"W14A19", cat:"A", type:"choice", group:"対義語14A", q:"「開始」の対義語として最も適切なものは？", a:"終了"},
+  {id:"W14A20", cat:"A", type:"choice", group:"対義語14A", q:"「安全」の対義語として最も適切なものは？", a:"危険"},
+
+  // --- B. 文の穴うめ（4択・選択肢は自動） ---
+  {id:"W14B01", cat:"B", type:"choice", group:"対義語14A", q:"「行きは電車で、帰りは（　　）でバスを使った。」\n（「往路」の対義語。帰りに通る道のこと。）", a:"復路"},
+  {id:"W14B02", cat:"B", type:"choice", group:"対義語14A", q:"「試合の（　　）を喫し、悔しい思いをした。」\n（「成功」の対義語。うまくいかないこと。）", a:"失敗"},
+  {id:"W14B03", cat:"B", type:"choice", group:"対義語14A", q:"「人口が年々（　　）している地域もある。」\n（「増加」の対義語。数が少なくなること。）", a:"減少"},
+  {id:"W14B04", cat:"B", type:"choice", group:"対義語14A", q:"「山の頂上に着いたあと、（　　）を始めた。」\n（「登山」の対義語。山を下りること。）", a:"下山"},
+  {id:"W14B05", cat:"B", type:"choice", group:"対義語14A", q:"「今日はクラスの（　　）で日直の仕事をした。」\n（「非番」の対義語。役目に当たっていること。）", a:"当番"},
+  {id:"W14B06", cat:"B", type:"choice", group:"対義語14A", q:"「テストの結果に（　　）で、もっとがんばろうと思った。」\n（「満足」の対義語。満ち足りないこと。）", a:"不満"},
+  {id:"W14B07", cat:"B", type:"choice", group:"対義語14A", q:"「マスクの（　　）が高まり、店頭から品物が消えた。」\n（「供給」の対義語。ほしいと思う人が多いこと。）", a:"需要"},
+  {id:"W14B08", cat:"B", type:"choice", group:"対義語14A", q:"「会議は10時に（　　）し、正午に終わった。」\n（「終了」の対義語。始まること。）", a:"開始"},
+  {id:"W14B09", cat:"B", type:"choice", group:"対義語14A", q:"「夜道を歩くのは（　　）だから気をつけよう。」\n（「安全」の対義語。危ないこと。）", a:"危険"},
+  {id:"W14B10", cat:"B", type:"choice", group:"対義語14A", q:"「みんなの前で自分の（　　）を述べた。」\n（「賛成」の対義語。反対の立場をとること。）", a:"反対"},
+  {id:"W14B11", cat:"B", type:"choice", group:"対義語14A", q:"「工場の生産規模を（　　）する計画が発表された。」\n（「縮小」の対義語。大きく広げること。）", a:"拡大"},
+  {id:"W14B12", cat:"B", type:"choice", group:"対義語14A", q:"「手続きが（　　）で分かりにくいという声があった。」\n（「単純」の対義語。こみいっていること。）", a:"複雑"}
+];
+
+var UNITS = [
+  { id:"wago1", emoji:"📗", round:"第１回", name:"和語①", subtitle:"いぶかる・うのみ・ないがしろ など", cats:CATS, questions:QUESTIONS_WAGO1 },
+  { id:"kanyoku1", emoji:"📘", round:"第２回", name:"慣用句①", subtitle:"口が重い・鼻であしらう・身に余る など", cats:CATS_KANYOKU, questions:QUESTIONS_KANYOKU1 },
+  { id:"sanji1", emoji:"📙", round:"第３回", name:"三字の熟語①", subtitle:"絵空事・有頂天・立役者 など", cats:CATS_SANJI, questions:QUESTIONS_SANJI1 },
+  { id:"dokun1", emoji:"📖", round:"第４回", name:"同訓異字", subtitle:"取る・計る・治める・帰る など", cats:CATS_DOKUN, questions:QUESTIONS_DOKUN1 },
+  { id:"wago2", emoji:"📕", round:"第６回", name:"和語②", subtitle:"あがく・つたない・はばかる など", cats:CATS, questions:QUESTIONS_WAGO2 },
+  { id:"kanyoku2", emoji:"📔", round:"第７回", name:"慣用句②", subtitle:"息をのむ・気が置けない・腹を決める など", cats:CATS_R7, questions:QUESTIONS_R7 },
+  { id:"douon1", emoji:"📒", round:"第８回", name:"同音異字・同音異義語", subtitle:"対象・対称・対照／意外・以外 など", cats:CATS_R8, questions:QUESTIONS_R8 },
+  { id:"dokun2", emoji:"📖", round:"第９回", name:"同訓異字②", subtitle:"着く・付く・就く／立つ・建つ・絶つ など", cats:CATS_R9, questions:QUESTIONS_R9 },
+  { id:"wago3", emoji:"📕", round:"第11回", name:"和語③", subtitle:"いとおしい・うなだれる・すがすがしい など", cats:CATS_R11, questions:QUESTIONS_R11 },
+  { id:"kotowaza1", emoji:"🧧", round:"第12回", name:"ことわざ①", subtitle:"鬼に金棒・急がば回れ・猫に小判 など", cats:CATS_R12, questions:QUESTIONS_R12 },
+  { id:"ruigigo1", emoji:"🔗", round:"第13回", name:"類義語", subtitle:"発見＝発明・適当＝適切 など", cats:CATS_R13, questions:QUESTIONS_R13 },
+  { id:"taigigo1", emoji:"⚖️", round:"第14回", name:"対義語", subtitle:"往路⇔復路・需要⇔供給 など", cats:CATS_R14, questions:QUESTIONS_R14 }
+];
+
+/* ============================================================
+   STATE / STORAGE（きろくは common.js の KQHub に一本化）
+============================================================ */
+var SUBJECT = "kokugo";
+function fullKey(id){ return SUBJECT + ":" + id; }
+
+/* ---- 日付まわりのヘルパー ---- */
+function pad2(n){ return n<10 ? "0"+n : ""+n; }
+function dateKey(d){ return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()); }
+function todayKey(){ return dateKey(new Date()); }
+function last7Days(){
+  var out = [];
+  var now = new Date();
+  for(var i=6;i>=0;i--){
+    var d = new Date(now);
+    d.setDate(now.getDate()-i);
+    out.push(d);
+  }
+  return out;
+}
+function thisWeekTotals(){
+  var now = new Date();
+  var day = now.getDay();
+  var diffToMonday = (day===0) ? -6 : (1-day);
+  var monday = new Date(now);
+  monday.setDate(now.getDate()+diffToMonday);
+  var total=0, correct=0;
+  for(var i=0;i<7;i++){
+    var d = new Date(monday);
+    d.setDate(monday.getDate()+i);
+    if(d > now) break;
+    var e = KQHub.getStatsFor(d, SUBJECT);
+    total+=e.total; correct+=e.correct;
+  }
+  return { total:total, correct:correct };
+}
+function recordAnswer(unitId, id, correct){
+  KQHub.recordAnswer(SUBJECT, fullKey(id), correct);
+}
+function weakCount(unitId, questions){
+  return KQHub.countWeakFresh(questions.map(function(q){ return fullKey(q.id); }));
+}
+
+/* ============================================================
+   HELPERS
+============================================================ */
+function shuffle(arr){
+  var a = arr.slice();
+  for(var i=a.length-1;i>0;i--){
+    var j = Math.floor(Math.random()*(i+1));
+    var t=a[i]; a[i]=a[j]; a[j]=t;
+  }
+  return a;
+}
+function pickN(arr, n){ return shuffle(arr).slice(0, n); }
+
+function uniqueAnswers(list){
+  var out = [], seen = {};
+  list.forEach(function(q){
+    if(!seen[q.a]){ seen[q.a]=true; out.push(q.a); }
+  });
+  return out;
+}
+
+function buildChoices(question, unit){
+  if(question.choices && question.choices.length){
+    return shuffle(question.choices);
+  }
+  var pool = unit.questions.filter(function(q){
+    return q.type==="choice" && q.group===question.group && q.a!==question.a;
+  });
+  var distractors = pickN(uniqueAnswers(pool), 3);
+  return shuffle(distractors.concat([question.a]));
+}
+
+/* ---- 採点（ゆるめ）: 全角/半角をそろえ、カタカナ→ひらがな、空白・句読点を除去して比較 ---- */
+function normalizeAnswer(s){
+  if(!s) return "";
+  s = String(s).normalize("NFKC");
+  s = s.replace(/[ァ-ヶ]/g, function(ch){
+    return String.fromCharCode(ch.charCodeAt(0) - 0x60);
+  });
+  s = s.replace(/[\s　。、,，.．「」『』・！？!?\-ー]/g, "");
+  return s;
+}
+function isCorrectInput(q, userVal){
+  var norm = normalizeAnswer(userVal);
+  if(!norm) return false;
+  var candidates = [q.a].concat(q.alts||[]).map(normalizeAnswer);
+  return candidates.indexOf(norm) >= 0;
+}
+
+/* ============================================================
+   DOM REFS
+============================================================ */
+var $ = function(id){ return document.getElementById(id); };
+
+var screenUnits = $("screen-units");
+var screenQuiz = $("screen-quiz");
+var screenResult = $("screen-result");
+
+var statToday = $("statToday");
+var statWeek = $("statWeek");
+var weekChart = $("weekChart");
+
+var unitList = $("unitList");
+var selectAllBtn = $("selectAllBtn");
+var selectNoneBtn = $("selectNoneBtn");
+var catCard2 = $("catCard2");
+var catChips2 = $("catChips2");
+var multiTotalCount = $("multiTotalCount");
+var multiStartBtn = $("multiStartBtn");
+var multiWeakBtn = $("multiWeakBtn");
+var multiWeakBadge = $("multiWeakBadge");
+
+var progressFill = $("progressFill");
+var progressNum = $("progressNum");
+var qCatTag = $("qCatTag");
+var qText = $("qText");
+var choiceGrid = $("choiceGrid");
+var writeBox = $("writeBox");
+var writeInput = $("writeInput");
+var answerPanel = $("answerPanel");
+var verdictText = $("verdictText");
+var userAnsItem = $("userAnsItem");
+var userAnsVal = $("userAnsVal");
+var ansVal = $("ansVal");
+var nextBtn = $("nextBtn");
+var quitBtn = $("quitBtn");
+
+var resultScore = $("resultScore");
+var resultTotalLabel = $("resultTotalLabel");
+var resultMsg = $("resultMsg");
+var reviewList = $("reviewList");
+var retryBtn = $("retryBtn");
+var homeBtn = $("homeBtn");
+
+/* ============================================================
+   回をえらぶ（1回だけ選べば単元別、複数選べば組分け・カリキュラム対策）
+============================================================ */
+var currentUnit = null;
+var useWeakOnly = false;
+var lastWeakOnly = false;
+var selectedUnits = {};   // unitId -> bool
+var multiActiveCats = []; // 1回だけ選択時のみ使用
+
+function renderUnitList(){
+  unitList.innerHTML = "";
+  var weakSummary = {};
+  UNITS.forEach(function(u){
+    var wf = weakCount(u.id, u.questions);
+    var w = wf.weak;
+    weakSummary[u.id] = w;
+    var row = document.createElement("label");
+    row.className = "unit-row";
+    row.innerHTML =
+      '<input type="checkbox" data-unit="'+u.id+'">'+
+      '<span class="body">'+
+        (u.round ? '<span class="round-tag">'+u.round+'</span>' : '')+
+        '<span class="name">'+u.name+'</span>'+
+        '<span class="meta"><span>全'+u.questions.length+'問</span>'+
+          (w>0 ? '<span class="weak-flag">にがて '+w+'問</span>' : '')+
+          (wf.fresh>0 ? '<span>未挑戦 '+wf.fresh+'問</span>' : '')+
+        '</span>'+
+      '</span>';
+    var cb = row.querySelector("input");
+    cb.checked = !!selectedUnits[u.id];
+    cb.addEventListener("change", function(){
+      selectedUnits[u.id] = cb.checked;
+      onMultiSelectionChange();
+    });
+    unitList.appendChild(row);
+  });
+  // 玄関（index.html）が「今日のおすすめ」を出すときに参照する軽いキャッシュ
+  try{ localStorage.setItem("kq-kokugo-weak-summary-v1", JSON.stringify(weakSummary)); }catch(e){}
+}
+
+function getSelectedUnitIds(){
+  return UNITS.filter(function(u){ return selectedUnits[u.id]; }).map(function(u){ return u.id; });
+}
+
+// 選択中の回の全問題を、出典の回IDとカテゴリ表示名をタグ付けして結合する
+function getSelectedPool(){
+  var ids = getSelectedUnitIds();
+  var pool = [];
+  UNITS.forEach(function(u){
+    if(ids.indexOf(u.id)<0) return;
+    u.questions.forEach(function(q){
+      var clone = Object.assign({}, q);
+      clone.__unitId = u.id;
+      clone.__catLabel = u.cats[q.cat];
+      pool.push(clone);
+    });
+  });
+  return pool;
+}
+
+function updateMultiTotalCount(){
+  var ids = getSelectedUnitIds();
+  var pool = getSelectedPool();
+  if(ids.length===1 && multiActiveCats.length){
+    pool = pool.filter(function(q){ return multiActiveCats.indexOf(q.cat)>=0; });
+  }
+  multiTotalCount.textContent = pool.length;
+}
+
+function onMultiSelectionChange(){
+  var ids = getSelectedUnitIds();
+  multiStartBtn.disabled = ids.length===0;
+  multiActiveCats = [];
+  if(ids.length===1){
+    var unit = UNITS.filter(function(u){ return u.id===ids[0]; })[0];
+    catCard2.hidden = false;
+    multiActiveCats = Object.keys(unit.cats);
+    renderCatChips2(ids[0]);
+  } else {
+    catCard2.hidden = true;
+  }
+  updateMultiTotalCount();
+  updateMultiWeakBadge();
+}
+
+// えらんだ回のうち、にがてスコアが低い（0以下の）問題数をカウントする（表示用）
+function selectedWeakCount(){
+  var ids = getSelectedUnitIds();
+  var n = {weak:0, fresh:0};
+  UNITS.forEach(function(u){
+    if(ids.indexOf(u.id)<0) return;
+    var c = weakCount(u.id, u.questions);
+    n.weak += c.weak; n.fresh += c.fresh;
+  });
+  return n;
+}
+
+function updateMultiWeakBadge(){
+  var ids = getSelectedUnitIds();
+  var w = selectedWeakCount();
+  multiWeakBadge.textContent = "にがて"+w.weak+"問・未挑戦"+w.fresh+"問";
+  multiWeakBtn.disabled = ids.length===0;
+}
+
+function renderCatChips2(unitId){
+  var unit = UNITS.filter(function(u){ return u.id===unitId; })[0];
+  var cats = unit.cats;
+  var pool = getSelectedPool();
+  catChips2.innerHTML = "";
+  Object.keys(cats).forEach(function(key){
+    var count = pool.filter(function(q){return q.cat===key;}).length;
+    if(count===0) return;
+    var btn = document.createElement("button");
+    btn.className = "chip";
+    btn.type = "button";
+    btn.setAttribute("aria-pressed", multiActiveCats.indexOf(key)>=0 ? "true":"false");
+    btn.innerHTML = cats[key] + ' <span class="cnt">' + count + "</span>";
+    btn.addEventListener("click", function(){
+      var idx = multiActiveCats.indexOf(key);
+      if(idx>=0){
+        if(multiActiveCats.length>1) multiActiveCats.splice(idx,1);
+      } else {
+        multiActiveCats.push(key);
+      }
+      renderCatChips2(unitId);
+      updateMultiTotalCount();
+      updateMultiWeakBadge();
+    });
+    catChips2.appendChild(btn);
+  });
+}
+
+selectAllBtn.addEventListener("click", function(){
+  UNITS.forEach(function(u){ selectedUnits[u.id] = true; });
+  renderUnitList();
+  onMultiSelectionChange();
+});
+selectNoneBtn.addEventListener("click", function(){
+  UNITS.forEach(function(u){ selectedUnits[u.id] = false; });
+  renderUnitList();
+  onMultiSelectionChange();
+});
+
+function beginMixedQuiz(weakOnly){
+  var ids = getSelectedUnitIds();
+  if(ids.length===0) return;
+  var basePool = getSelectedPool();
+  lastWeakOnly = !!weakOnly;
+  useWeakOnly = !!weakOnly;
+  // buildChoices が同じ問題プールの中から選択肢を探せるよう、結合プールを持つ仮想ユニットにする
+  currentUnit = { id:"__mixed__", name:"まとめて練習", round:null, cats:null, questions: basePool };
+  var n = Math.min(10, basePool.length);
+  if(weakOnly){
+    // にがて特訓：スコアが低い問題ほど出やすい重み付き抽選（ゼロにはしない）
+    quizQueue = KQHub.weightedSample(basePool, function(q){ return fullKey(q.id); }, n);
+  } else {
+    var pool = (ids.length===1 && multiActiveCats.length)
+      ? basePool.filter(function(q){ return multiActiveCats.indexOf(q.cat)>=0; })
+      : basePool;
+    if(pool.length===0) return;
+    n = Math.min(10, pool.length);
+    quizQueue = pickN(pool, n);
+  }
+  if(quizQueue.length===0) return;
+  quizIndex = 0;
+  quizResults = [];
+  screenUnits.hidden = true;
+  screenResult.hidden = true;
+  screenQuiz.hidden = false;
+  renderQuestion();
+}
+
+multiStartBtn.addEventListener("click", function(){
+  if(multiStartBtn.disabled) return;
+  beginMixedQuiz(false);
+});
+multiWeakBtn.addEventListener("click", function(){
+  if(multiWeakBtn.disabled) return;
+  beginMixedQuiz(true);
+});
+
+var DOW_LABEL = ["日","月","火","水","木","金","土"];
+
+function refreshGlobalStats(){
+  var todayEntry = KQHub.getStatsFor(new Date(), SUBJECT);
+  statToday.textContent = todayEntry.correct + "/" + todayEntry.total;
+  var week = thisWeekTotals();
+  statWeek.textContent = week.correct + "/" + week.total;
+
+  var days = last7Days();
+  var todayStr = todayKey();
+  var maxTotal = 1;
+  days.forEach(function(d){
+    var e = KQHub.getStatsFor(d, SUBJECT);
+    if(e && e.total > maxTotal) maxTotal = e.total;
+  });
+  weekChart.innerHTML = "";
+  days.forEach(function(d){
+    var key = dateKey(d);
+    var e = KQHub.getStatsFor(d, SUBJECT);
+    var isToday = key === todayStr;
+    var pct = e.total>0 ? Math.max(10, Math.round(e.total/maxTotal*100)) : 0;
+
+    var col = document.createElement("div");
+    col.className = "col" + (isToday ? " today" : "");
+
+    var track = document.createElement("div");
+    track.className = "bar-track";
+    var fill = document.createElement("div");
+    fill.className = "bar-fill" + (e.total>0 ? (isToday ? " today" : " has-data") : "");
+    fill.style.height = pct + "%";
+    fill.title = key + "：" + e.correct + "/" + e.total + "問正解";
+    track.appendChild(fill);
+
+    var dow = document.createElement("div");
+    dow.className = "dow";
+    dow.textContent = DOW_LABEL[d.getDay()];
+
+    col.appendChild(track);
+    col.appendChild(dow);
+    weekChart.appendChild(col);
+  });
+}
+
+/* ============================================================
+   QUIZ FLOW
+============================================================ */
+var quizQueue = [];
+var quizIndex = 0;
+var quizResults = [];
+var answered = false; // このもんだいをすでに答え合わせしたか
+
+function renderQuestion(){
+  var q = quizQueue[quizIndex];
+  answered = false;
+  progressNum.textContent = (quizIndex+1)+"/"+quizQueue.length;
+  progressFill.style.width = ((quizIndex)/quizQueue.length*100)+"%";
+  qCatTag.textContent = q.__catLabel || currentUnit.cats[q.cat];
+  qText.innerHTML = String(q.q).replace(/\n/g, "<br>");
+
+  answerPanel.hidden = true;
+  userAnsItem.hidden = true;
+  nextBtn.hidden = true;
+
+  if(q.type==="choice"){
+    choiceGrid.hidden = false;
+    writeBox.hidden = true;
+    var currentChoices = buildChoices(q, currentUnit);
+    choiceGrid.innerHTML = "";
+    var letters = ["A","B","C","D"];
+    currentChoices.forEach(function(choiceText, i){
+      var btn = document.createElement("button");
+      btn.className = "choice-btn";
+      btn.type = "button";
+      btn.innerHTML = '<span class="idx">'+letters[i]+'</span><span>'+choiceText+"</span>";
+      btn.addEventListener("click", function(){ onChoiceSelected(q, choiceText, btn); });
+      choiceGrid.appendChild(btn);
+    });
+  } else {
+    choiceGrid.hidden = true;
+    writeBox.hidden = false;
+    writeInput.value = "";
+    writeInput.disabled = false;
+    setTimeout(function(){
+      writeInput.focus();
+      if(typeof writeInput.scrollIntoView === "function"){
+        writeInput.scrollIntoView({block:"center", behavior:"smooth"});
+      }
+    }, 50);
+  }
+}
+
+function onChoiceSelected(q, choiceText, btnEl){
+  if(answered) return;
+  answered = true;
+  var correct = choiceText === q.a;
+  Array.from(choiceGrid.children).forEach(function(btn){
+    btn.disabled = true;
+    var txt = btn.querySelector("span:last-child").textContent;
+    if(txt === q.a){ btn.classList.add("correct"); }
+    else if(btn===btnEl){ btn.classList.add("wrong"); }
+    else { btn.classList.add("dim"); }
+  });
+  showAnswer(q, correct, choiceText);
+  finishQuestion(q, correct, choiceText);
+  nextBtn.hidden = false;
+}
+
+writeInput.addEventListener("keydown", function(e){
+  if(e.isComposing || e.keyCode===229) return; // 変換中のEnterは無視
+  if(e.key !== "Enter") return;
+  e.preventDefault();
+  var q = quizQueue[quizIndex];
+  if(!answered){
+    answered = true;
+    writeInput.disabled = true;
+    var val = writeInput.value;
+    var correct = isCorrectInput(q, val);
+    showAnswer(q, correct, val, true);
+    finishQuestion(q, correct, val);
+    nextBtn.hidden = false;
+  } else {
+    advance();
+  }
+});
+
+nextBtn.addEventListener("click", function(){
+  advance();
+});
+
+function showAnswer(q, correct, userVal, showUser){
+  answerPanel.hidden = false;
+  answerPanel.className = "answer-panel " + (correct ? "ok":"ng");
+  verdictText.textContent = correct ? "⭕ せいかい！" : "❌ ざんねん！";
+  ansVal.textContent = q.a;
+  if(showUser){
+    userAnsItem.hidden = false;
+    userAnsVal.textContent = userVal || "（無回答）";
+  } else {
+    userAnsItem.hidden = true;
+  }
+}
+
+function finishQuestion(q, correct, userAnswer){
+  recordAnswer(q.__unitId || currentUnit.id, q.id, correct);
+  quizResults.push({ q:q, correct:correct, userAnswer:userAnswer||"" });
+  progressFill.style.width = ((quizIndex+1)/quizQueue.length*100)+"%";
+}
+
+function advance(){
+  quizIndex++;
+  if(quizIndex >= quizQueue.length){
+    showResult();
+  } else {
+    renderQuestion();
+  }
+}
+
+quitBtn.addEventListener("click", function(){
+  screenQuiz.hidden = true;
+  screenUnits.hidden = false;
+  renderUnitList();
+  onMultiSelectionChange();
+  refreshGlobalStats();
+});
+
+/* ============================================================
+   RESULT
+============================================================ */
+function showResult(){
+  screenQuiz.hidden = true;
+  screenResult.hidden = false;
+
+  var correctCount = quizResults.filter(function(r){return r.correct;}).length;
+  resultScore.textContent = correctCount;
+  resultTotalLabel.textContent = "/"+quizResults.length+"問 正解";
+
+  var msgs;
+  if(correctCount===quizResults.length) msgs = "パーフェクト！すごい！🎉";
+  else if(correctCount>=quizResults.length*0.7) msgs = "よくできました！その調子！";
+  else if(correctCount>=quizResults.length*0.4) msgs = "もう少し！にがてを復習しよう";
+  else msgs = "だいじょうぶ、くり返せば覚えるよ";
+  resultMsg.textContent = msgs;
+
+  reviewList.innerHTML = "";
+  quizResults.forEach(function(r){
+    var div = document.createElement("div");
+    div.className = "review-item " + (r.correct?"ok":"ng");
+    var qHtml = String(r.q.q).replace(/\n.*$/s, "").replace(/<u>|<\/u>/g, "");
+    var aLine = "こたえ：<b>"+r.q.a+"</b>";
+    if(!r.correct && r.q.type==="input" && r.userAnswer){
+      aLine += "　／　あなたの答え：" + r.userAnswer;
+    }
+    div.innerHTML =
+      '<span class="mark">'+(r.correct?"⭕":"❌")+'</span>'+
+      '<span class="body">'+
+        '<span class="q">'+qHtml+'</span>'+
+        '<span class="a">'+aLine+'</span>'+
+      '</span>';
+    reviewList.appendChild(div);
+  });
+}
+
+retryBtn.addEventListener("click", function(){
+  beginMixedQuiz(lastWeakOnly);
+});
+homeBtn.addEventListener("click", function(){
+  screenResult.hidden = true;
+  screenUnits.hidden = false;
+  renderUnitList();
+  onMultiSelectionChange();
+  refreshGlobalStats();
+});
+
+/* ============================================================
+   BOOT
+============================================================ */
+renderUnitList();
+onMultiSelectionChange();
+refreshGlobalStats();
+
+// 玄関からの「今日のおすすめ」ワンタップ起動
+// ?start=weak&units=wago1,kanyoku1 のように渡された場合、その回を選んで即にがて特訓を開始する
+(function applyDeepLinkStart(){
+  try{
+    var params = { get: function(n){ return KQHub.getParam(n); } };
+    if(params.get("start") !== "weak") return;
+    var unitsParam = params.get("units");
+    var ids = unitsParam ? unitsParam.split(",") : UNITS.map(function(u){ return u.id; });
+    var found = false;
+    UNITS.forEach(function(u){
+      var on = ids.indexOf(u.id) >= 0;
+      selectedUnits[u.id] = on;
+      if(on) found = true;
+    });
+    if(!found) return;
+    renderUnitList();
+    onMultiSelectionChange();
+    beginMixedQuiz(true);
+  }catch(e){}
+})();
+
+})();
+</script>
+
+</body></html>

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>しんだん</title>
+<style>
+  body{ margin:0; font:15px/1.6 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif; background:#f6f4ef; color:#2b2a27; }
+  @media (prefers-color-scheme: dark){ body{ background:#1d1c1a; color:#efece6; } .card{ background:#2a2927 !important; border-color:#403e3a !important; } }
+  .wrap{ max-width:560px; margin:0 auto; padding:16px; }
+  h1{ font-size:18px; margin:4px 0 12px; }
+  .card{ background:#fff; border:1px solid #e3e0d8; border-radius:14px; padding:10px 12px; margin-bottom:8px; }
+  .k{ font-size:12px; color:#6b6a66; }
+  .v{ font-weight:700; word-break:break-all; }
+  .ok{ color:#1d7a3a; } .ng{ color:#c0321f; } .wait{ color:#9a7b00; }
+  button, a.btn{ font:inherit; font-weight:700; padding:8px 14px; border-radius:10px; border:1px solid #bbb; background:#fff; color:#222; cursor:pointer; text-decoration:none; display:inline-block; margin:4px 4px 0 0; }
+  pre{ white-space:pre-wrap; word-break:break-all; font-size:12px; background:rgba(127,127,127,.12); padding:8px; border-radius:8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>しんだん（おうちの人用）</h1>
+  <div class="card"><div class="k">1. localStorage（きろくの保存）</div><div class="v wait" id="rLs">しらべ中…</div></div>
+  <div class="card"><div class="k">2. 記録サーバ（GAS）との通信</div><div class="v wait" id="rRun">しらべ中…</div></div>
+  <div class="card"><div class="k">3. 記録の送信口（空の報告・書きこみなし）</div><div class="v wait" id="rRep">しらべ中…</div></div>
+  <div class="card"><div class="k">4. フォント配信(fonts.googleapis.com)へ到達できるか</div><div class="v wait" id="rFont">しらべ中…</div></div>
+  <div class="card"><div class="k">5. ページ移動（iframeの外へ）</div>
+    <a class="btn" id="aTop" target="_top" href="index.html">玄関へ（リンク）</a>
+    <button type="button" id="bGo">玄関へ（ボタン）</button>
+    <div class="v" id="rNav">どちらかをおして、玄関が開けば OK</div></div>
+  <div class="card"><div class="k">端末ID（deviceId）</div><div class="v" id="rDev">–</div></div>
+  <div class="card"><div class="k">その他</div><pre id="rEtc"></pre></div>
+  <button type="button" id="bCopy">結果をコピー</button>
+  <div class="k" id="rCopy"></div>
+</div>
+<script>window.KQ_STATIC=true;window.KQ_PAGE="diag";window.KQ_REPORT_URL="https://script.google.com/macros/s/AKfycby687LvFEfQsD0mvNnzUHikwb67ZGJ7fzP9yeC81q5SbpD043nhpPnTEmRS_3NTuwZw0w/exec";</script>
+<script src="common.js"></script>
+<script>
+(function(){
+  "use strict";
+  var out = {};
+  function $(id){ return document.getElementById(id); }
+  function set(id, key, ok, text){
+    var e = $(id); e.className = "v " + (ok ? "ok" : "ng"); e.textContent = (ok ? "OK　" : "NG　") + text; out[key] = (ok ? "OK " : "NG ") + text;
+  }
+  // 1. localStorage（common.js が使えない時はメモリ代替に切り替えている）
+  (function(){
+    var mode = window.KQHub.storageMode();
+    var rawOk = false, err = "";
+    try{ window.localStorage.setItem("kq-diag", "x1"); rawOk = window.localStorage.getItem("kq-diag") === "x1"; window.localStorage.removeItem("kq-diag"); }catch(e){ err = String(e); }
+    if(mode === "local" && rawOk) set("rLs", "localStorage", true, "書きこみ・読み出しできました");
+    else set("rLs", "localStorage", false, "使えません（メモリ代替で動作中: " + mode + "）" + (err ? " " + err : "") + " → ページを閉じるときろくが消えます");
+  })();
+  // 端末ID
+  $("rDev").textContent = window.KQHub.getDeviceId(); out.deviceId = window.KQHub.getDeviceId();
+  // 2/3. 記録サーバ（GAS）へ fetch
+  (function(){
+    var url = window.KQ_REPORT_URL || "";
+    function get(q, ok, ng){
+      var done = false;
+      var timer = setTimeout(function(){ if(!done){ done = true; ng("8秒たっても応答なし"); } }, 8000);
+      try{
+        fetch(url + "?" + q, { method: "GET", cache: "no-store" }).then(function(r){ return r.json(); }).then(function(j){
+          if(done) return; done = true; clearTimeout(timer); ok(j);
+        }, function(e){ if(done) return; done = true; clearTimeout(timer); ng(String(e)); });
+      }catch(e){ clearTimeout(timer); ng(String(e)); }
+    }
+    get("action=ping", function(r){
+      set("rRun", "run", !!(r && r.ok), r && r.ok ? "つながりました（サーバ日付 " + r.jstToday + "）" : "へんな返事です");
+    }, function(e){ set("rRun", "run", false, e); });
+    get("action=report&dev=" + encodeURIComponent(window.KQHub.getDeviceId()) + "&d=" + encodeURIComponent(window.KQHub.todayKey()) + "&p=%7B%7D", function(r){
+      var good = !!(r && r.ok === false && r.error === "empty");
+      set("rRep", "report", good, good ? "サーバが空の報告を正しく断りました（書きこみなし）" : "返事: " + JSON.stringify(r));
+    }, function(e){ set("rRep", "report", false, e); });
+  })();
+  // 4. fonts
+  (function(){
+    if(typeof fetch !== "function"){ set("rFont", "font", false, "fetch が使えません"); return; }
+    var done = false;
+    var timer = setTimeout(function(){ if(!done){ done = true; set("rFont", "font", false, "5秒たっても応答なし（ブロックの可能性）"); } }, 5000);
+    fetch("https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500", { mode: "no-cors" }).then(function(){
+      if(done) return; done = true; clearTimeout(timer); set("rFont", "font", true, "到達できました");
+    }, function(e){
+      if(done) return; done = true; clearTimeout(timer); set("rFont", "font", false, "到達できません: " + e);
+    });
+  })();
+  // 5. 遷移
+  $("bGo").addEventListener("click", function(){ window.KQHub.go(window.KQHub.pageUrl("index")); });
+  var topAccessible = "?";
+  try{ topAccessible = String(window.top === window.self ? "top==self" : "iframe内"); }catch(e){ topAccessible = "iframe内(topは見えない)"; }
+  var etc = [
+    "userAgent: " + navigator.userAgent,
+    "cookieEnabled: " + navigator.cookieEnabled,
+    "location: " + String(window.location.href).slice(0, 120),
+    "frame: " + topAccessible,
+    "KQ_REPORT_URL: " + String(window.KQ_REPORT_URL).slice(0, 60) + "…",
+    "sync: " + JSON.stringify(window.KQHub.syncState())
+  ];
+  $("rEtc").textContent = etc.join("\n"); out.etc = etc;
+  $("bCopy").addEventListener("click", function(){
+    var text = JSON.stringify(out, null, 1);
+    function fallback(){
+      var ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select();
+      var ok = false; try{ ok = document.execCommand("copy"); }catch(e){} document.body.removeChild(ta);
+      $("rCopy").textContent = ok ? "コピーしました" : "コピーできませんでした（画面を見せてください）";
+    }
+    try{ navigator.clipboard.writeText(text).then(function(){ $("rCopy").textContent = "コピーしました"; }, fallback); }catch(e){ fallback(); }
+  });
+})();
+</script>
+</body>
+</html>
