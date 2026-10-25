@@ -47,6 +47,7 @@
   .grade{ flex:none; }
   .grade button{ appearance:none; font-family:inherit; font-size:11px; font-weight:700; padding:6px 10px; border-radius:10px; border:1px solid var(--accent); cursor:pointer; white-space:nowrap; }
   .ok-badge{ display:inline-block; font-size:11px; font-weight:700; padding:5px 10px; border-radius:10px; background:var(--accent); color:#fff; white-space:nowrap; }
+  .wait-badge{ display:inline-block; font-size:10.5px; font-weight:700; line-height:1.3; text-align:center; padding:4px 8px; border-radius:10px; background:var(--buffer-soft); color:var(--buffer); white-space:nowrap; }
   .grade .wait{ font-size:11px; color:var(--ink-soft); white-space:nowrap; }
   .empty{ color:var(--ink-soft); font-size:14px; text-align:center; padding:14px 0; }
   .help{ font-size:11.5px; color:var(--ink-soft); margin:0 0 4px; }
@@ -75,7 +76,7 @@
 
   <div class="card">
     <div class="section-label">やること</div>
-    <p class="help">おわったら左の□をタップ。「第◯回」はその回の復習という意味だよ。</p>
+    <p class="help">おわったら左の□をタップ。おうちの人が確認したら完了だよ。「第◯回」はその回の復習という意味。</p>
     <div id="list"></div>
   </div>
 
@@ -114,6 +115,9 @@ const SUBJECT_COLORS = [
 ];
 const WD = ["日","月","火","水","木","金","土"];
 const CARRY_OVER_MAX_DAYS = 365;
+// この日以降の宿題は「本人チェック＋保護者確認」がそろって完了（それまでは本人チェックだけで完了扱い）。
+// 親用画面・LINE通知(GAS)と同じ日付にする。
+const GRADE_REQUIRED_FROM = "2026-10-26";
 
 // ===== 日付 =====
 function fmtDate(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
@@ -159,6 +163,10 @@ function getCheck(a,key){
   if(v && typeof v==="object") return {self:!!v.self, grade:!!v.grade, fix:!!v.fix};
   return {self:!!v, grade:false, fix:false};
 }
+function isComplete(a, key, ds){
+  const c = getCheck(a, key);
+  return ds >= GRADE_REQUIRED_FROM ? (c.self && c.grade) : c.self;
+}
 function isTestDay(ds){ return TEST_DATES.includes(ds) || !!(state.testDays||{})[ds]; }
 
 function scheduledItemsForDate(ds){
@@ -186,7 +194,7 @@ function carriedOverItems(upto){
     scheduledItemsForDate(ds).forEach(item=>{
       const a = state.assignments.find(x=>x.id===item.aid); if(!a) return;
       if(a.startDate && ds < a.startDate) return;
-      if(!getCheck(a,item.key).self) out.push({...item, carriedFrom:ds});
+      if(!isComplete(a, item.key, ds)) out.push({...item, carriedFrom:ds});
     });
   }
   return out;
@@ -303,6 +311,8 @@ function render(){
     const g = row.querySelector(".grade");
     if(chk.grade){
       g.innerHTML = `<span class="ok-badge">✓ 確認ずみ</span>`;
+    }else if(chk.self && (item.carriedFrom || item.date) >= GRADE_REQUIRED_FROM){
+      g.innerHTML = `<span class="wait-badge">おうちの人の<br>確認待ち</span>`;
     }
     list.appendChild(row);
   });
