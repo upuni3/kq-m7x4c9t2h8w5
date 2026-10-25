@@ -49,6 +49,7 @@
   .ok-badge{ display:inline-block; font-size:11px; font-weight:700; padding:5px 10px; border-radius:10px; background:var(--accent); color:#fff; white-space:nowrap; }
   .wait-badge{ display:inline-block; font-size:10.5px; font-weight:700; line-height:1.3; text-align:center; padding:4px 8px; border-radius:10px; background:var(--buffer-soft); color:var(--buffer); white-space:nowrap; }
   .grade .wait{ font-size:11px; color:var(--ink-soft); white-space:nowrap; }
+  .test-note{ font-size:12.5px; font-weight:700; color:#7a5a12; background:#fff6dc; border:1px solid #f1e1a6; border-radius:12px; padding:8px 10px; margin:4px 0 6px; }
   .empty{ color:var(--ink-soft); font-size:14px; text-align:center; padding:14px 0; }
   .help{ font-size:11.5px; color:var(--ink-soft); margin:0 0 4px; }
   .links{ display:flex; gap:10px; }
@@ -190,7 +191,7 @@ function carriedOverItems(upto){
   const out = [];
   for(let d=addDays(parseDate(upto),-CARRY_OVER_MAX_DAYS); d<parseDate(upto); d=addDays(d,1)){
     const ds = fmtDate(d);
-    if(isTestDay(ds)) continue;
+    if(isTestDay(ds) && ds < GRADE_REQUIRED_FROM) continue; // 10/26以降はテスト日の宿題も残して持ち越す
     scheduledItemsForDate(ds).forEach(item=>{
       const a = state.assignments.find(x=>x.id===item.aid); if(!a) return;
       if(a.startDate && ds < a.startDate) return;
@@ -275,14 +276,12 @@ function render(){
   list.innerHTML = "";
   if(!state){ setStats(null); return; }
 
-  if(isTestDay(t)){
-    list.innerHTML = `<div class="empty">きょうはテストの日。固定の宿題はお休みです 📝</div>`;
-    setStats([]);
-    return;
-  }
   const items = scheduledItemsForDate(t).concat(carriedForToday());
+  if(isTestDay(t)){
+    list.innerHTML = `<div class="test-note">📝 きょうはテストの日。できる分だけやって、のこりは明日以降でOK</div>`;
+  }
   if(items.length===0){
-    list.innerHTML = `<div class="empty">きょうの宿題はありません 🎉</div>`;
+    list.innerHTML += `<div class="empty">きょうの宿題はありません 🎉</div>`;
     setStats([]);
     return;
   }
