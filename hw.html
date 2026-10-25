@@ -46,6 +46,7 @@
   .chip.carry{ background:var(--buffer-soft); color:var(--buffer); }
   .grade{ flex:none; }
   .grade button{ appearance:none; font-family:inherit; font-size:11px; font-weight:700; padding:6px 10px; border-radius:10px; border:1px solid var(--accent); cursor:pointer; white-space:nowrap; }
+  .ok-badge{ display:inline-block; font-size:11px; font-weight:700; padding:5px 10px; border-radius:10px; background:var(--accent); color:#fff; white-space:nowrap; }
   .grade .wait{ font-size:11px; color:var(--ink-soft); white-space:nowrap; }
   .empty{ color:var(--ink-soft); font-size:14px; text-align:center; padding:14px 0; }
   .help{ font-size:11.5px; color:var(--ink-soft); margin:0 0 4px; }
@@ -298,13 +299,10 @@ function render(){
       </div>
       <div class="grade"></div>`;
     row.querySelector("input").onchange = e => saveCheck(item.aid, item.key, "self", e.target.checked);
+    // 保護者確認は親の画面（GAS版）からだけ行う。ここでは結果の印を見せるだけ。
     const g = row.querySelector(".grade");
     if(chk.grade){
-      g.appendChild(twoTapButton("✓ 確認ずみ", "もう一度で取消", "var(--warn)", true,
-        ()=>saveCheck(item.aid, item.key, "grade", false)));
-    }else if(chk.self){
-      g.appendChild(twoTapButton("保護者確認", "もう一度で確定", "var(--buffer)", false,
-        ()=>saveCheck(item.aid, item.key, "grade", true)));
+      g.innerHTML = `<span class="ok-badge">✓ 確認ずみ</span>`;
     }
     list.appendChild(row);
   });
