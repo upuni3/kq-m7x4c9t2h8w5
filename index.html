@@ -215,6 +215,9 @@
   .xfer .msg.err{ color:#a3281a; font-weight:700; }
   .xfer .msg.ok{ color:#1d6b3a; font-weight:700; }
   .xfer .confirm{ border:1px solid #e5a39b; background:#fff8f6; border-radius:12px; padding:10px 12px; margin:8px 0; line-height:1.7; color:var(--ink); }
+  .hw-link{ display:flex; align-items:center; gap:12px; text-decoration:none; color:#0c447c; background:#e6f1fb; border-radius:18px; padding:14px 18px; font-weight:900; font-size:16px; box-shadow:var(--shadow); }
+  .hw-link .emoji{ font-size:24px; }
+  .hw-link .chevron{ margin-left:auto; opacity:.6; font-size:20px; }
 </style>
 </head>
 <body>
@@ -224,6 +227,8 @@
     <div class="kicker">教科クイズ</div>
     <div class="title">きょうかクイズ 玄関</div>
   </header>
+
+  <a class="hw-link" href="./hw.html"><span class="emoji">📋</span><span>今日の宿題を見る</span><span class="chevron">›</span></a>
 
   <div class="card">
     <div class="section-label">今日のようす（3教科合計）</div>

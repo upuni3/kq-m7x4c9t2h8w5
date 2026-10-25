@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>今日の宿題</title>
+<style>
+  :root{
+    --bg:#f6f4ef; --paper:#ffffff; --ink:#2b2a27; --ink-soft:#6b6a66;
+    --line:#e3e0d8; --shadow:0 10px 24px -12px rgba(43,42,39,0.18);
+    --accent:#3f6f5e; --accent-soft:#e6efe9; --warn:#b4552f; --buffer:#c98a3f; --buffer-soft:#f5e6d3;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; }
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic",sans-serif;
+    line-height:1.55; padding:18px 16px 40px;
+  }
+  .wrap{ max-width:480px; margin:0 auto; display:flex; flex-direction:column; gap:14px; }
+  header{ display:flex; justify-content:space-between; align-items:flex-end; gap:8px; }
+  .kicker{ font-size:12px; letter-spacing:.08em; color:var(--ink-soft); font-weight:700; }
+  .title{ font-size:22px; font-weight:900; margin-top:2px; }
+  .lesson-tag{ display:inline-block; font-size:12px; font-weight:700; padding:2px 10px; border-radius:999px; background:var(--accent-soft); color:var(--accent); margin-left:6px; vertical-align:middle; }
+  .refresh{ appearance:none; border:1px solid var(--line); background:var(--paper); border-radius:12px; padding:8px 12px; font-family:inherit; font-size:13px; cursor:pointer; color:var(--ink); }
+  .sync{ font-size:12px; padding:2px 10px; border-radius:999px; background:var(--accent-soft); color:var(--accent); align-self:flex-start; }
+  .sync.err{ background:#fbe4e0; color:var(--warn); font-weight:700; }
+  .card{ background:var(--paper); border:1px solid var(--line); border-radius:20px; padding:16px 16px; box-shadow:var(--shadow); }
+  .section-label{ font-size:12px; font-weight:900; color:var(--ink-soft); letter-spacing:.04em; margin-bottom:8px; }
+  .progress{ display:flex; gap:10px; }
+  .stat{ flex:1; background:var(--bg); border:1px solid var(--line); border-radius:14px; padding:10px 8px; text-align:center; }
+  .stat .n{ font-size:20px; font-weight:900; font-variant-numeric:tabular-nums; }
+  .stat .l{ font-size:11px; color:var(--ink-soft); margin-top:2px; }
+  .task{ display:flex; align-items:flex-start; gap:10px; padding:12px 0; border-bottom:1px dashed var(--line); }
+  .task:last-child{ border-bottom:none; }
+  .task input[type=checkbox]{ width:24px; height:24px; flex:none; margin:2px 0 0; cursor:pointer; accent-color:var(--accent); }
+  .task .body{ flex:1; min-width:0; }
+  .task .name{ font-size:15px; font-weight:700; }
+  .task.done .name{ color:var(--ink-soft); text-decoration:line-through; }
+  .chips{ display:flex; flex-wrap:wrap; gap:5px; margin-top:4px; }
+  .chip{ font-size:11.5px; font-weight:700; padding:1px 8px; border-radius:999px; white-space:nowrap; }
+  .chip.subj{ }
+  .chip.kai{ background:#ede9fb; color:#4a3a8c; }
+  .chip.time{ background:var(--bg); color:var(--ink-soft); border:1px solid var(--line); }
+  .chip.carry{ background:var(--buffer-soft); color:var(--buffer); }
+  .grade{ flex:none; }
+  .grade button{ appearance:none; font-family:inherit; font-size:11px; font-weight:700; padding:6px 10px; border-radius:10px; border:1px solid var(--accent); cursor:pointer; white-space:nowrap; }
+  .grade .wait{ font-size:11px; color:var(--ink-soft); white-space:nowrap; }
+  .empty{ color:var(--ink-soft); font-size:14px; text-align:center; padding:14px 0; }
+  .help{ font-size:11.5px; color:var(--ink-soft); margin:0 0 4px; }
+  .links{ display:flex; gap:10px; }
+  .links a{ flex:1; text-align:center; text-decoration:none; font-weight:900; font-size:14px; border-radius:16px; padding:14px 10px; background:var(--ink); color:#fff; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="kicker">しゅくだい</div>
+      <div class="title" id="title">今日の宿題</div>
+    </div>
+    <button class="refresh" id="refreshBtn" type="button">🔄 更新</button>
+  </header>
+  <span class="sync" id="sync">読み込み中…</span>
+
+  <div class="card">
+    <div class="progress">
+      <div class="stat"><div class="n" id="nLeft">–</div><div class="l">のこり</div></div>
+      <div class="stat"><div class="n" id="nDone">–</div><div class="l">おわった</div></div>
+      <div class="stat"><div class="n" id="nMin">–</div><div class="l">のこりの目安</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-label">やること</div>
+    <p class="help">おわったら左の□をタップ。「第◯回」はその回の復習という意味だよ。</p>
+    <div id="list"></div>
+  </div>
+
+  <div class="links"><a href="./index.html">📚 クイズへ</a></div>
+</div>
+
+<script>
+// ===== 設定 =====
+// 宿題データは Supabase の hw_state（id='main'）。親用画面（GAS版）と同じデータを読み書きする。
+// anonキーはRLSで「id='main' の SELECT/UPDATE のみ」に制限済み。
+const SUPABASE_URL = "https://lzyrjjkcmhncwxsaqpqu.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6eXJqamtjbWhuY3d4c2FxcHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0OTk3NTAsImV4cCI6MjEwMTA3NTc1MH0.FmwKa4WZvJ_j3LKBl2iJThXZxRNAjeqWDurgqwZNnO8";
+// 注意: URLに &t=... を付けるとPostgRESTが列フィルタ扱いしてエラーになるので付けない（cache:no-storeで十分）
+const STATE_URL = SUPABASE_URL + "/rest/v1/hw_state?id=eq.main";
+const HEADERS = { "apikey": SUPABASE_ANON_KEY, "Authorization": "Bearer " + SUPABASE_ANON_KEY };
+
+// テスト日（親用画面と同じ表）。この日は固定の宿題を出さない。
+const TEST_DATES = ["2026-09-12","2026-09-26","2026-10-04","2026-10-17","2026-10-31","2026-11-08",
+  "2026-11-21","2026-12-05","2026-12-13","2027-01-16","2027-01-24"];
+
+// 「第n回」：水＝算数・理科、金＝国語・社会の授業回。2026-09-25(金)＝第5回が基準。
+// 休講・振替で回がズレたら「日付: 回数」を追記（親用画面の LESSON_OVERRIDES と同じ内容にする）。
+const LESSON_ANCHOR_FRI = "2026-09-25";
+const LESSON_ANCHOR_NUM = 5;
+const LESSON_OVERRIDES = {
+  // 例："2026-10-02": 7,
+};
+// 教科 → その教科の授業がある曜日（3=水, 5=金）
+const LESSON_WEEKDAY = { "算数":3, "理科":3, "国語":5, "社会":5 };
+
+const SUBJECT_COLORS = [
+  { key:"算数", bg:"#e6f1fb", text:"#0c447c" },
+  { key:"社会", bg:"#eaf3de", text:"#27500a" },
+  { key:"理科", bg:"#faeeda", text:"#633806" },
+  { key:"国語", bg:"#fcebeb", text:"#791f1f" }
+];
+const WD = ["日","月","火","水","木","金","土"];
+const CARRY_OVER_MAX_DAYS = 365;
+
+// ===== 日付 =====
+function fmtDate(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function parseDate(s){ const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); }
+function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function todayStr(){ return fmtDate(new Date()); }
+
+function lessonNumberForDate(ds){
+  if(LESSON_OVERRIDES[ds] !== undefined) return LESSON_OVERRIDES[ds];
+  const d = parseDate(ds), wd = d.getDay();
+  if(wd!==3 && wd!==5) return null;
+  const fri = wd===3 ? addDays(d,-5) : d;
+  const diff = Math.round((fri - parseDate(LESSON_ANCHOR_FRI))/86400000);
+  if(diff % 7 !== 0) return null;
+  return LESSON_ANCHOR_NUM + diff/7;
+}
+function lessonLabelForDate(ds){
+  const n = lessonNumberForDate(ds); if(!n) return "";
+  const wd = parseDate(ds).getDay();
+  return "第"+n+"回"+(wd===3?"算理":"国社");
+}
+// 週1回の宿題が「何回の復習か」：その日（含む）以前で直近の、その教科の授業日の回
+function reviewLessonFor(subject, ds){
+  const key = Object.keys(LESSON_WEEKDAY).find(k => (subject||"").includes(k));
+  if(!key) return null;
+  const target = LESSON_WEEKDAY[key];
+  let d = parseDate(ds);
+  for(let i=0;i<7;i++){
+    if(d.getDay()===target){
+      const lds = fmtDate(d);
+      if(state.noLessonDays && state.noLessonDays[lds]) return null;
+      return lessonNumberForDate(lds);
+    }
+    d = addDays(d,-1);
+  }
+  return null;
+}
+
+// ===== データ =====
+let state = null;
+function getCheck(a,key){
+  const v = (a.checks||{})[key];
+  if(v && typeof v==="object") return {self:!!v.self, grade:!!v.grade, fix:!!v.fix};
+  return {self:!!v, grade:false, fix:false};
+}
+function isTestDay(ds){ return TEST_DATES.includes(ds) || !!(state.testDays||{})[ds]; }
+
+function scheduledItemsForDate(ds){
+  const wd = parseDate(ds).getDay();
+  const noLesson = !!(state.noLessonDays||{})[ds];
+  const out = [];
+  (state.assignments||[]).forEach(a=>{
+    if(a.mode!=="checklist") return;
+    (a.checklistItems||[]).forEach((it,idx)=>{
+      const sch = it.schedule; if(!sch) return;
+      if(noLesson && sch.type==="weekly") return;
+      const hit = sch.type==="daily" ? (sch.days||[]).includes(wd) : (sch.type==="weekly" && sch.day===wd);
+      if(!hit) return;
+      out.push({ aid:a.id, subject:a.subject, label:it.label, est:it.estMinutes, schType:sch.type,
+                 key:`${a.id}__chk${idx}__${ds}`, date:ds });
+    });
+  });
+  return out;
+}
+function carriedOverItems(upto){
+  const out = [];
+  for(let d=addDays(parseDate(upto),-CARRY_OVER_MAX_DAYS); d<parseDate(upto); d=addDays(d,1)){
+    const ds = fmtDate(d);
+    if(isTestDay(ds)) continue;
+    scheduledItemsForDate(ds).forEach(item=>{
+      const a = state.assignments.find(x=>x.id===item.aid); if(!a) return;
+      if(a.startDate && ds < a.startDate) return;
+      if(!getCheck(a,item.key).self) out.push({...item, carriedFrom:ds});
+    });
+  }
+  return out;
+}
+// 持ち越しはその日最初に表示した一覧を保持（チェックしても一覧から消えないように。親用画面と同じ挙動）
+let carryCacheDate = null, carryCache = [];
+function carriedForToday(){
+  const t = todayStr();
+  if(carryCacheDate!==t){ carryCacheDate=t; carryCache=carriedOverItems(t); }
+  return carryCache;
+}
+
+function setSync(text, err){
+  const el = document.getElementById("sync");
+  el.textContent = text; el.className = "sync" + (err?" err":"");
+}
+async function fetchState(){
+  const res = await fetch(STATE_URL + "&select=state", {cache:"no-store", headers:HEADERS});
+  if(!res.ok) throw new Error("load " + res.status);
+  const rows = await res.json();
+  if(!rows || !rows[0] || !rows[0].state) throw new Error("empty");
+  return rows[0].state;
+}
+async function load(resetCarry){
+  setSync("読み込み中…");
+  try{
+    state = await fetchState();
+    if(resetCarry) carryCacheDate = null;
+    setSync("最新です");
+  }catch(e){
+    console.error(e);
+    setSync("⚠️ 読み込めませんでした（電波を確認して🔄）", true);
+  }
+  render();
+}
+// 保存：最新を取り直し、変えた1か所だけ反映して書き戻す（親が別の端末で編集していても上書きしない）
+let saving = Promise.resolve();
+function saveCheck(aid, key, stage, value){
+  // 画面はすぐ反映
+  const a0 = state.assignments.find(x=>x.id===aid);
+  if(a0){ const c=getCheck(a0,key); c[stage]=value; a0.checks=a0.checks||{}; a0.checks[key]=c; }
+  render();
+  saving = saving.then(async ()=>{
+    setSync("保存中…");
+    try{
+      const latest = await fetchState();
+      const a = (latest.assignments||[]).find(x=>x.id===aid);
+      if(!a) throw new Error("assignment not found");
+      const c = getCheck(a,key); c[stage]=value; a.checks=a.checks||{}; a.checks[key]=c;
+      const res = await fetch(STATE_URL, {
+        method:"PATCH",
+        headers:Object.assign({}, HEADERS, {"Content-Type":"application/json","Prefer":"return=minimal"}),
+        body: JSON.stringify({state: latest})
+      });
+      if(!res.ok) throw new Error("save " + res.status);
+      state = latest;
+      setSync("保存しました");
+    }catch(e){
+      console.error(e);
+      setSync("⚠️ 保存できませんでした（電波を確認してもう一度）", true);
+    }
+    render();
+  });
+}
+
+// ===== 表示 =====
+function esc(s){ return String(s??"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function colorOf(subj){ return SUBJECT_COLORS.find(c=>(subj||"").includes(c.key)) || {bg:"#e6efe9", text:"#3f6f5e"}; }
+function minutesOf(est){ const m = String(est||"").match(/(\d+)\s*分/); return m ? Number(m[1]) : 0; }
+
+function render(){
+  const t = todayStr(), d = parseDate(t);
+  const ll = lessonLabelForDate(t);
+  document.getElementById("title").innerHTML =
+    `今日の宿題 <span style="font-size:15px;">${d.getMonth()+1}/${d.getDate()}（${WD[d.getDay()]}）</span>` +
+    (ll ? `<span class="lesson-tag">${ll}</span>` : "");
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+  if(!state){ setStats(null); return; }
+
+  if(isTestDay(t)){
+    list.innerHTML = `<div class="empty">きょうはテストの日。固定の宿題はお休みです 📝</div>`;
+    setStats([]);
+    return;
+  }
+  const items = scheduledItemsForDate(t).concat(carriedForToday());
+  if(items.length===0){
+    list.innerHTML = `<div class="empty">きょうの宿題はありません 🎉</div>`;
+    setStats([]);
+    return;
+  }
+  items.forEach(item=>{
+    const a = state.assignments.find(x=>x.id===item.aid); if(!a) return;
+    const chk = getCheck(a,item.key);
+    const col = colorOf(item.subject);
+    const kai = item.schType==="weekly" ? reviewLessonFor(item.subject, item.carriedFrom || item.date) : null;
+    const row = document.createElement("div");
+    row.className = "task" + (chk.self ? " done" : "");
+    const cf = item.carriedFrom ? parseDate(item.carriedFrom) : null;
+    row.innerHTML = `
+      <input type="checkbox" ${chk.self?"checked":""} aria-label="おわった">
+      <div class="body">
+        <div class="name">${esc(item.label)}</div>
+        <div class="chips">
+          <span class="chip subj" style="background:${col.bg};color:${col.text}">${esc(item.subject)}</span>
+          ${kai ? `<span class="chip kai">第${kai}回</span>` : ""}
+          ${item.est ? `<span class="chip time">${esc(item.est)}</span>` : ""}
+          ${cf ? `<span class="chip carry">持ち越し（${cf.getMonth()+1}/${cf.getDate()}の分）</span>` : ""}
+        </div>
+      </div>
+      <div class="grade"></div>`;
+    row.querySelector("input").onchange = e => saveCheck(item.aid, item.key, "self", e.target.checked);
+    const g = row.querySelector(".grade");
+    if(chk.grade){
+      g.appendChild(twoTapButton("✓ 確認ずみ", "もう一度で取消", "var(--warn)", true,
+        ()=>saveCheck(item.aid, item.key, "grade", false)));
+    }else if(chk.self){
+      g.appendChild(twoTapButton("保護者確認", "もう一度で確定", "var(--buffer)", false,
+        ()=>saveCheck(item.aid, item.key, "grade", true)));
+    }
+    list.appendChild(row);
+  });
+  setStats(items);
+}
+// 誤タップ防止：1回目で色が変わり、4秒以内にもう一度タップで確定
+function twoTapButton(text, armedText, armedBg, filled, onConfirm){
+  const b = document.createElement("button");
+  b.type = "button";
+  const normal = ()=>{ b.textContent=text; b.style.background=filled?"var(--accent)":"#fff"; b.style.color=filled?"#fff":"var(--accent)"; b.style.borderColor="var(--accent)"; };
+  normal();
+  let armed=false, timer=null;
+  b.onclick = ()=>{
+    if(!armed){ armed=true; b.textContent=armedText; b.style.background=armedBg; b.style.borderColor=armedBg; b.style.color="#fff";
+      timer=setTimeout(()=>{armed=false; normal();},4000); return; }
+    clearTimeout(timer); onConfirm();
+  };
+  return b;
+}
+function setStats(items){
+  const nL=document.getElementById("nLeft"), nD=document.getElementById("nDone"), nM=document.getElementById("nMin");
+  if(!items){ nL.textContent=nD.textContent=nM.textContent="–"; return; }
+  let left=0, done=0, mins=0;
+  items.forEach(it=>{
+    const a = state.assignments.find(x=>x.id===it.aid); if(!a) return;
+    if(getCheck(a,it.key).self) done++; else { left++; mins += minutesOf(it.est); }
+  });
+  nL.textContent = left+"こ"; nD.textContent = done+"こ"; nM.textContent = mins+"分";
+}
+
+document.getElementById("refreshBtn").onclick = ()=>load(true);
+document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible") load(true); });
+load(true);
+</script>
+</body>
+</html>
