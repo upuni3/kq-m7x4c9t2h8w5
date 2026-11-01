@@ -227,7 +227,7 @@ async function load(resetCarry){
     setSync("最新です");
   }catch(e){
     console.error(e);
-    setSync("⚠️ 読み込めませんでした（電波を確認して🔄）", true);
+    setSync(navigator.onLine === false ? "ネットにつながったら見られます（宿題はネットが必要です）" : "⚠️ 読み込めませんでした（電波を確認して🔄）", true);
   }
   render();
 }
@@ -345,6 +345,18 @@ function setStats(items){
 document.getElementById("refreshBtn").onclick = ()=>load(true);
 document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible") load(true); });
 load(true);
+</script>
+<script>
+/* オフライン対応：Service Worker の登録（クイズのページを端末に保存する。宿題データ自体はネットが必要） */
+(function(){
+  try{
+    if(!("serviceWorker" in navigator) || !window.isSecureContext) return;
+    var reg = function(){ try{ navigator.serviceWorker.register("sw.js").catch(function(){}); }catch(e){} };
+    if(document.readyState === "complete") reg(); else window.addEventListener("load", reg);
+  }catch(e){}
+})();
+// ネットにつながりなおしたら宿題を読み直す
+window.addEventListener("online", function(){ try{ load(true); }catch(e){} });
 </script>
 </body>
 </html>

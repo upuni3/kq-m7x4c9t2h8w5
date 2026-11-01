@@ -361,6 +361,44 @@
   }
   function writeAcked(d, sig) {
     try { var o = readAcked(); o[d] = sig; global.sessionStorage.setItem(ACK_KEY, JSON.stringify(o)); } catch (e) {}
+    writeSentLocal(d, sig);
+  }
+
+  // [オフライン対応] 「送信ずみ」の内容を localStorage にも残す（タブを閉じても「未送信があるか」を判定できるように）。
+  // 再送の判断は従来どおり sessionStorage(ACK_KEY) で行い、こちらは表示用。
+  // kq- で始まらないキー（kqsync-）なので「きろくを書き出す」(transfer.js) には含まれない。
+  var SENT_KEY = "kqsync-sent-v1";
+  function readSentLocal() {
+    try { var o = JSON.parse(localStorage.getItem(SENT_KEY) || "{}"); return o && typeof o === "object" ? o : {}; } catch (e) { return {}; }
+  }
+  function writeSentLocal(d, sig) {
+    try {
+      var o = readSentLocal(), now = new Date(), keep = {}, i;
+      for (i = 0; i < RESEND_DAYS + 7; i++) keep[dateKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() - i))] = 1;
+      Object.keys(o).forEach(function (k) { if (!keep[k]) delete o[k]; });   // 古い日付は捨てる
+      o[d] = sig;
+      localStorage.setItem(SENT_KEY, JSON.stringify(o));
+    } catch (e) {}
+  }
+  /** 直近 RESEND_DAYS 日のうち、まだサーバに届いた記録がない（または送信後に増えた）日付の一覧 */
+  function unsentDays() {
+    var now = new Date(), sent = readSentLocal(), out = [];
+    for (var i = 0; i < RESEND_DAYS; i++) {
+      var k = dateKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() - i)), pl = payloadFor(k);
+      if (pl && sent[k] !== JSON.stringify(pl)) out.push(k);
+    }
+    return out.sort();
+  }
+
+  // 送信の一区切り（送るものが無くなった／失敗して止まった）ごとに呼ぶ。画面の表示更新用。
+  var doneWaiters = [];
+  function syncFinished() {
+    var ws = doneWaiters; doneWaiters = [];
+    var st = { sent: syncState.sent, failed: syncState.failed, lastError: syncState.lastError, pending: Object.keys(dirty).sort(), unsent: unsentDays() };
+    ws.forEach(function (fn) { try { fn(st); } catch (e) {} });
+    try {
+      if (typeof global.CustomEvent === "function" && global.dispatchEvent) global.dispatchEvent(new global.CustomEvent("kqsync", { detail: st }));
+    } catch (e) {}
   }
 
   var dirty = {};          // dateKey -> 版番号（未送信または送信失敗。送信中に更新されたら版が進む）
@@ -373,16 +411,17 @@
 
   function flushNow() {
     var run = getRunner();
-    if (!run) return;
+    if (!run) { syncFinished(); return; }
     if (flushing) { again = true; return; }
     var dates = Object.keys(dirty).sort();
-    if (!dates.length) return;
+    if (!dates.length) { syncFinished(); return; }
     flushing = true;
     var i = 0;
     (function next() {
       if (i >= dates.length) {
         flushing = false;
         if (again) { again = false; flushNow(); }
+        else syncFinished();
         return;
       }
       var d = dates[i++];
@@ -390,7 +429,7 @@
       var payload = payloadFor(d);
       if (!payload) { delete dirty[d]; return next(); }
       var r = getRunner();
-      if (!r) { flushing = false; return; }
+      if (!r) { flushing = false; syncFinished(); return; }
       try {
         r.withSuccessHandler(function (res) {
           if (res && res.ok === false) { syncState.failed++; syncState.lastError = res.error || "rejected"; }
@@ -403,6 +442,7 @@
       } catch (e) {
         syncState.failed++; syncState.lastError = String(e);
         flushing = false;
+        syncFinished();
       }
     })();
   }
@@ -422,6 +462,7 @@
       var d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
       var k = dateKey(d), pl = payloadFor(k);
       if (pl && (force || acked[k] !== JSON.stringify(pl))) markDirty(k);
+      else if (pl && readSentLocal()[k] !== acked[k]) writeSentLocal(k, acked[k]);   // このタブで送信ずみ → 表示用にも記録
     }
     flushNow();
   }
@@ -436,6 +477,8 @@
       if (global.document.visibilityState === "hidden") onLeave();
     });
     global.setTimeout(function () { resendRecent(false); }, 800);
+    // [オフライン対応] ネットにつながりなおしたら、まだ届いていない分を送る
+    global.addEventListener("online", function () { resendRecent(false); });
   } catch (e) {}
 
   /** localStorage から stats を読み直す（きろくをよみこんだ直後に使う） */
@@ -466,7 +509,29 @@
     DEVICE_KEY: DEVICE_KEY,
     reload: reload,
     storageMode: function () { return global.__KQ_STORAGE_MODE; },
-    syncNow: function () { if (syncTimer) { global.clearTimeout(syncTimer); syncTimer = null; } resendRecent(true); },
-    syncState: function () { return { sent: syncState.sent, failed: syncState.failed, lastError: syncState.lastError, pending: Object.keys(dirty).sort() }; }
+    // syncNow(cb): cb は送信が一区切りしたときに syncState() と同じ形（+unsent）で呼ばれる（省略可）
+    syncNow: function (cb) { if (typeof cb === "function") doneWaiters.push(cb); if (syncTimer) { global.clearTimeout(syncTimer); syncTimer = null; } resendRecent(true); },
+    syncState: function () { return { sent: syncState.sent, failed: syncState.failed, lastError: syncState.lastError, pending: Object.keys(dirty).sort(), unsent: unsentDays() }; },
+    unsentDays: unsentDays,
+    hasUnsent: function () { return unsentDays().length > 0; },
+    canSync: function () { return !!getRunner(); }
   };
+})(window);
+
+/* ============================================================
+   [オフライン対応] Service Worker の登録（静的サイト版のみ）
+   sw.js がアプリのファイルを端末に保存し、ネットが無くても開けるようにする。
+   ============================================================ */
+(function (global) {
+  "use strict";
+  try {
+    if (!global.KQ_STATIC) return;
+    var nav = global.navigator;
+    if (!nav || !("serviceWorker" in nav) || !global.isSecureContext) return;
+    var reg = function () {
+      try { nav.serviceWorker.register("sw.js").catch(function () {}); } catch (e) {}
+    };
+    if (global.document && global.document.readyState === "complete") reg();
+    else global.addEventListener("load", reg);
+  } catch (e) {}
 })(window);
