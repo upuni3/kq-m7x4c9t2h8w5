@@ -23,7 +23,7 @@
   var JSON_KEYS = {                    // 値がJSONであるべき既知のキー
     "kq-hub-v1-stats": 1, "kq-hub-v2-stickers-seen": 1, "kq-hub-v3-legacy": 1, "kq-hub-v4-frozen": 1,
     "kq-rika-weak-summary-v1": 1, "kq-shakai-weak-summary-v1": 1, "kq-kokugo-weak-summary-v1": 1,
-    "kq-shakai-region-play-v1": 1
+    "kq-shakai-region-play-v1": 1, "kq-hub-v1-boss": 1
   };
 
   function fnv(s) {

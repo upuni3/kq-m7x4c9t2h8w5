@@ -1937,12 +1937,45 @@ var quizIndex = 0;
 var quizResults = []; // {q, correct, userAnswer}
 var currentChoices = [];
 
+/* ---- ボス（にがて退治）: ?start=weak&rounds=11,12&boss=1 で開始。HPバーは common.js の KQBoss ---- */
+var bossCtx = null;   // { rounds, keys, hud }
+function bossIndex(){
+  var m = {};
+  if(!SR) return m;
+  SR.table.forEach(function(e){
+    if(e.mix) return;   // まとめ回（総合回）はボスなし
+    var list = [];
+    (e.units || []).forEach(function(id){
+      var r = regionById(id);
+      if(r) r.questions.forEach(function(q){ list.push(r.id + ":" + q.id); });
+    });
+    m[e.round] = list;
+  });
+  return m;
+}
+function startBoss(rounds){
+  endBoss();
+  if(!window.KQBoss) return;
+  var keys = KQBoss.keysFor(SUBJECT, rounds);
+  if(!keys || !keys.length) return;
+  bossCtx = { rounds:rounds, keys:keys, hud:null };
+  bossCtx.hud = KQBoss.mountBattle(screenQuiz, SUBJECT, rounds, keys);
+}
+function endBoss(){
+  if(bossCtx && bossCtx.hud) bossCtx.hud.remove();
+  bossCtx = null;
+}
+var retry = KQRetry.create();   // まちがえた問題の出し直し（2・3しゅうめは記録しない）
+
 function beginQuiz(){
   var regionId = currentRegion.id;
+  if(!useWeakOnly) endBoss();
   if(useWeakOnly){
     var basePool = currentRegion.questions.slice();
     var n0 = Math.min(10, basePool.length);
-    quizQueue = KQHub.weightedSample(basePool, function(q){ return fullKey(ridOf(q, regionId), q.id); }, n0);
+    var kf = function(q){ return fullKey(ridOf(q, regionId), q.id); };
+    quizQueue = bossCtx ? KQBoss.pickBattle(basePool, kf, n0) : KQHub.weightedSample(basePool, kf, n0);
+    retry.start(quizQueue);
     quizIndex = 0;
     quizResults = [];
     screenHome.hidden = true;
@@ -1955,6 +1988,7 @@ function beginQuiz(){
   if(pool.length===0) pool = currentRegion.questions.slice();
   var n = Math.min(10, pool.length);
   quizQueue = pickN(pool, n);
+  retry.start(quizQueue);
   quizIndex = 0;
   quizResults = [];
   screenHome.hidden = true;
@@ -1968,6 +2002,7 @@ function renderQuestion(){
   progressNum.textContent = (quizIndex+1)+"/"+quizQueue.length;
   progressFill.style.width = ((quizIndex)/quizQueue.length*100)+"%";
   qCatTag.textContent = CATS[q.cat];
+  KQRetry.tag(qCatTag, retry.passAt(quizIndex));
   qText.textContent = q.q;
 
   answerPanel.hidden = true;
@@ -2046,15 +2081,21 @@ function showAnswer(correct){
 }
 
 function finishQuestion(q, correct, userAnswer){
-  recordAnswer(ridOf(q, currentRegion.id), q.id, correct);
-  quizResults.push({ q:q, correct:correct, userAnswer:userAnswer||"" });
+  // 記録（地方ごとの数もふくむ）・ふりかえり・ボスHPは1しゅうめだけ（2・3しゅうめの「もう一回」は数えない）
+  if(retry.counts(quizIndex)){
+    recordAnswer(ridOf(q, currentRegion.id), q.id, correct);
+    quizResults.push({ q:q, correct:correct, userAnswer:userAnswer||"" });
+    if(bossCtx && bossCtx.hud) bossCtx.hud.update();
+  }
+  retry.mark(quizIndex, correct);
   progressFill.style.width = ((quizIndex+1)/quizQueue.length*100)+"%";
   nextBtn.hidden = false;
 }
 
 nextBtn.addEventListener("click", function(){
   quizIndex++;
-  if(quizIndex >= quizQueue.length){
+  // さいごまで来たら、まちがえた問題をもう一回（最大3しゅうめまで）
+  if(quizIndex >= quizQueue.length && !retry.extend(quizQueue)){
     showResult();
   } else {
     renderQuestion();
@@ -2062,6 +2103,7 @@ nextBtn.addEventListener("click", function(){
 });
 
 quitBtn.addEventListener("click", function(){
+  endBoss();
   screenQuiz.hidden = true;
   screenHome.hidden = false;
   refreshRegionStats();
@@ -2076,6 +2118,7 @@ function showResult(){
 
   var correctCount = quizResults.filter(function(r){return r.correct;}).length;
   resultScore.textContent = correctCount;
+  if(resultScore.nextElementSibling) resultScore.nextElementSibling.textContent = "/"+quizResults.length+"問 正解";
 
   var msgs;
   if(correctCount===quizResults.length) msgs = "パーフェクト！すごい！🎉";
@@ -2083,6 +2126,7 @@ function showResult(){
   else if(correctCount>=quizResults.length*0.4) msgs = "もう少し！にがてを復習しよう";
   else msgs = "だいじょうぶ、くり返せば覚えるよ";
   resultMsg.textContent = msgs;
+  KQRetry.summary(resultMsg, retry.recovered());
 
   reviewList.innerHTML = "";
   quizResults.forEach(function(r){
@@ -2101,10 +2145,11 @@ function showResult(){
 }
 
 retryBtn.addEventListener("click", function(){
-  useWeakOnly = false;
+  useWeakOnly = !!bossCtx;   // ボスせんのあとは、もう一度ボスせん
   beginQuiz();
 });
 homeBtn.addEventListener("click", function(){
+  endBoss();
   screenResult.hidden = true;
   screenHome.hidden = false;
   refreshRegionStats();
@@ -2117,6 +2162,7 @@ renderRegionGrid();
 renderRoundGrid();
 applySelectView();
 refreshGlobalStats();
+try{ if(window.KQBoss) KQBoss.registerIndex(SUBJECT, bossIndex()); }catch(e){}
 
 // 玄関からの「今日のおすすめ」ワンタップ起動
 // ?start=weak&region=chubu のように渡された場合、その地方を選んで即にがて特訓を開始する
@@ -2137,9 +2183,11 @@ refreshGlobalStats();
     }
     if(!region || !region.questions.length) return;
     selectRegion(region);
+    var br = window.KQBoss ? KQBoss.battleParam() : null;
+    if(br) startBoss(br);
     useWeakOnly = true;
     beginQuiz();
-  }catch(e){}
+  }catch(e){ if(window.console) console.error(e); }
 })();
 
 })();

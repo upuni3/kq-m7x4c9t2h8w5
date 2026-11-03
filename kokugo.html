@@ -1337,9 +1337,40 @@ selectNoneBtn.addEventListener("click", function(){
   onMultiSelectionChange();
 });
 
+/* ---- ボス（にがて退治）: ?start=weak&rounds=11,12&boss=1 で開始。HPバーは common.js の KQBoss ----
+   回の対応は各単元の round（「第１回」「第11回」…。全角数字も読む）。UNITS に round が無い単元はボスに入れない。 */
+var bossCtx = null;   // { rounds, keys, hud }
+function unitRound(u){
+  var t = String(u.round || "").replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); });
+  var m = /第\s*(\d+)\s*回/.exec(t);
+  return m ? Number(m[1]) : 0;
+}
+function bossIndex(){
+  var m = {};
+  UNITS.forEach(function(u){
+    var r = unitRound(u); if(!r) return;
+    m[r] = (m[r] || []).concat(u.questions.map(function(q){ return q.id; }));
+  });
+  return m;
+}
+function startBoss(rounds){
+  endBoss();
+  if(!window.KQBoss) return;
+  var keys = KQBoss.keysFor(SUBJECT, rounds);
+  if(!keys || !keys.length) return;
+  bossCtx = { rounds:rounds, keys:keys, hud:null };
+  bossCtx.hud = KQBoss.mountBattle(screenQuiz, SUBJECT, rounds, keys);
+}
+function endBoss(){
+  if(bossCtx && bossCtx.hud) bossCtx.hud.remove();
+  bossCtx = null;
+}
+var retry = KQRetry.create();   // まちがえた問題の出し直し（2・3しゅうめは記録しない）
+
 function beginMixedQuiz(weakOnly){
   var ids = getSelectedUnitIds();
   if(ids.length===0) return;
+  if(!weakOnly) endBoss();
   var basePool = getSelectedPool();
   lastWeakOnly = !!weakOnly;
   useWeakOnly = !!weakOnly;
@@ -1348,7 +1379,9 @@ function beginMixedQuiz(weakOnly){
   var n = Math.min(10, basePool.length);
   if(weakOnly){
     // にがて特訓：スコアが低い問題ほど出やすい重み付き抽選（ゼロにはしない）
-    quizQueue = KQHub.weightedSample(basePool, function(q){ return fullKey(q.id); }, n);
+    quizQueue = bossCtx
+      ? KQBoss.pickBattle(basePool, function(q){ return fullKey(q.id); }, n)
+      : KQHub.weightedSample(basePool, function(q){ return fullKey(q.id); }, n);
   } else {
     var pool = (ids.length===1 && multiActiveCats.length)
       ? basePool.filter(function(q){ return multiActiveCats.indexOf(q.cat)>=0; })
@@ -1358,6 +1391,7 @@ function beginMixedQuiz(weakOnly){
     quizQueue = pickN(pool, n);
   }
   if(quizQueue.length===0) return;
+  retry.start(quizQueue);
   quizIndex = 0;
   quizResults = [];
   screenUnits.hidden = true;
@@ -1432,6 +1466,7 @@ function renderQuestion(){
   progressNum.textContent = (quizIndex+1)+"/"+quizQueue.length;
   progressFill.style.width = ((quizIndex)/quizQueue.length*100)+"%";
   qCatTag.textContent = q.__catLabel || currentUnit.cats[q.cat];
+  KQRetry.tag(qCatTag, retry.passAt(quizIndex));
   qText.innerHTML = String(q.q).replace(/\n/g, "<br>");
 
   answerPanel.hidden = true;
@@ -1518,14 +1553,20 @@ function showAnswer(q, correct, userVal, showUser){
 }
 
 function finishQuestion(q, correct, userAnswer){
-  recordAnswer(q.__unitId || currentUnit.id, q.id, correct);
-  quizResults.push({ q:q, correct:correct, userAnswer:userAnswer||"" });
+  // 記録・ふりかえり・ボスHPは1しゅうめだけ（2・3しゅうめの「もう一回」は数えない）
+  if(retry.counts(quizIndex)){
+    recordAnswer(q.__unitId || currentUnit.id, q.id, correct);
+    quizResults.push({ q:q, correct:correct, userAnswer:userAnswer||"" });
+    if(bossCtx && bossCtx.hud) bossCtx.hud.update();
+  }
+  retry.mark(quizIndex, correct);
   progressFill.style.width = ((quizIndex+1)/quizQueue.length*100)+"%";
 }
 
 function advance(){
   quizIndex++;
-  if(quizIndex >= quizQueue.length){
+  // さいごまで来たら、まちがえた問題をもう一回（最大3しゅうめまで）
+  if(quizIndex >= quizQueue.length && !retry.extend(quizQueue)){
     showResult();
   } else {
     renderQuestion();
@@ -1533,6 +1574,7 @@ function advance(){
 }
 
 quitBtn.addEventListener("click", function(){
+  endBoss();
   screenQuiz.hidden = true;
   screenUnits.hidden = false;
   renderUnitList();
@@ -1557,6 +1599,7 @@ function showResult(){
   else if(correctCount>=quizResults.length*0.4) msgs = "もう少し！にがてを復習しよう";
   else msgs = "だいじょうぶ、くり返せば覚えるよ";
   resultMsg.textContent = msgs;
+  KQRetry.summary(resultMsg, retry.recovered());
 
   reviewList.innerHTML = "";
   quizResults.forEach(function(r){
@@ -1581,6 +1624,7 @@ retryBtn.addEventListener("click", function(){
   beginMixedQuiz(lastWeakOnly);
 });
 homeBtn.addEventListener("click", function(){
+  endBoss();
   screenResult.hidden = true;
   screenUnits.hidden = false;
   renderUnitList();
@@ -1594,6 +1638,7 @@ homeBtn.addEventListener("click", function(){
 renderUnitList();
 onMultiSelectionChange();
 refreshGlobalStats();
+try{ if(window.KQBoss) KQBoss.registerIndex(SUBJECT, bossIndex()); }catch(e){}
 
 // 玄関からの「今日のおすすめ」ワンタップ起動
 // ?start=weak&units=wago1,kanyoku1 のように渡された場合、その回を選んで即にがて特訓を開始する
@@ -1602,7 +1647,15 @@ refreshGlobalStats();
     var params = { get: function(n){ return KQHub.getParam(n); } };
     if(params.get("start") !== "weak") return;
     var unitsParam = params.get("units");
-    var ids = unitsParam ? unitsParam.split(",") : UNITS.map(function(u){ return u.id; });
+    var roundsParam = params.get("rounds");
+    var ids;
+    if(roundsParam){
+      // ?start=weak&rounds=6,7 : 予習シリーズの回で選ぶ（ボスせんは &boss=1）
+      var nums = roundsParam.split(",").map(Number);
+      ids = UNITS.filter(function(u){ return nums.indexOf(unitRound(u)) >= 0; }).map(function(u){ return u.id; });
+    }else{
+      ids = unitsParam ? unitsParam.split(",") : UNITS.map(function(u){ return u.id; });
+    }
     var found = false;
     UNITS.forEach(function(u){
       var on = ids.indexOf(u.id) >= 0;
@@ -1612,8 +1665,10 @@ refreshGlobalStats();
     if(!found) return;
     renderUnitList();
     onMultiSelectionChange();
+    var br = window.KQBoss ? KQBoss.battleParam() : null;
+    if(br) startBoss(br);
     beginMixedQuiz(true);
-  }catch(e){}
+  }catch(e){ if(window.console) console.error(e); }
 })();
 
 })();

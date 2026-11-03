@@ -125,10 +125,13 @@
    * opts.legacy: {subject: L}（旧ロジックで獲得済みの枚数。省略時は 0＝全て新ロジック。Infinity なら全て旧順列）
    * opts.frozen: {subject: F}（乱数修正前の旧(v3)抽選で獲得済みの枚数。n<F の分は v3 のまま、以降は v4）。省略時は 0＝全て v4
    * opts.salt: テスト用のシード追加文字列（通常は使わない）
+   * opts.bonus: {"YYYY-MM-DD": {subject: 枚数}}（ボスを初めてたおした日のごほうび。readBonus() で読む）。
+   *   その日の「30問ごと」の分のあとに足す（同じ日にあとから30問ぶんが増えても、もう見たシールの柄は変わらない）
    */
   function earned(daily, opts) {
     opts = opts || {};
     var legacy = opts.legacy || {}, frozen = opts.frozen || {}, salt = opts.salt ? "|" + opts.salt : "";
+    var bonus = opts.bonus || {};
     var out = {}, count = {}, have = {}, run = {};
     ALL.forEach(function (s) { out[s] = []; count[s] = 0; run[s] = 0; });
     function pick(s, n) {
@@ -150,11 +153,14 @@
       run[s] = have[id] ? run[s] + 1 : 0;
       return id;
     }
-    Object.keys(daily || {}).sort().forEach(function (d) {
+    var days = Object.keys(daily || {});
+    Object.keys(bonus).forEach(function (d) { if (days.indexOf(d) < 0) days.push(d); });
+    days.sort().forEach(function (d) {
       if (d < START_DATE) return;
-      var c = dayCounts(daily[d]);
+      var c = dayCounts(daily && daily[d]), b = bonus[d] || {};
       ALL.forEach(function (s) {
-        for (var i = 0; i < c[s]; i++) {
+        var extra = SUBJECTS.indexOf(s) >= 0 ? num(b[s]) : 0;   // ボスのごほうびは教科シールだけ
+        for (var i = 0; i < c[s] + extra; i++) {
           var id = pick(s, count[s]);
           have[id] = (have[id] || 0) + 1;
           out[s].push({ id: id, date: d, nth: have[id] });
@@ -220,6 +226,31 @@
       }
     } catch (e) {}
     return {};
+  }
+
+  /**
+   * ボスのごほうび（kq-hub-v1-boss: {"教科|範囲": "初めてたおした日"}）→ {"YYYY-MM-DD": {subject: 枚数}}
+   * ボス1体につき1枚、魔王は2枚。保存が無い・壊れていれば {}。
+   */
+  var BOSS_KEY = "kq-hub-v1-boss";
+  function parseBonus(raw) {
+    var out = {};
+    try {
+      var p = typeof raw === "string" ? JSON.parse(raw) : raw;
+      if (!p || typeof p !== "object" || Array.isArray(p)) return out;
+      Object.keys(p).forEach(function (id) {
+        // 値は "YYYY-MM-DD"（ボス＝1まい）か {d:"YYYY-MM-DD", n:2}（魔王＝2まい）
+        var s = String(id).split("|")[0], v = p[id], d = v, n = 1;
+        if (v && typeof v === "object" && !Array.isArray(v)) { d = v.d; n = Math.min(5, Math.max(1, Math.floor(Number(v.n)) || 1)); }
+        if (SUBJECTS.indexOf(s) < 0 || typeof d !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return;
+        if (!out[d]) out[d] = {};
+        out[d][s] = (out[d][s] || 0) + n;
+      });
+    } catch (e) {}
+    return out;
+  }
+  function readBonus() {
+    try { return parseBonus(global.localStorage.getItem(BOSS_KEY)); } catch (e) { return {}; }
   }
 
   /** 保存値（文字列/null）→ {rika,shakai,kokugo,kira: 既見数}。未保存・壊れは null（＝初回扱いで全部未見） */
@@ -299,6 +330,7 @@
     idOf: idOf, permFor: permFor, stickerIdFor: stickerIdFor,
     dayCounts: dayCounts, earned: earned, summarize: summarize, unseen: unseen,
     hintsForDay: hintsForDay, readDaily: readDaily,
+    BOSS_KEY: BOSS_KEY, parseBonus: parseBonus, readBonus: readBonus,
     parseSeen: parseSeen, readSeen: readSeen, writeSeen: writeSeen
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
