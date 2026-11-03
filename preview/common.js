@@ -541,7 +541,8 @@
    - ボス = 教科 × カリキュラムテストの範囲（RANGES）。組分けテストは範囲内の2体。
    - HP = 範囲の問題のうち「まだ倒していない」問題の数（未挑戦 または score<=0）。最大HP = 範囲の問題数。
    - HPが0になったら撃破。kq-hub-v1-boss に {"教科|範囲": 初めて倒した日} を保存（以後は復活しない）。
-     ごほうびシールは stickers-award.js がこの保存値を読んで、その日に教科シール1枚を足す。
+     ごほうびシールは stickers-award.js がこの保存値を読んで、その日に教科シールを足す（ボス1まい・魔王2まい）。
+   - 魔王：いちばん近いテストが組分けテストのとき、その範囲のボスは「魔王ぐも」になる（たおすとシール2まい）。
    - 回→問題キーの索引: 教科ページが開かれるたびに registerIndex() で kqidx-<教科>-v1 に書く
      （kq- で始めない＝「きろくを書き出す」に入れない。いつでも作り直せるキャッシュ）。
      玄関は 教科ページの索引（メモリ）→ キャッシュ → index.html に埋め込んだ静的な索引（KQ_BOSS_STATIC）の順に使う。
@@ -593,7 +594,13 @@
     if (!up.length) return null;
     return { test: up[0], bosses: bossesForTest(up[0]) };
   }
-  function bossName(subject, rounds) { return NAMES[subject] + " 第" + rounds.join("・") + "回のボス"; }
+  /** 魔王かどうか：いちばん近いテストが組分けテストで、その範囲に入っているボス（たおすとシール2まい） */
+  function isMaou(subject, rounds, dateStr) {
+    var rec = recommend(dateStr);
+    if (!rec || rec.test.kind !== "kumiwake") return false;
+    return rounds.every(function (n) { return rec.test.rounds.indexOf(n) >= 0; });
+  }
+  function bossName(subject, rounds, maou) { return NAMES[subject] + " 第" + rounds.join("・") + "回の" + (maou ? "魔王" : "ボス"); }
 
   /* ---- 回→問題キーの索引 ---- */
   var live = {};
@@ -650,25 +657,30 @@
   function readStore() {
     try { var p = JSON.parse(global.localStorage.getItem(STORE_KEY) || "{}"); return p && typeof p === "object" && !Array.isArray(p) ? p : {}; } catch (e) { return {}; }
   }
-  function defeatedOn(subject, rounds) {
-    var v = readStore()[bossId(subject, rounds)];
-    return typeof v === "string" ? v : null;
-  }
-  /** いまの状態 { subject, rounds, id, name, known, hp, max, defeated(日付|null), ready } */
+  // 保存値は "YYYY-MM-DD"（ふつうのボス＝シール1まい）か {d:"YYYY-MM-DD", n:2}（魔王＝シール2まい）
+  function storeDate(v) { return typeof v === "string" ? v : (v && typeof v === "object" && typeof v.d === "string" ? v.d : null); }
+  function storeReward(v) { return v && typeof v === "object" && Number(v.n) > 1 ? Math.floor(Number(v.n)) : 1; }
+  function defeatedOn(subject, rounds) { return storeDate(readStore()[bossId(subject, rounds)]); }
+  /** いまの状態 { subject, rounds, id, name, maou, reward, known, hp, max, defeated(日付|null), ready } */
   function status(subject, rounds, keys) {
     var ks = keys || keysFor(subject, rounds);
-    var o = { subject: subject, rounds: rounds.slice(), id: bossId(subject, rounds), name: bossName(subject, rounds),
-              known: !!ks, hp: null, max: null, defeated: defeatedOn(subject, rounds), ready: false };
+    var saved = readStore()[bossId(subject, rounds)];
+    var dDate = storeDate(saved);
+    // たおしたあとは、たおした時の姿（魔王/ボス）のまま。まだなら今日の判定
+    var maou = dDate ? storeReward(saved) > 1 : isMaou(subject, rounds);
+    var o = { subject: subject, rounds: rounds.slice(), id: bossId(subject, rounds), name: bossName(subject, rounds, maou),
+              maou: maou, reward: maou ? 2 : 1,
+              known: !!ks, hp: null, max: null, defeated: dDate, ready: false };
     if (ks) { var h = hpOfKeys(ks); o.hp = h.hp; o.max = h.max; o.ready = h.max > 0; }
     return o;
   }
-  /** HP0なら撃破を保存。初めての撃破なら true（ごほうびシール1枚はこの保存から導かれる） */
+  /** HP0なら撃破を保存。初めての撃破なら true（ごほうびシールはこの保存から導かれる：ボス1まい・魔王2まい） */
   function checkDefeat(subject, rounds, keys) {
     var st = status(subject, rounds, keys);
     if (st.defeated || !st.ready || st.hp !== 0) return false;
     var s = readStore();
     if (s[st.id]) return false;
-    s[st.id] = H.todayKey();
+    s[st.id] = st.maou ? { d: H.todayKey(), n: 2 } : H.todayKey();
     try { global.localStorage.setItem(STORE_KEY, JSON.stringify(s)); } catch (e) { return false; }
     return defeatedOn(subject, rounds) !== null;
   }
@@ -712,7 +724,8 @@
 
   global.KQBoss = {
     STORE_KEY: STORE_KEY, IDX_PREFIX: IDX_PREFIX, SUBJECTS: SUBJECTS, NAMES: NAMES, RANGES: RANGES, TESTS: TESTS,
-    rangeId: rangeId, bossId: bossId, findRange: findRange, bossesForTest: bossesForTest, recommend: recommend, bossName: bossName,
+    rangeId: rangeId, bossId: bossId, findRange: findRange, bossesForTest: bossesForTest, recommend: recommend, bossName: bossName, isMaou: isMaou,
+    storeDate: storeDate, storeReward: storeReward,
     registerIndex: registerIndex, indexFor: indexFor, keysFor: keysFor,
     isConquered: isConquered, hpOfKeys: hpOfKeys, readStore: readStore, defeatedOn: defeatedOn, status: status,
     checkDefeat: checkDefeat, pickBattle: pickBattle, battleUrl: battleUrl, battleParam: battleParam, mountBattle: mountBattle
@@ -721,35 +734,80 @@
 
 /* ============================================================
    [ボス] 見た目の層（window.KQBossTheme）— 絵・色・文言はここだけ。
-   本番の絵（3案から選ぶ）に差しかえるときは BOSS_THEME と下のCSSだけを書きかえる。
-   art は 絵文字（仮）。画像にするなら artHtml に <img> を返すようにすればよい。
+   絵は「にがてぐも」（ふだん＝ちょいワルぐも、組分けテスト前＝魔王ぐも）を SVG で描く（artHtml）。
+   HPバーは「ゲームのHPゲージ」型（太わく・10マスの目もり・緑→黄→赤、0で「たおした！」）。
    ============================================================ */
 (function (global) {
   "use strict";
+  /* ---- 絵（SVG）：ふだん＝ちょいワルぐも、組分けテスト前＝魔王ぐも。たおすと雲がはれる ---- */
+  // 教科ごと：tint=ちょいワルの雲の色 / glow=魔王の目の色 / item=ふらせるもの。
+  // sansu（算数）はクイズがまだ無いので使っていない（算数クイズができたらそのまま使える：かずぐも）。
+  var CLOUD = {
+    kokugo: { name: "すみぐも",     tint: "#7d5a6e", glow: "#ff6b6b" },
+    sansu:  { name: "かずぐも",     tint: "#5a72a3", glow: "#6fa8ff" },
+    rika:   { name: "フラスコぐも", tint: "#a8703a", glow: "#ffb347" },
+    shakai: { name: "ちずぐも",     tint: "#4f7f5a", glow: "#7ddc8f" }
+  };
+  function cloudShape(fill, extra) {
+    return '<g fill="' + fill + '"' + (extra || "") + '><circle cx="52" cy="78" r="26"/><circle cx="82" cy="62" r="32"/><circle cx="112" cy="80" r="24"/><rect x="34" y="74" width="96" height="32" rx="16"/></g>';
+  }
+  function villainFace(eye, brow, glow) {
+    var dark = "#1a1418", s = "";
+    if (glow) s += '<g fill="' + eye + '" opacity="0.35"><polygon points="54,81 80,89 77,99 56,97"/><polygon points="110,81 84,89 87,99 108,97"/></g>';
+    s += '<polygon points="58,84 76,90 74,96 60,94" fill="' + eye + '"/><polygon points="106,84 88,90 90,96 104,94" fill="' + eye + '"/>';
+    s += '<ellipse cx="68" cy="91" rx="1.8" ry="4" fill="' + dark + '"/><ellipse cx="96" cy="91" rx="1.8" ry="4" fill="' + dark + '"/>';
+    s += '<path d="M54 76 L78 86 M110 76 L86 86" stroke="' + (brow || dark) + '" stroke-width="6" stroke-linecap="round"/>';
+    s += '<path d="M62 102 Q82 116 102 102 Q82 109 62 102 Z" fill="#2b0f12" stroke="' + dark + '" stroke-width="1.5"/>';
+    s += '<polygon points="69,104 74,105 71,112" fill="#fff"/><polygon points="90,105 95,104 93,112" fill="#fff"/>';
+    return s;
+  }
+  function cloudItem(subject, col, line) {
+    if (subject === "kokugo") return '<g transform="rotate(28 80 128)"><rect x="76" y="110" width="8" height="26" rx="3" fill="#8a5a2b"/><path d="M74 136 Q80 156 86 136 Z" fill="#1a1418" stroke="' + col + '" stroke-width="2"/></g><circle cx="110" cy="126" r="4" fill="' + col + '"/><circle cx="118" cy="142" r="5" fill="' + col + '"/><circle cx="46" cy="132" r="4" fill="' + col + '"/>';
+    if (subject === "sansu") return '<g font-size="24" font-weight="900" fill="' + col + '" text-anchor="middle" font-family="sans-serif"><text x="50" y="138">+</text><text x="80" y="152">×</text><text x="112" y="136">÷</text><text x="128" y="155">−</text></g>';
+    if (subject === "rika") return '<path d="M67 138 H93 L99 146 Q100 151 95 151 H65 Q60 151 61 146 Z" fill="' + col + '"/><path d="M74 114 H86 V122 L99 146 Q100 151 95 151 H65 Q60 151 61 146 L74 122 Z" fill="none" stroke="' + line + '" stroke-width="3" stroke-linejoin="round"/><circle cx="112" cy="128" r="4" fill="' + col + '"/><circle cx="46" cy="138" r="4" fill="' + col + '"/>';
+    return '<path d="M122 62 V30" stroke="#cfc8b8" stroke-width="3"/><path d="M122 30 L142 36 L122 43 Z" fill="' + col + '"/><circle cx="80" cy="136" r="14" fill="#fff" stroke="#2b2a27" stroke-width="3"/><polygon points="80,124 85,136 80,148 75,136" fill="#e4572e"/><polygon points="85,136 80,148 75,136" fill="#8b93a7"/>';
+  }
+  function svgWrap(inner, label) {
+    return '<svg viewBox="0 0 160 160" width="100%" height="100%" role="img" aria-label="' + label + '" focusable="false">' + inner + '</svg>';
+  }
+  /** ボスの絵（SVG文字列）。maou=魔王ぐも / defeated=はれた空 */
+  function artHtml(subject, maou, defeated) {
+    var c = CLOUD[subject] || CLOUD.rika;
+    if (defeated) {
+      return svgWrap('<circle cx="80" cy="80" r="78" fill="#cfe8ff"/><g stroke="#f2b42c" stroke-width="7" stroke-linecap="round"><path d="M80 18 V34 M80 126 V142 M18 80 H34 M126 80 H142 M36 36 L47 47 M113 113 L124 124 M124 36 L113 47 M47 113 L36 124"/></g><circle cx="80" cy="80" r="34" fill="#f6c443"/><circle cx="68" cy="76" r="4" fill="#5a3a12"/><circle cx="92" cy="76" r="4" fill="#5a3a12"/><path d="M66 90 Q80 102 94 90" fill="none" stroke="#5a3a12" stroke-width="4" stroke-linecap="round"/>', "はれた空");
+    }
+    if (maou) {
+      var horns = '<polygon points="62,40 50,12 78,34" fill="#8a1f2a" stroke="#2a0a0e" stroke-width="2.5" stroke-linejoin="round"/><polygon points="102,40 114,12 86,34" fill="#8a1f2a" stroke="#2a0a0e" stroke-width="2.5" stroke-linejoin="round"/>';
+      var drips = '<polygon points="36,100 44,120 54,104 64,124 76,104 88,124 100,104 112,120 128,100" fill="#2a2233"/>';
+      return svgWrap('<circle cx="80" cy="80" r="78" fill="#151219"/>' + cloudShape("none", ' stroke="' + c.glow + '" stroke-width="6" opacity="0.5"') + horns + drips + cloudShape("#2a2233") + villainFace(c.glow, c.glow, true) + cloudItem(subject, c.glow, "#ffffff"), c.name + "魔王");
+    }
+    var col = subject === "kokugo" ? "#2b2a27" : subject === "sansu" ? "#e0a21a" : subject === "rika" ? "#5bb6c9" : "#e4572e";
+    return svgWrap(cloudShape(c.tint) + villainFace("#f6d743") + cloudItem(subject, col, "#2b2a27"), c.name);
+  }
   var BOSS_THEME = {
-    art: { rika: "👾", shakai: "🐉", kokugo: "👹" },
-    artDefeated: "⭐",
+    cloud: CLOUD,
     color: {   // 教科の色（ボスの丸・カード）
       rika:   { bg: "#faeeda", ink: "#633806", ring: "#e2b66e" },
       shakai: { bg: "#eaf3de", ink: "#27500a", ring: "#9ccf6c" },
-      kokugo: { bg: "#fcebeb", ink: "#791f1f", ring: "#e89a9a" }
+      kokugo: { bg: "#fcebeb", ink: "#791f1f", ring: "#e89a9a" },
+      sansu:  { bg: "#e3ebf8", ink: "#1f3d6e", ring: "#8fb0e0" }
     },
     bar: { hi: "#46b06a", mid: "#f0b429", lo: "#e5533d", track: "#ece8df", midAt: 0.5, loAt: 0.2 },
     text: {
       cardTitle: "⚔️ ボスとたたかう",
-      nextTest: function (t, days) { return (t.kind === "kumiwake" ? "組分けテスト" : "カリキュラムテスト") + "（" + Number(t.date.slice(5, 7)) + "/" + Number(t.date.slice(8, 10)) + "）まで あと" + days + "日"; },
+      nextTest: function (t, days) { return (t.kind === "kumiwake" ? "組分けテスト" : "カリキュラムテスト") + "（" + Number(t.date.slice(5, 7)) + "/" + Number(t.date.slice(8, 10)) + "）まで あと" + days + "日" + (t.kind === "kumiwake" ? "　😈 魔王があらわれた！（たおすとシール2まい）" : ""); },
       noTest: "つぎのテストは まだ きまっていないよ",
       hp: "のこりHP",
       fight: "たたかう",
       defeated: "たおした！",
-      notReady: "じゅんび中",
+      notReady: "📸 問題じゅんび中：テキストのこの回の写真をとって、パパにわたそう",
       unknown: "HPはクイズをひらくと わかるよ",
       other: "ほかのボスをえらぶ",
       otherClose: "とじる",
       range: function (r) { return "第" + r.join("・") + "回"; },
-      winTitle: "ボスをたおした！",
+      winTitle: function (st) { return st.maou ? "魔王をたおした！" : "ボスをたおした！"; },
       winSub: function (st) { return st.name + "を やっつけたよ"; },
-      winSticker: "ごほうびシールを1まい ゲット！",
+      winSticker: function (st) { return "ごほうびシールを" + (st.reward || 1) + "まい ゲット！"; },
       winStickerHub: "シール帳で はがしてね",
       winStickerPage: "げんかんの シール帳で はがしてね",
       ok: "やったね！"
@@ -763,12 +821,19 @@
     "a.kqb-row:active{transform:scale(.99)}",
     ".kqb-row.is-off{opacity:.55}",
     ".kqb-row.is-defeated{border-color:#ffd45e}",
-    ".kqb-ava{flex:none;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:27px;background:#fff;box-shadow:inset 0 0 0 3px var(--kqb-ring)}",
-    ".kqb-ava.is-defeated{filter:grayscale(.6);opacity:.75}",
+    ".kqb-ava{flex:none;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;box-shadow:inset 0 0 0 3px var(--kqb-ring);overflow:hidden}",
+    ".kqb-ava svg{display:block;width:100%;height:100%}",
+    ".kqb-ava.is-maou{background:#151219;box-shadow:0 0 0 2px #2a2233,0 0 10px 1px var(--kqb-glow)}",
+    ".kqb-row.is-maou{background:#2a2233;color:#fff;border-color:var(--kqb-glow)}",
+    ".kqb-row.is-maou .kqb-go{background:var(--kqb-glow);color:#1a1418}",
+    ".kqb-hud.is-maou{background:#2a2233;color:#fff}",
     ".kqb-body{flex:1;min-width:0}",
     ".kqb-name{font-weight:900;font-size:14.5px}",
-    ".kqb-bar{position:relative;height:12px;border-radius:999px;background:" + BOSS_THEME.bar.track + ";overflow:hidden;margin-top:5px}",
-    ".kqb-fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:" + BOSS_THEME.bar.hi + ";transition:width .5s ease,background .3s}",
+    ".kqb-bar{position:relative;height:16px;border:2.5px solid #2b2a27;border-radius:8px;background:" + BOSS_THEME.bar.track + ";overflow:hidden;margin-top:5px;box-sizing:content-box}",
+    ".kqb-bar::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(10% - 2px),rgba(0,0,0,.18) calc(10% - 2px),rgba(0,0,0,.18) 10%);pointer-events:none}",
+    ".kqb-fill{position:absolute;left:0;top:0;bottom:0;background:" + BOSS_THEME.bar.hi + ";transition:width .5s ease,background .3s}",
+    ".kqb-bar.is-zero::before{content:'たおした！';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#b4552f;z-index:1}",
+    ".is-maou .kqb-bar{border-color:#fff}",
     ".kqb-fill.mid{background:" + BOSS_THEME.bar.mid + "}",
     ".kqb-fill.lo{background:" + BOSS_THEME.bar.lo + "}",
     ".kqb-bar.is-faded{opacity:.35}",
@@ -782,12 +847,13 @@
     ".kqb-chip[aria-pressed=true]{border-color:#2b2a27;background:#f6f4ef}",
     ".kqb-chip .kqb-cnt{font-size:11px;color:#8a5a00;margin-left:3px}",
     ".kqb-hud{display:flex;align-items:center;gap:10px;border-radius:16px;padding:8px 12px;margin-bottom:10px;background:var(--kqb-bg);color:var(--kqb-ink)}",
-    ".kqb-hud .kqb-ava{width:40px;height:40px;font-size:23px}",
+    ".kqb-hud .kqb-ava{width:46px;height:46px}",
     ".kqb-hud.hit .kqb-ava{animation:kqbHit .45s ease}",
     "@keyframes kqbHit{0%{transform:none}25%{transform:translateX(-5px) rotate(-8deg)}50%{transform:translateX(5px) rotate(6deg)}100%{transform:none}}",
     ".kqb-ov{position:fixed;inset:0;background:rgba(43,42,39,.6);display:flex;align-items:center;justify-content:center;padding:20px;z-index:80}",
     ".kqb-win{background:linear-gradient(160deg,#fffbea,#ffe9f4);border:3px solid #ffd45e;border-radius:28px;padding:24px 20px 20px;max-width:340px;width:100%;text-align:center;box-shadow:0 20px 50px -10px rgba(0,0,0,.4)}",
-    ".kqb-win .kqb-big{font-size:70px;line-height:1.1;animation:kqbPop .6s cubic-bezier(.2,1.4,.4,1) both}",
+    ".kqb-win .kqb-big{width:120px;height:120px;margin:0 auto;animation:kqbPop .6s cubic-bezier(.2,1.4,.4,1) both}",
+    ".kqb-win .kqb-big svg{display:block;width:100%;height:100%}",
     ".kqb-win .kqb-t{font-size:22px;font-weight:900;color:#b7791f;margin-top:6px}",
     ".kqb-win .kqb-s{font-size:14px;font-weight:700;margin-top:4px;color:#2b2a27}",
     ".kqb-win .kqb-st{margin-top:12px;background:#fff;border:2.5px dashed #b48be8;border-radius:16px;padding:10px;font-size:14px;font-weight:900;color:#6b3fc0}",
@@ -812,9 +878,11 @@
   function paint(node, subject) {
     var c = BOSS_THEME.color[subject] || BOSS_THEME.color.rika;
     node.style.setProperty("--kqb-bg", c.bg); node.style.setProperty("--kqb-ink", c.ink); node.style.setProperty("--kqb-ring", c.ring);
+    node.style.setProperty("--kqb-glow", (CLOUD[subject] || CLOUD.rika).glow);
   }
-  function avatar(subject, defeated) {
-    var a = el("span", "kqb-ava" + (defeated ? " is-defeated" : ""), defeated ? BOSS_THEME.artDefeated : (BOSS_THEME.art[subject] || "👾"));
+  function avatar(subject, defeated, maou) {
+    var a = el("span", "kqb-ava" + (defeated ? " is-defeated" : "") + (maou && !defeated ? " is-maou" : ""));
+    a.innerHTML = artHtml(subject, maou, defeated);
     a.setAttribute("aria-hidden", "true");
     return a;
   }
@@ -831,6 +899,7 @@
     f.style.width = Math.round(r * 100) + "%";
     f.className = "kqb-fill" + (r <= BOSS_THEME.bar.loAt ? " lo" : r <= BOSS_THEME.bar.midAt ? " mid" : "");
     b.setAttribute("aria-label", BOSS_THEME.text.hp + " " + hp + " / " + max);
+    b.classList.toggle("is-zero", max > 0 && hp === 0);
   }
   function hpText(st) { return BOSS_THEME.text.hp + " " + st.hp + " / " + st.max; }
 
@@ -838,11 +907,11 @@
   function row(st, href) {
     ensureStyle();
     var T = BOSS_THEME.text, can = st.ready && href;
-    var r = el(can ? "a" : "div", "kqb-row" + (st.defeated ? " is-defeated" : "") + (st.known && !st.ready ? " is-off" : ""));
+    var r = el(can ? "a" : "div", "kqb-row" + (st.defeated ? " is-defeated" : "") + (st.known && !st.ready ? " is-off" : "") + (st.maou && !st.defeated ? " is-maou" : ""));
     if (can) { r.href = href; r.target = "_top"; }
     r.setAttribute("data-boss", st.id);
     paint(r, st.subject);
-    r.appendChild(avatar(st.subject, !!st.defeated));
+    r.appendChild(avatar(st.subject, !!st.defeated, st.maou));
     var body = el("span", "kqb-body");
     body.appendChild(el("span", "kqb-name", st.name));
     body.lastChild.style.display = "block";
@@ -879,8 +948,10 @@
     h.querySelector(".kqb-name").textContent = st.name;
     var ava = h.querySelector(".kqb-ava");
     var down = !!st.defeated || st.hp === 0;
-    ava.textContent = down ? BOSS_THEME.artDefeated : (BOSS_THEME.art[st.subject] || "👾");
-    ava.className = "kqb-ava" + (down ? " is-defeated" : "");
+    var look = (down ? "d" : "") + (st.maou ? "m" : "");
+    if (ava.getAttribute("data-look") !== look) { ava.innerHTML = artHtml(st.subject, st.maou, down); ava.setAttribute("data-look", look); }
+    ava.className = "kqb-ava" + (down ? " is-defeated" : "") + (st.maou && !down ? " is-maou" : "");
+    h.classList.toggle("is-maou", !!st.maou && !down);
     setBar(h.querySelector(".kqb-bar"), st.hp || 0, st.max || 0);
     h.querySelector(".kqb-bar").className = "kqb-bar" + (st.defeated && st.hp > 0 ? " is-faded" : "");
     h.querySelector(".kqb-hpt").textContent = hpText(st) + (st.defeated ? "　" + BOSS_THEME.text.defeated : "");
@@ -896,10 +967,11 @@
     var old = d.getElementById("kqbWin"); if (old && old.parentNode) old.parentNode.removeChild(old);
     var ov = el("div", "kqb-ov"); ov.id = "kqbWin"; ov.setAttribute("role", "dialog"); ov.setAttribute("aria-modal", "true");
     var box = el("div", "kqb-win");
-    box.appendChild(el("div", "kqb-big", BOSS_THEME.art[st.subject] || "👾"));
-    box.appendChild(el("div", "kqb-t", T.winTitle));
+    var bigArt = el("div", "kqb-big"); bigArt.innerHTML = artHtml(st.subject, st.maou, false);
+    box.appendChild(bigArt);
+    box.appendChild(el("div", "kqb-t", T.winTitle(st)));
     box.appendChild(el("div", "kqb-s", T.winSub(st)));
-    var stk = el("div", "kqb-st", T.winSticker);
+    var stk = el("div", "kqb-st", T.winSticker(st));
     stk.appendChild(el("small", "", opts.where === "hub" ? T.winStickerHub : T.winStickerPage));
     box.appendChild(stk);
     var b = el("button", "", T.ok); b.type = "button"; b.id = "kqbWinClose";
@@ -908,11 +980,11 @@
     ov.appendChild(box);
     d.body.appendChild(ov);
     // 少しおくれて絵を「たおれた」絵に変える
-    global.setTimeout(function () { var big = box.querySelector(".kqb-big"); if (big) big.textContent = BOSS_THEME.artDefeated; }, 900);
+    global.setTimeout(function () { var big = box.querySelector(".kqb-big"); if (big) big.innerHTML = artHtml(st.subject, st.maou, true); }, 900);
     return ov;
   }
 
-  global.KQBossTheme = { BOSS_THEME: BOSS_THEME, ensureStyle: ensureStyle, row: row, hud: hud, updateHud: updateHud, celebrate: celebrate, bar: bar, setBar: setBar, avatar: avatar };
+  global.KQBossTheme = { BOSS_THEME: BOSS_THEME, artHtml: artHtml, ensureStyle: ensureStyle, row: row, hud: hud, updateHud: updateHud, celebrate: celebrate, bar: bar, setBar: setBar, avatar: avatar };
 })(window);
 
 /* ============================================================

@@ -230,7 +230,7 @@
 
   /**
    * ボスのごほうび（kq-hub-v1-boss: {"教科|範囲": "初めてたおした日"}）→ {"YYYY-MM-DD": {subject: 枚数}}
-   * 1体につき1枚。保存が無い・壊れていれば {}。
+   * ボス1体につき1枚、魔王は2枚。保存が無い・壊れていれば {}。
    */
   var BOSS_KEY = "kq-hub-v1-boss";
   function parseBonus(raw) {
@@ -239,10 +239,12 @@
       var p = typeof raw === "string" ? JSON.parse(raw) : raw;
       if (!p || typeof p !== "object" || Array.isArray(p)) return out;
       Object.keys(p).forEach(function (id) {
-        var s = String(id).split("|")[0], d = p[id];
+        // 値は "YYYY-MM-DD"（ボス＝1まい）か {d:"YYYY-MM-DD", n:2}（魔王＝2まい）
+        var s = String(id).split("|")[0], v = p[id], d = v, n = 1;
+        if (v && typeof v === "object" && !Array.isArray(v)) { d = v.d; n = Math.min(5, Math.max(1, Math.floor(Number(v.n)) || 1)); }
         if (SUBJECTS.indexOf(s) < 0 || typeof d !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return;
         if (!out[d]) out[d] = {};
-        out[d][s] = (out[d][s] || 0) + 1;
+        out[d][s] = (out[d][s] || 0) + n;
       });
     } catch (e) {}
     return out;
