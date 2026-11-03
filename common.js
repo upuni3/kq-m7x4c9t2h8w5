@@ -144,6 +144,7 @@
 
     saveStats();
     scheduleSync();
+    scheduleScores();
     return { score: after, recovered: before <= 0 && after > 0 };
   }
 
@@ -467,9 +468,51 @@
     flushNow();
   }
 
+  /* ---- [問題ごとのスコア] 親（とClaude）が「どの問題が何点のマイナスか」を集計できるように、
+     stats.score（0以外の問題だけ）を Supabase に1日1行で送る（関数 kq_put_scores 経由。表は直接読めない）。
+     中身が前回送ったものと同じなら送らない。失敗しても次の解答・次のページ読み込みで再送する。
+     KQ_REPORT_URL が空（テスト・確認用ページ）のときは送らない。 */
+  var SCORE_RPC_URL = "https://lzyrjjkcmhncwxsaqpqu.supabase.co/rest/v1/rpc/kq_put_scores";
+  var SCORE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6eXJqamtjbWhuY3d4c2FxcHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0OTk3NTAsImV4cCI6MjEwMTA3NTc1MH0.FmwKa4WZvJ_j3LKBl2iJThXZxRNAjeqWDurgqwZNnO8";
+  var SCORE_SENT_KEY = "kqsync-scores-v1";   // kq- で始まらない（書き出しに入れない）
+  var scoreTimer = null, scoreBusy = false;
+  function scorePayload() {
+    var out = {};
+    Object.keys(stats.score || {}).forEach(function (k) {
+      var v = Math.round(Number(stats.score[k]));
+      if (isFinite(v) && v !== 0) out[k] = v;
+    });
+    return out;
+  }
+  function uploadScores() {
+    if (!global.KQ_REPORT_URL || typeof global.fetch !== "function" || scoreBusy) return;
+    if (global.navigator && global.navigator.onLine === false) return;
+    var day = todayKey(), body = scorePayload(), sig = day + ":" + JSON.stringify(body);
+    var prev = null;
+    try { prev = localStorage.getItem(SCORE_SENT_KEY); } catch (e) {}
+    if (prev === sig) return;
+    scoreBusy = true;
+    try {
+      global.fetch(SCORE_RPC_URL, {
+        method: "POST", cache: "no-store",
+        headers: { "Content-Type": "application/json", "apikey": SCORE_ANON_KEY, "Authorization": "Bearer " + SCORE_ANON_KEY },
+        body: JSON.stringify({ p_device: getDeviceId(), p_day: day, p_scores: body })
+      }).then(function (r) {
+        scoreBusy = false;
+        if (r && r.ok) { try { localStorage.setItem(SCORE_SENT_KEY, sig); } catch (e) {} }
+      }, function () { scoreBusy = false; });
+    } catch (e) { scoreBusy = false; }
+  }
+  function scheduleScores() {
+    if (!global.KQ_REPORT_URL) return;
+    if (scoreTimer) global.clearTimeout(scoreTimer);
+    scoreTimer = global.setTimeout(function () { scoreTimer = null; uploadScores(); }, 10000);
+  }
+
   function onLeave() {
     if (syncTimer) { global.clearTimeout(syncTimer); syncTimer = null; }
     flushNow();
+    if (scoreTimer) { global.clearTimeout(scoreTimer); scoreTimer = null; uploadScores(); }
   }
   try {
     global.addEventListener("pagehide", onLeave);
@@ -477,8 +520,9 @@
       if (global.document.visibilityState === "hidden") onLeave();
     });
     global.setTimeout(function () { resendRecent(false); }, 800);
+    global.setTimeout(uploadScores, 2500);
     // [オフライン対応] ネットにつながりなおしたら、まだ届いていない分を送る
-    global.addEventListener("online", function () { resendRecent(false); });
+    global.addEventListener("online", function () { resendRecent(false); uploadScores(); });
   } catch (e) {}
 
   /** localStorage から stats を読み直す（きろくをよみこんだ直後に使う） */
