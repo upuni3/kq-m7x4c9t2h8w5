@@ -623,7 +623,7 @@ var QUESTIONS_U07 = [
     { id:"U07-B05", cat:"B", type:"num", q:"100℃の水100gに、ホウ酸は何gまで溶ける？", a:38, unit:"g", table:"boric" },
     { id:"U07-B06", cat:"B", type:"num", q:"40℃と100℃で、水100gに溶けるホウ酸の量の差は何gですか。", a:29, unit:"g", table:"boric", exp:"100℃では38g、40℃では9g溶けるので、38－9＝29gです。" },
     { id:"U07-B07", cat:"B", type:"num", q:"20℃と100℃で、水100gに溶ける食塩の量の差は何gですか。", a:3, unit:"g", table:"salt", exp:"100℃では39g、20℃では36g溶けるので、39－36＝3gです。" },
-    { id:"U07-B08", cat:"B", type:"num", q:"60℃の水100gに溶ける食塩とホウ酸の量の差は何gですか。", a:22, unit:"g", table:"boric", exp:"60℃で食塩は37g、ホウ酸は15g溶けるので、37－15＝22gです。" },
+    { id:"U07-B08", cat:"B", type:"num", q:"60℃の水100gに溶ける食塩とホウ酸の量の差は何gですか。", a:22, unit:"g", table:"salt+boric", exp:"60℃で食塩は37g、ホウ酸は15g溶けるので、37－15＝22gです。" },
 
     // ================= C. とける量の計算（応用） =================
     { id:"U07-C01", cat:"C", type:"num", q:"60℃の水100gに食塩を30g溶かしました。食塩はあと何gまで溶かすことができますか。", a:7, unit:"g", table:"salt", exp:"60℃の水100gに食塩は37g溶けるので、37－30＝7gです。" },
@@ -1235,15 +1235,22 @@ function generateCircuitSVG(spec){
 /* ============================================================
    表の描画
 ============================================================ */
+// tableKey は "salt" のように1つ、または "salt+boric" のように「+」でつないで複数の物質を1つの表に並べられる
 function renderTable(tableKey){
-  var t = SOLUBILITY[tableKey];
-  if(!t) return "";
-  var temps = Object.keys(t.data).map(Number).sort(function(a,b){return a-b;});
+  var ts = String(tableKey).split("+").map(function(k){ return SOLUBILITY[k]; }).filter(Boolean);
+  if(!ts.length) return "";
+  var seen = {};
+  ts.forEach(function(t){ Object.keys(t.data).forEach(function(k){ seen[k] = 1; }); });
+  var temps = Object.keys(seen).map(Number).sort(function(a,b){return a-b;});
   var html = '<div class="qtable-wrap"><table class="qtable"><thead><tr><th>水温[℃]</th>';
   temps.forEach(function(temp){ html += "<th>"+temp+"</th>"; });
-  html += '</tr></thead><tbody><tr><th>'+t.name+'['+t.unit+']</th>';
-  temps.forEach(function(temp){ html += "<td>"+t.data[temp]+"</td>"; });
-  html += "</tr></tbody></table></div>";
+  html += '</tr></thead><tbody>';
+  ts.forEach(function(t){
+    html += '<tr><th>'+t.name+'['+t.unit+']</th>';
+    temps.forEach(function(temp){ html += "<td>"+(t.data[temp]!==undefined ? t.data[temp] : "－")+"</td>"; });
+    html += '</tr>';
+  });
+  html += "</tbody></table></div>";
   return html;
 }
 
