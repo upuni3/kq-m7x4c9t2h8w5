@@ -365,6 +365,13 @@ var KOKUGO_ROUND_TO_UNIT = {
 ============================================================ */
 var LESSON_ANCHOR_FRI = "2026-09-25"; // 第5回の金曜（基準日）
 var LESSON_ANCHOR_NUM = 5;
+// 休講で国社（金曜）の回がずれた分。「日付: 回数」。水曜（算数理科）はずれていないので金曜だけに効かせる。
+// 11/6は休講（直近に習った回＝第10回のまま）。hw.html・親用画面・LINE通知GASと同じ内容にする。
+var LESSON_OVERRIDES = {
+  "2026-11-06": 10,
+  "2026-11-13": 11, "2026-11-20": 12, "2026-11-27": 13,
+  "2026-12-04": 14, "2026-12-11": 15, "2026-12-18": 16
+};
 
 /* ---- テスト日程表（理科・社会・国語のおすすめがここの「範囲の回」を見る）----
    書き方（1行1テスト。日付の古い順でなくてもよい）:
@@ -402,6 +409,7 @@ function mostRecentWeekday(today, targetWd){
 // dはWed(3)またはFri(5)であること。基準金曜からのズレで回数を計算する。
 function lessonNumberForDate(d){
   var wd = d.getDay();
+  if(wd === 5 && LESSON_OVERRIDES[dateKey(d)] !== undefined) return LESSON_OVERRIDES[dateKey(d)];
   var fri = (wd === 3) ? addDays(d, -5) : d;
   var diffDays = daysBetween(parseDate(LESSON_ANCHOR_FRI), fri);
   if(diffDays % 7 !== 0) return null;
@@ -535,18 +543,24 @@ function recoForShakai(){
         href:KQHub.pageUrl("shakai",{start:"weak",rounds:rounds.join(",")}) };
     }
   }
+  var round = latestTaughtRound(5); // 金＝国語社会（国語と同じ回）
+  if(round && SR && SR.unitsForRounds([round]).length){
+    return { emoji:"🔥", label:"今週習った回", text:"第"+round+"回をはじめる",
+      href:KQHub.pageUrl("shakai",{start:"weak",rounds:String(round)}) };
+  }
+  // 今週の回がまだ社会に無いときは、これまでの中でにがてが多い範囲
   var summary = readCache("kq-shakai-weak-summary-v1");
   if(summary){
-    var best = null, bestW = -1;
+    var best = null, bestW = 0;
     Object.keys(summary).forEach(function(id){
       if(summary[id] > bestW){ bestW = summary[id]; best = id; }
     });
     if(best){
-      return { emoji:"🔥", label:"にがてが多い地方", text:(SHAKAI_REGION_NAMES[best]||best)+"をはじめる",
+      return { emoji:"🔥", label:"にがてが多い単元", text:"にがてが多い単元をはじめる",
         href:KQHub.pageUrl("shakai",{start:"weak",region:best}) };
     }
   }
-  return { emoji:"📗", label:"社会", text:"地方をえらんで始めよう", href:KQHub.pageUrl("shakai") };
+  return { emoji:"📗", label:"社会", text:"社会クイズをひらく", href:KQHub.pageUrl("shakai") };
 }
 
 /* ============================================================

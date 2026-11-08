@@ -343,8 +343,8 @@
     </div>
 
     <div class="card">
-      <div class="section-label" id="selectLabel">地方をえらぶ</div>
-      <div class="view-toggle" id="viewToggle" role="group" aria-label="えらびかた">
+      <div class="section-label" id="selectLabel">回をえらぶ</div>
+      <div class="view-toggle" id="viewToggle" role="group" aria-label="えらびかた" hidden>
         <button type="button" class="view-btn" data-view="region" aria-pressed="true">地方で選ぶ</button>
         <button type="button" class="view-btn" data-view="round" aria-pressed="false">回で選ぶ</button>
       </div>
@@ -1693,8 +1693,7 @@ function buildMixRegion(unitIds, name, subtitle){
 
 /* ---- えらびかた切替（地方で選ぶ / 回で選ぶ）---- */
 var VIEW_KEY = "kq-shakai-select-view-v1";
-var selectView = "region";
-try{ if(localStorage.getItem(VIEW_KEY)==="round") selectView = "round"; }catch(e){}
+var selectView = "round"; // 3教科そろえて「回で選ぶ」だけにした（地方で選ぶは廃止）
 if(!SR) selectView = "region";
 var viewToggle = $("viewToggle");
 var roundGrid = $("roundGrid");
@@ -1716,7 +1715,7 @@ viewToggle.addEventListener("click", function(e){
   try{ localStorage.setItem(VIEW_KEY, selectView); }catch(err){}
   applySelectView();
 });
-if(!SR) viewToggle.hidden = true;
+viewToggle.hidden = true;
 
 function renderRoundGrid(){
   roundGrid.innerHTML = "";
