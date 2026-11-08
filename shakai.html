@@ -1720,7 +1720,7 @@ viewToggle.hidden = true;
 function renderRoundGrid(){
   roundGrid.innerHTML = "";
   if(!SR) return;
-  var fold = KQHub.foldList(roundGrid, "shakai");
+  var fold = KQHub.foldList ? KQHub.foldList(roundGrid, "shakai") : { add:function(r, el){ roundGrid.appendChild(el); } };
   SR.table.forEach(function(e){
     var round = e.round;
     var isMix = !!e.mix;
