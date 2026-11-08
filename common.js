@@ -732,8 +732,16 @@
   function pickBattle(pool, keyFn, n) {
     var un = pool.filter(function (q) { return !isConquered(keyFn(q)); });
     var done = pool.filter(function (q) { return isConquered(keyFn(q)); });
-    var a = H.weightedSample(un, keyFn, Math.min(n, un.length));
-    if (a.length < n) a = a.concat(H.weightedSample(done, keyFn, Math.min(n - a.length, done.length)));
+    // まぐれ正解の確認枠：+1点だけ（1回正解しただけ）の問題を、約3割（最低1問）ぶん混ぜる
+    var once = done.filter(function (q) { return H.getScore(keyFn(q)) === 1; });
+    var quota = once.length ? Math.min(once.length, Math.max(1, Math.round(n * 0.3))) : 0;
+    var a = H.weightedSample(un, keyFn, Math.min(n - quota, un.length));
+    var onceP = H.weightedSample(once, keyFn, Math.min(n - a.length, quota));
+    a = a.concat(onceP);
+    if (a.length < n) {
+      var rest = done.filter(function (q) { return onceP.indexOf(q) < 0; });
+      a = a.concat(H.weightedSample(rest, keyFn, Math.min(n - a.length, rest.length)));
+    }
     for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; }
     return a;
   }
