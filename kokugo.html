@@ -1,4 +1,7 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
+  /* にがて特訓ボタンは廃止：ふつうの出題がにがて優先になった */
+  .weak-btn{ display:none !important; }
+</style></head><body>
 <title>国語 ことばクイズ</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap');
@@ -288,7 +291,7 @@
     </button>
 
     <div class="card">
-      <p class="home-lead">えらんだ回から全<b id="multiTotalCount">0</b>問。ランダムで10問出題します。</p>
+      <p class="home-lead">えらんだ回から全<b id="multiTotalCount">0</b>問。にがてな問題を多めに、10問出題します。</p>
       <button class="start-btn" id="multiStartBtn" disabled>はじめる</button>
     </div>
 
@@ -1112,6 +1115,8 @@ function shuffle(arr){
   return a;
 }
 function pickN(arr, n){ return shuffle(arr).slice(0, n); }
+// 出題：得点が低い（にがて・未挑戦）問題を優先。足りなければ得点の低い順に、倒した問題から補う
+function pickWeak(pool, keyFn, n){ return window.KQBoss ? KQBoss.pickBattle(pool, keyFn, n) : KQHub.weightedSample(pool, keyFn, n); }
 
 function uniqueAnswers(list){
   var out = [], seen = {};
@@ -1359,9 +1364,10 @@ function startBoss(rounds){
   var keys = KQBoss.keysFor(SUBJECT, rounds);
   if(!keys || !keys.length) return;
   bossCtx = { rounds:rounds, keys:keys, hud:null };
-  bossCtx.hud = KQBoss.mountBattle(screenQuiz, SUBJECT, rounds, keys);
+  bossCtx.hud = null;   // HPバーは renderQuestion の autoFocus が出す
 }
 function endBoss(){
+  if(window.KQBoss && KQBoss.autoClear) KQBoss.autoClear();
   if(bossCtx && bossCtx.hud) bossCtx.hud.remove();
   bossCtx = null;
 }
@@ -1379,16 +1385,14 @@ function beginMixedQuiz(weakOnly){
   var n = Math.min(10, basePool.length);
   if(weakOnly){
     // にがて特訓：スコアが低い問題ほど出やすい重み付き抽選（ゼロにはしない）
-    quizQueue = bossCtx
-      ? KQBoss.pickBattle(basePool, function(q){ return fullKey(q.id); }, n)
-      : KQHub.weightedSample(basePool, function(q){ return fullKey(q.id); }, n);
+    quizQueue = pickWeak(basePool, function(q){ return fullKey(q.id); }, n);
   } else {
     var pool = (ids.length===1 && multiActiveCats.length)
       ? basePool.filter(function(q){ return multiActiveCats.indexOf(q.cat)>=0; })
       : basePool;
     if(pool.length===0) return;
     n = Math.min(10, pool.length);
-    quizQueue = pickN(pool, n);
+    quizQueue = pickWeak(pool, function(q){ return fullKey(q.id); }, n);
   }
   if(quizQueue.length===0) return;
   retry.start(quizQueue);
@@ -1462,6 +1466,7 @@ var answered = false; // このもんだいをすでに答え合わせしたか
 
 function renderQuestion(){
   var q = quizQueue[quizIndex];
+  if(window.KQBoss && KQBoss.autoFocus) KQBoss.autoFocus(screenQuiz, SUBJECT, fullKey(q.id));
   answered = false;
   progressNum.textContent = (quizIndex+1)+"/"+quizQueue.length;
   progressFill.style.width = ((quizIndex)/quizQueue.length*100)+"%";
@@ -1557,7 +1562,7 @@ function finishQuestion(q, correct, userAnswer){
   if(retry.counts(quizIndex)){
     recordAnswer(q.__unitId || currentUnit.id, q.id, correct);
     quizResults.push({ q:q, correct:correct, userAnswer:userAnswer||"" });
-    if(bossCtx && bossCtx.hud) bossCtx.hud.update();
+    if(window.KQBoss && KQBoss.autoUpdate) KQBoss.autoUpdate();
   }
   retry.mark(quizIndex, correct);
   progressFill.style.width = ((quizIndex+1)/quizQueue.length*100)+"%";

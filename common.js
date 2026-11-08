@@ -766,7 +766,49 @@
     return { el: el, update: update, remove: function () { if (el.parentNode) el.parentNode.removeChild(el); } };
   }
 
+  /* ---- 自動HP：クイズ中は「いま出ている問題の範囲のボス」のHPバーを常に出す ----
+     問題キー → 回 → RANGES のボス。ボスの無い回（総合回など）はバーを出さない。 */
+  var auto = { host: null, id: null, hud: null };
+  var revCache = { idx: null, map: null };
+  function roundOfKey(subject, key) {
+    var idx = indexFor(subject);
+    if (!idx) return 0;
+    if (revCache.idx !== idx) {
+      var m = {};
+      Object.keys(idx).forEach(function (r) { idx[r].forEach(function (s) { m[s] = Number(r); }); });
+      revCache = { idx: idx, map: m };
+    }
+    var pre = subject + ":";
+    if (String(key).indexOf(pre) !== 0) return 0;
+    return revCache.map[String(key).slice(pre.length)] || 0;
+  }
+  function rangeOfKey(subject, key) {
+    var r = roundOfKey(subject, key);
+    if (!r) return null;
+    for (var i = 0; i < RANGES.length; i++) if (RANGES[i].indexOf(r) >= 0) return RANGES[i].slice();
+    return null;
+  }
+  function autoClear() {
+    if (auto.hud) auto.hud.remove();
+    auto = { host: null, id: null, hud: null };
+  }
+  function autoFocus(host, subject, key) {
+    try {
+      var r = rangeOfKey(subject, key);
+      if (!r) { autoClear(); return; }
+      var id = bossId(subject, r);
+      if (auto.hud && auto.id === id && auto.host === host && auto.hud.el.parentNode === host) return;
+      autoClear();
+      var keys = keysFor(subject, r);
+      if (!keys || !keys.length) return;
+      var h = mountBattle(host, subject, r, keys);
+      if (h) auto = { host: host, id: id, hud: h };
+    } catch (e) {}
+  }
+  function autoUpdate() { try { if (auto.hud) auto.hud.update(); } catch (e) {} }
+
   global.KQBoss = {
+    autoFocus: autoFocus, autoUpdate: autoUpdate, autoClear: autoClear, rangeOfKey: rangeOfKey,
     STORE_KEY: STORE_KEY, IDX_PREFIX: IDX_PREFIX, SUBJECTS: SUBJECTS, NAMES: NAMES, RANGES: RANGES, TESTS: TESTS,
     rangeId: rangeId, bossId: bossId, findRange: findRange, bossesForTest: bossesForTest, recommend: recommend, bossName: bossName, isMaou: isMaou,
     storeDate: storeDate, storeReward: storeReward,

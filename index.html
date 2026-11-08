@@ -477,21 +477,21 @@ function recoForRika(){
   if(tw){
     var ids = pickUnitsForRounds(testRounds(tw.test), RIKA_ROUND_TO_UNIT);
     if(ids.length){
-      return { emoji:"🔥", label:testLabel(tw), text:"テスト範囲をまとめてにがて特訓",
+      return { emoji:"🔥", label:testLabel(tw), text:"テスト範囲をはじめる",
         href:KQHub.pageUrl("rika",{start:"weak",units:ids.join(",")}) };
     }
   }
   var round = latestTaughtRound(3); // 水＝算数理科
   if(round && RIKA_ROUND_TO_UNIT[round]){
     var unit = RIKA_ROUND_TO_UNIT[round];
-    return { emoji:"🔥", label:"今週習った回", text:"第"+round+"回をにがて特訓",
+    return { emoji:"🔥", label:"今週習った回", text:"第"+round+"回をはじめる",
       href:KQHub.pageUrl("rika",{start:"weak",units:unit}) };
   }
   // 今週の回がまだ無い場合は、これまでに習った回の中でにがてが多い単元
   var taughtIds = Object.keys(RIKA_ROUND_TO_UNIT).map(Number).filter(function(r){ return r<=(round||0); })
     .map(function(r){ return RIKA_ROUND_TO_UNIT[r]; });
   var worst = pickWorstUnit(taughtIds.length?taughtIds:Object.keys(RIKA_ROUND_TO_UNIT).map(function(r){return RIKA_ROUND_TO_UNIT[r];}), "kq-rika-weak-summary-v1");
-  if(worst) return { emoji:"🔥", label:"にがてが多い単元", text:"にがて特訓で復習しよう",
+  if(worst) return { emoji:"🔥", label:"にがてが多い単元", text:"にがてが多い単元をはじめる",
     href:KQHub.pageUrl("rika",{start:"weak",units:worst}) };
   return { emoji:"📘", label:"理科", text:"理科クイズをひらく", href:KQHub.pageUrl("rika") };
 }
@@ -501,20 +501,20 @@ function recoForKokugo(){
   if(tw){
     var ids = pickUnitsForRounds(testRounds(tw.test), KOKUGO_ROUND_TO_UNIT);
     if(ids.length){
-      return { emoji:"🔥", label:testLabel(tw), text:"テスト範囲をまとめてにがて特訓",
+      return { emoji:"🔥", label:testLabel(tw), text:"テスト範囲をはじめる",
         href:KQHub.pageUrl("kokugo",{start:"weak",units:ids.join(",")}) };
     }
   }
   var round = latestTaughtRound(5); // 金＝国語社会
   if(round && KOKUGO_ROUND_TO_UNIT[round]){
     var unit = KOKUGO_ROUND_TO_UNIT[round];
-    return { emoji:"🔥", label:"今週習った回", text:"第"+round+"回をにがて特訓",
+    return { emoji:"🔥", label:"今週習った回", text:"第"+round+"回をはじめる",
       href:KQHub.pageUrl("kokugo",{start:"weak",units:unit}) };
   }
   var taughtIds = Object.keys(KOKUGO_ROUND_TO_UNIT).map(Number).filter(function(r){ return r<=(round||0); })
     .map(function(r){ return KOKUGO_ROUND_TO_UNIT[r]; });
   var worst = pickWorstUnit(taughtIds.length?taughtIds:Object.keys(KOKUGO_ROUND_TO_UNIT).map(function(r){return KOKUGO_ROUND_TO_UNIT[r];}), "kq-kokugo-weak-summary-v1");
-  if(worst) return { emoji:"🔥", label:"にがてが多い単元", text:"にがて特訓で復習しよう",
+  if(worst) return { emoji:"🔥", label:"にがてが多い単元", text:"にがてが多い単元をはじめる",
     href:KQHub.pageUrl("kokugo",{start:"weak",units:worst}) };
   return { emoji:"📙", label:"国語", text:"国語クイズをひらく", href:KQHub.pageUrl("kokugo") };
 }
@@ -531,7 +531,7 @@ function recoForShakai(){
   if(tw && SR){
     var rounds = testRounds(tw.test);
     if(SR.unitsForRounds(rounds).length){
-      return { emoji:"🔥", label:testLabel(tw), text:"テスト範囲をまとめてにがて特訓",
+      return { emoji:"🔥", label:testLabel(tw), text:"テスト範囲をはじめる",
         href:KQHub.pageUrl("shakai",{start:"weak",rounds:rounds.join(",")}) };
     }
   }
@@ -542,7 +542,7 @@ function recoForShakai(){
       if(summary[id] > bestW){ bestW = summary[id]; best = id; }
     });
     if(best){
-      return { emoji:"🔥", label:"にがてが多い地方", text:(SHAKAI_REGION_NAMES[best]||best)+"をにがて特訓",
+      return { emoji:"🔥", label:"にがてが多い地方", text:(SHAKAI_REGION_NAMES[best]||best)+"をはじめる",
         href:KQHub.pageUrl("shakai",{start:"weak",region:best}) };
     }
   }

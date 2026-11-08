@@ -1,4 +1,7 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
+  /* にがて特訓ボタンは廃止：ふつうの出題がにがて優先になった */
+  .weak-btn{ display:none !important; }
+</style></head><body>
 <title>日本地方たんけんクイズ</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap');
@@ -1499,6 +1502,8 @@ function shuffle(arr){
   return a;
 }
 function pickN(arr, n){ return shuffle(arr).slice(0, n); }
+// 出題：得点が低い（にがて・未挑戦）問題を優先。足りなければ得点の低い順に、倒した問題から補う
+function pickWeak(pool, keyFn, n){ return window.KQBoss ? KQBoss.pickBattle(pool, keyFn, n) : KQHub.weightedSample(pool, keyFn, n); }
 
 // 答えの「種類」を判定する。選択肢は必ず同じ種類でそろえる
 // （例：「〇〇平野は？」の答えが平野なら、選択肢も平野の名前だけにする）
@@ -1959,9 +1964,10 @@ function startBoss(rounds){
   var keys = KQBoss.keysFor(SUBJECT, rounds);
   if(!keys || !keys.length) return;
   bossCtx = { rounds:rounds, keys:keys, hud:null };
-  bossCtx.hud = KQBoss.mountBattle(screenQuiz, SUBJECT, rounds, keys);
+  bossCtx.hud = null;   // HPバーは renderQuestion の autoFocus が出す
 }
 function endBoss(){
+  if(window.KQBoss && KQBoss.autoClear) KQBoss.autoClear();
   if(bossCtx && bossCtx.hud) bossCtx.hud.remove();
   bossCtx = null;
 }
@@ -1974,7 +1980,7 @@ function beginQuiz(){
     var basePool = currentRegion.questions.slice();
     var n0 = Math.min(10, basePool.length);
     var kf = function(q){ return fullKey(ridOf(q, regionId), q.id); };
-    quizQueue = bossCtx ? KQBoss.pickBattle(basePool, kf, n0) : KQHub.weightedSample(basePool, kf, n0);
+    quizQueue = pickWeak(basePool, kf, n0);
     retry.start(quizQueue);
     quizIndex = 0;
     quizResults = [];
@@ -1987,7 +1993,7 @@ function beginQuiz(){
   var pool = currentRegion.questions.filter(function(q){ return activeCats.indexOf(q.cat)>=0; });
   if(pool.length===0) pool = currentRegion.questions.slice();
   var n = Math.min(10, pool.length);
-  quizQueue = pickN(pool, n);
+  quizQueue = pickWeak(pool, function(q){ return fullKey(ridOf(q, regionId), q.id); }, n);
   retry.start(quizQueue);
   quizIndex = 0;
   quizResults = [];
@@ -1999,6 +2005,7 @@ function beginQuiz(){
 
 function renderQuestion(){
   var q = quizQueue[quizIndex];
+  if(window.KQBoss && KQBoss.autoFocus) KQBoss.autoFocus(screenQuiz, SUBJECT, fullKey(ridOf(q, currentRegion.id), q.id));
   progressNum.textContent = (quizIndex+1)+"/"+quizQueue.length;
   progressFill.style.width = ((quizIndex)/quizQueue.length*100)+"%";
   qCatTag.textContent = CATS[q.cat];
@@ -2085,7 +2092,7 @@ function finishQuestion(q, correct, userAnswer){
   if(retry.counts(quizIndex)){
     recordAnswer(ridOf(q, currentRegion.id), q.id, correct);
     quizResults.push({ q:q, correct:correct, userAnswer:userAnswer||"" });
-    if(bossCtx && bossCtx.hud) bossCtx.hud.update();
+    if(window.KQBoss && KQBoss.autoUpdate) KQBoss.autoUpdate();
   }
   retry.mark(quizIndex, correct);
   progressFill.style.width = ((quizIndex+1)/quizQueue.length*100)+"%";
