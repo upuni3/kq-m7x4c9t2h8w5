@@ -596,8 +596,10 @@ function renderSubjects(){
 function renderRecommendations(){
   var list = document.getElementById("recoList");
   var items = [ recoForRika(), recoForShakai(), recoForKokugo() ];
+  var names = [ "理科", "社会", "国語" ];
   list.innerHTML = "";
-  items.forEach(function(item){
+  items.forEach(function(item, i){
+    item.label = names[i] + "のおすすめ ｜ " + item.label;
     var row = document.createElement("div");
     row.className = "reco-item";
     row.innerHTML =
