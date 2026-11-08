@@ -1720,6 +1720,7 @@ viewToggle.hidden = true;
 function renderRoundGrid(){
   roundGrid.innerHTML = "";
   if(!SR) return;
+  var fold = KQHub.foldList(roundGrid, "shakai");
   SR.table.forEach(function(e){
     var round = e.round;
     var isMix = !!e.mix;
@@ -1764,7 +1765,7 @@ function renderRoundGrid(){
     if(ready){
       btn.addEventListener("click", function(){ selectRegion(target); });
     }
-    roundGrid.appendChild(btn);
+    fold.add(round, btn, false);
   });
 }
 

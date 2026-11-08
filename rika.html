@@ -1371,6 +1371,7 @@ function refreshGlobalStats(){
 function renderUnitList(){
   unitList.innerHTML = "";
   var weakSummary = {};
+  var fold = KQHub.foldList(unitList, "rika");
   UNITS.forEach(function(u){
     var wf = weakCountForUnits([u.id]);
     var w = wf.weak;
@@ -1392,7 +1393,7 @@ function renderUnitList(){
       selectedUnits[u.id] = cb.checked;
       onSelectionChange();
     });
-    unitList.appendChild(row);
+    fold.add(KQHub.roundFromText(u.name), row, cb.checked);
   });
   // 玄関（index.html）が「今日のおすすめ」を出すときに参照する軽いキャッシュ
   try{ localStorage.setItem("kq-rika-weak-summary-v1", JSON.stringify(weakSummary)); }catch(e){}

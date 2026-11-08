@@ -1211,6 +1211,7 @@ var multiActiveCats = []; // 1回だけ選択時のみ使用
 function renderUnitList(){
   unitList.innerHTML = "";
   var weakSummary = {};
+  var fold = KQHub.foldList(unitList, "kokugo");
   UNITS.forEach(function(u){
     var wf = weakCount(u.id, u.questions);
     var w = wf.weak;
@@ -1233,7 +1234,7 @@ function renderUnitList(){
       selectedUnits[u.id] = cb.checked;
       onMultiSelectionChange();
     });
-    unitList.appendChild(row);
+    fold.add(KQHub.roundFromText(u.round), row, cb.checked);
   });
   // 玄関（index.html）が「今日のおすすめ」を出すときに参照する軽いキャッシュ
   try{ localStorage.setItem("kq-kokugo-weak-summary-v1", JSON.stringify(weakSummary)); }catch(e){}

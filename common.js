@@ -531,6 +531,66 @@
     cachedDeviceId = null;
   }
 
+  /* ---- 回のリストを5回ごとに折りたたむ ----
+     組分けテストが終わった範囲（第1〜5回・第6〜10回…）は閉じて、これからの範囲だけ開く。
+     使い方: var f = KQHub.foldList(container, "rika"); f.add(roundNumber, element, forceOpen);
+     （回の番号が取れない行はそのまま並べる。開閉の状態は再描画しても保つ） */
+  var FOLD_DONE = [["2026-10-04", 5], ["2026-11-08", 10], ["2026-12-13", 15], ["2027-01-24", 19]];
+  var foldState = {};
+  function foldDoneThrough() {
+    var t = dateKey(new Date()), done = 0;
+    FOLD_DONE.forEach(function (x) { if (x[0] <= t) done = x[1]; });
+    return done;
+  }
+  function roundFromText(txt) {
+    var m = String(txt || "").normalize("NFKC").match(/第\s*(\d+)\s*回/);
+    return m ? Number(m[1]) : 0;
+  }
+  function foldList(container, key) {
+    var groups = {}, done = foldDoneThrough();
+    foldState[key] = foldState[key] || {};
+    var st = foldState[key];
+    return {
+      add: function (round, el, forceOpen) {
+        if (!round) { container.appendChild(el); return; }
+        var g = Math.floor((round - 1) / 5), lo = g * 5 + 1, hi = Math.min(g * 5 + 5, 19);
+        var d = groups[g];
+        if (!d) {
+          d = document.createElement("details");
+          d.className = "kq-fold";
+          d.open = st[g] !== undefined ? st[g] : !(g * 5 + 5 <= done);
+          var sm = document.createElement("summary");
+          sm.className = "kq-fold-head";
+          sm.textContent = "第" + lo + "〜" + hi + "回" + (g * 5 + 5 <= done ? "（組分けテストおわり）" : "");
+          d.appendChild(sm);
+          var inner = document.createElement("div");
+          inner.className = container.className;
+          inner.style.marginTop = "10px";
+          d.appendChild(inner);
+          d._inner = inner;
+          d.addEventListener("toggle", function () { st[g] = d.open; });
+          container.appendChild(d);
+          groups[g] = d;
+        }
+        if (forceOpen) d.open = true;
+        d._inner.appendChild(el);
+      }
+    };
+  }
+  function ensureFoldStyle() {
+    if (document.getElementById("kq-fold-style")) return;
+    var st = document.createElement("style");
+    st.id = "kq-fold-style";
+    st.textContent = ".kq-fold{border:2px solid var(--line,#ddd);border-radius:16px;padding:0 10px 10px;background:transparent}" +
+      ".kq-fold>summary{cursor:pointer;font-weight:900;font-size:14px;padding:12px 4px;list-style:none;display:flex;justify-content:space-between;align-items:center}" +
+      ".kq-fold>summary::-webkit-details-marker{display:none}" +
+      ".kq-fold>summary::after{content:'▾';font-size:14px;opacity:.7}" +
+      ".kq-fold:not([open])>summary::after{content:'▸'}" +
+      ".kq-fold:not([open]){padding-bottom:0}";
+    (document.head || document.documentElement).appendChild(st);
+  }
+  ensureFoldStyle();
+
   global.KQHub = {
     recordAnswer: recordAnswer,
     getScore: getScore,
@@ -544,6 +604,8 @@
     weightForScore: weightForScore,
     weightedSample: weightedSample,
     todayKey: todayKey,
+    foldList: foldList,
+    roundFromText: roundFromText,
     dateKey: dateKey,
     // --- GAS版の追加 ---
     pageUrl: pageUrl,
