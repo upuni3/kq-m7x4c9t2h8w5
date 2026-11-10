@@ -8,7 +8,7 @@
    ============================================================ */
 "use strict";
 
-var CACHE_NAME = "kq-cache-v1";
+var CACHE_NAME = "kq-cache-v2";
 var CACHE_PREFIX = "kq-cache-";
 var NAV_TIMEOUT_MS = 4000;   // 電波が弱いとき、ページはこの時間で保存分に切りかえる
 
@@ -25,7 +25,9 @@ var PRECACHE = [
   "./stars.js",
   "./stickers-award.js",
   "./stickers.js",
-  "./shakai-rounds.js"
+  "./shakai-rounds.js",
+  "./extras.js",
+  "./memory.html"
 ];
 
 function cacheKey(url) {

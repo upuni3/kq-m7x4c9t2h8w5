@@ -303,6 +303,8 @@
     <div class="sk-grid" id="skGrid" role="tabpanel"></div>
   </div>
 
+  <div class="card" id="extrasCard"></div>
+
   <div class="card">
     <div class="section-label">今日のおすすめ（タップしてすぐ始める）</div>
     <div class="reco-card" id="recoList"></div>
@@ -336,6 +338,7 @@
 <script src="stickers-award.js"></script>
 <script src="stickers.js"></script>
 <script src="shakai-rounds.js"></script>
+<script src="extras.js"></script>
 <script>
 /* ボスのHP計算用の「回→問題キー」索引（静的な予備）。教科ページを一度ひらくと、その教科はページが書く最新の索引
    （kqidx-教科-v1）が優先される。問題を増やしたら tools/gen-boss-static.js で作り直す。 */
@@ -930,6 +933,7 @@ renderSubjects();
 renderRecommendations();
 // ボスはシール帳より先に（たおしたごほうびのシールをシール帳の演出にのせるため）
 try{ renderBoss(); }catch(e){ if(window.console) console.error(e); }
+try{ if(window.KQExtras) window.KQExtras.render(document.getElementById("extrasCard")); }catch(e){ if(window.console) console.error(e); }
 // バッジで不具合が出ても、ほかの表示は壊さない（上の4つの後に実行）
 try{ renderBadges(); }catch(e){ if(window.console) console.error(e); }
 
@@ -1197,7 +1201,7 @@ try{ if(A && K) refresh(); else if(A) renderHint(A.readDaily()); }catch(e){ if(w
 
 // 教科ページから戻ったとき（bfcache・タブ復帰）にも見る
 function bossAgain(){ try{ if(window.KQHub && window.KQHub.reload) window.KQHub.reload(); renderBoss(); }catch(e){} }
-window.addEventListener("pageshow", function(ev){ if(ev.persisted){ bossAgain(); try{ renderTodayStats(); renderStars(); renderSubjects(); refresh(); }catch(e){} } });
+window.addEventListener("pageshow", function(ev){ if(ev.persisted){ bossAgain(); try{ renderTodayStats(); renderStars(); renderSubjects(); refresh(); if(window.KQExtras) window.KQExtras.render(document.getElementById("extrasCard")); }catch(e){} } });
 document.addEventListener("visibilitychange", function(){
   if(document.visibilityState === "visible"){ bossAgain(); try{ renderTodayStats(); renderStars(); refresh(); }catch(e){} }
 });

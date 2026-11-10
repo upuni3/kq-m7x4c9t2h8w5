@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>しんけいすいじゃく</title>
+<style>
+  :root{ --bg:#f6f4ef; --paper:#fff; --ink:#2b2a27; --ink-soft:#6b6a66; --line:#e3e0d8; }
+  *{ box-sizing:border-box; }
+  [hidden]{ display:none !important; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif; }
+  .wrap{ max-width:480px; margin:0 auto; padding:16px 16px 40px; }
+  h1{ font-size:20px; margin:4px 0 12px; }
+  .top{ display:flex; justify-content:space-between; align-items:center; }
+  .back{ font-size:13px; font-weight:800; color:var(--ink-soft); text-decoration:none; }
+  .card{ background:var(--paper); border:1px solid var(--line); border-radius:20px; padding:16px; margin-bottom:12px; }
+  .msg{ font-size:14px; font-weight:800; line-height:1.6; }
+  .btn{ appearance:none; border:none; border-radius:12px; padding:12px 18px; font-family:inherit; font-size:15px; font-weight:900; background:var(--ink); color:#fff; cursor:pointer; text-decoration:none; display:inline-block; margin:6px 6px 0 0; }
+  .btn.sub{ background:#e9e6dd; color:var(--ink); }
+  .stat{ display:flex; gap:16px; font-size:13px; font-weight:900; color:var(--ink-soft); margin-bottom:10px; }
+  .board{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+  .cd{ position:relative; aspect-ratio:1/1; border:none; padding:0; background:none; perspective:600px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .in{ position:absolute; inset:0; transition:transform .35s; transform-style:preserve-3d; }
+  .cd.up .in, .cd.ok .in{ transform:rotateY(180deg); }
+  .f, .b{ position:absolute; inset:0; border-radius:16px; backface-visibility:hidden; -webkit-backface-visibility:hidden; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  .b{ background:linear-gradient(135deg,#c196ee,#68b6f0); border:3px solid #fff; box-shadow:0 4px 10px -4px rgba(43,42,39,.35); font-size:34px; color:#fff; font-weight:900; }
+  .f{ transform:rotateY(180deg); background:#fff; border:3px solid var(--line); }
+  .cd.ok .f{ border-color:#58cfae; background:#f1fff9; }
+  .f svg{ width:100%; height:100%; display:block; }
+  .big{ font-size:22px; font-weight:900; margin:6px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><h1>🐱 しんけいすいじゃく</h1><a class="back" href="index.html">← げんかんへ</a></div>
+
+  <div class="card" id="intro">
+    <div class="msg" id="introMsg"></div>
+    <div id="introBtns"></div>
+  </div>
+
+  <div class="card" id="play" hidden>
+    <div class="stat"><span id="stMoves">0 かい</span><span id="stLeft">のこり 6 ペア</span></div>
+    <div class="board" id="board"></div>
+  </div>
+
+  <div class="card" id="clear" hidden>
+    <div class="big">🎉 ぜんぶ そろった！</div>
+    <div class="msg" id="clearMsg"></div>
+    <div id="clearBtns"></div>
+  </div>
+</div>
+
+<script src="stickers.js"></script>
+<script src="extras.js"></script>
+<script>
+(function(){
+  "use strict";
+  var E = window.KQExtras, S = window.KQStickers;
+  var PAIRS = 6;
+  var $ = function(id){ return document.getElementById(id); };
+  function show(id, on){ $(id).hidden = !on; }
+  function btn(text, cls, onClick, href){
+    var b = document.createElement(href ? "a" : "button");
+    b.className = "btn" + (cls ? " " + cls : "");
+    b.textContent = text;
+    if (href) b.href = href; else { b.type = "button"; b.addEventListener("click", onClick); }
+    return b;
+  }
+
+  function showIntro(){
+    show("play", false); show("clear", false); show("intro", true);
+    var msg = $("introMsg"), box = $("introBtns");
+    box.innerHTML = "";
+    if (!E || !S){ msg.textContent = "よみこみに しっぱいしたよ。げんかんから もういちど ひらいてね。"; box.appendChild(btn("げんかんへ", "sub", null, "index.html")); return; }
+    if (E.tickets() <= 0){
+      msg.textContent = "ミニゲームけんが ないよ。ボスをたおすと もらえるよ！（ふつうのボス1まい・魔王2まい）";
+      box.appendChild(btn("げんかんへ", "sub", null, "index.html"));
+    } else if (E.leftToday() <= 0){
+      msg.textContent = "きょうは もう " + E.DAILY_MAX + "かい あそんだよ。また あした あそぼう！";
+      box.appendChild(btn("げんかんへ", "sub", null, "index.html"));
+    } else {
+      msg.textContent = "ミニゲームけんを 1まい つかって あそぶよ。（いま " + E.tickets() + "まい ／ きょうは あと " + E.leftToday() + "かい）　おなじ ねこを 2まい そろえよう！";
+      box.appendChild(btn("けんを つかって はじめる", "", start));
+      box.appendChild(btn("やめる", "sub", null, "index.html"));
+    }
+  }
+
+  function shuffle(a){ for (var i = a.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+
+  var first = null, lock = false, moves = 0, matched = 0;
+  function start(){
+    if (!E.spend()){ showIntro(); return; }
+    var cat = S.STICKER_CATALOG;
+    // 3教科とキラから、ちがう柄を6つ
+    var picks = shuffle(cat.slice()).slice(0, PAIRS);
+    var deck = [];
+    picks.forEach(function(p, i){ deck.push({ k: i, p: p }); deck.push({ k: i, p: p }); });
+    shuffle(deck);
+    var board = $("board"); board.innerHTML = "";
+    first = null; lock = false; moves = 0; matched = 0;
+    deck.forEach(function(c, idx){
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "cd"; b.setAttribute("data-k", String(c.k));
+      b.setAttribute("aria-label", "カード " + (idx + 1));
+      var opts = {}; for (var key in c.p.opts) opts[key] = c.p.opts[key];
+      opts.uid = "g" + idx;
+      b.innerHTML = '<span class="in"><span class="b">?</span><span class="f">' + S.makeCatSticker(opts) + '</span></span>';
+      b.addEventListener("click", function(){ flip(b); });
+      board.appendChild(b);
+    });
+    updateStat();
+    show("intro", false); show("clear", false); show("play", true);
+  }
+  function updateStat(){
+    $("stMoves").textContent = moves + " かい";
+    $("stLeft").textContent = "のこり " + (PAIRS - matched) + " ペア";
+  }
+  function flip(b){
+    if (lock || b.classList.contains("up") || b.classList.contains("ok")) return;
+    b.classList.add("up");
+    if (!first){ first = b; return; }
+    moves++;
+    var a = first; first = null;
+    if (a.getAttribute("data-k") === b.getAttribute("data-k")){
+      a.classList.remove("up"); b.classList.remove("up");
+      a.classList.add("ok"); b.classList.add("ok");
+      matched++; updateStat();
+      if (matched === PAIRS) setTimeout(finish, 700);
+    } else {
+      lock = true; updateStat();
+      setTimeout(function(){ a.classList.remove("up"); b.classList.remove("up"); lock = false; }, 800);
+    }
+  }
+  function finish(){
+    show("play", false); show("clear", true);
+    var m = moves <= 8 ? "すごい！ " + moves + "かいで そろえたよ！" : moves <= 14 ? moves + "かいで そろえたよ！" : moves + "かいで そろえたよ。つぎは もっと はやく そろうかな？";
+    $("clearMsg").textContent = m;
+    var box = $("clearBtns"); box.innerHTML = "";
+    if (E.canPlay()){
+      box.appendChild(btn("もういちど（けん1まい）", "", start));
+    } else {
+      var p = document.createElement("div"); p.className = "msg"; p.style.marginTop = "8px";
+      p.textContent = E.tickets() <= 0 ? "けんは なくなったよ。ボスを たおして ゲットしよう！" : "きょうは もう " + E.DAILY_MAX + "かい あそんだよ。また あした！";
+      box.appendChild(p);
+    }
+    box.appendChild(btn("げんかんへ", "sub", null, "index.html"));
+  }
+  showIntro();
+})();
+</script>
+</body>
+</html>
