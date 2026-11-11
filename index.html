@@ -244,6 +244,21 @@
 
   <a class="hw-link" href="./hw.html"><span class="emoji">📋</span><span>今日の宿題を見る</span><span class="chevron">›</span></a>
 
+  <div class="offline-banner" id="offlineBanner" role="status" hidden>📴 いまはオフラインです。とき終わったら、家で「きろくを送る」をおしてね</div>
+
+  <div class="card">
+    <div class="section-label">今日のようす（3教科合計）</div>
+    <div class="stat-row">
+      <div class="stat"><div class="n" id="statTodayTotal">0問</div><div class="l">今日解いた数</div></div>
+      <div class="stat"><div class="n" id="statTodayAcc">–</div><div class="l">正答率</div></div>
+    </div>
+    <div class="stat-row subj-row">
+      <div class="stat kokugo"><div class="n" id="statTodayKokugo">0問</div><div class="l">📙 国語</div></div>
+      <div class="stat rika"><div class="n" id="statTodayRika">0問</div><div class="l">📘 理科</div></div>
+      <div class="stat shakai"><div class="n" id="statTodayShakai">0問</div><div class="l">📗 社会</div></div>
+    </div>
+  </div>
+
   <div class="card kqb-card" id="bossCard" hidden>
     <div class="section-label" id="bossTitle">⚔️ ボスとたたかう</div>
     <div class="kqb-sub" id="bossSub"></div>
@@ -257,27 +272,22 @@
     </div>
   </div>
 
-  <div class="offline-banner" id="offlineBanner" role="status" hidden>📴 いまはオフラインです。とき終わったら、家で「きろくを送る」をおしてね</div>
-
-  <div class="card sync-card" id="syncCard">
-    <div class="section-label">📮 きろくの送信</div>
-    <div class="sync-row"><span class="net" id="syncNet">オンライン</span><span class="state" id="syncStatus"></span></div>
-    <button type="button" class="send-btn" id="syncBtn">きろくを送る</button>
-    <div class="result" id="syncResult" role="status" aria-live="polite"></div>
-    <div class="note">外でネットがないときもクイズはできるよ。家に帰ったら「きろくを送る」をおしてね（19時のおしらせにのせるため）</div>
+  <div class="card">
+    <div class="section-label">今日のおすすめ（タップしてすぐ始める）</div>
+    <div class="reco-card" id="recoList"></div>
   </div>
 
   <div class="card">
-    <div class="section-label">今日のようす（3教科合計）</div>
-    <div class="stat-row">
-      <div class="stat"><div class="n" id="statTodayTotal">0問</div><div class="l">今日解いた数</div></div>
-      <div class="stat"><div class="n" id="statTodayAcc">–</div><div class="l">正答率</div></div>
-    </div>
-    <div class="stat-row subj-row">
-      <div class="stat kokugo"><div class="n" id="statTodayKokugo">0問</div><div class="l">📙 国語</div></div>
-      <div class="stat rika"><div class="n" id="statTodayRika">0問</div><div class="l">📘 理科</div></div>
-      <div class="stat shakai"><div class="n" id="statTodayShakai">0問</div><div class="l">📗 社会</div></div>
-    </div>
+    <div class="section-label">きょうかをえらぶ</div>
+    <div class="subject-grid" id="subjectGrid"></div>
+  </div>
+
+  <div class="card sticker-card" id="stickerCard">
+    <div class="section-label">🐱 シール帳</div>
+    <div class="sk-sum" id="skSum"></div>
+    <div class="sk-tabs" id="skTabs" role="tablist" aria-label="シール帳の教科"></div>
+    <div class="sk-prog" id="skProg"></div>
+    <div class="sk-grid" id="skGrid" role="tabpanel"></div>
   </div>
 
   <div class="card star-card" id="starCard">
@@ -295,24 +305,14 @@
     <div class="sticker-hint" id="stickerHint"></div>
   </div>
 
-  <div class="card sticker-card" id="stickerCard">
-    <div class="section-label">🐱 シール帳</div>
-    <div class="sk-sum" id="skSum"></div>
-    <div class="sk-tabs" id="skTabs" role="tablist" aria-label="シール帳の教科"></div>
-    <div class="sk-prog" id="skProg"></div>
-    <div class="sk-grid" id="skGrid" role="tabpanel"></div>
-  </div>
-
   <div class="card" id="extrasCard"></div>
 
-  <div class="card">
-    <div class="section-label">今日のおすすめ（タップしてすぐ始める）</div>
-    <div class="reco-card" id="recoList"></div>
-  </div>
-
-  <div class="card">
-    <div class="section-label">きょうかをえらぶ</div>
-    <div class="subject-grid" id="subjectGrid"></div>
+  <div class="card sync-card" id="syncCard">
+    <div class="section-label">📮 きろくの送信</div>
+    <div class="sync-row"><span class="net" id="syncNet">オンライン</span><span class="state" id="syncStatus"></span></div>
+    <button type="button" class="send-btn" id="syncBtn">きろくを送る</button>
+    <div class="result" id="syncResult" role="status" aria-live="polite"></div>
+    <div class="note">外でネットがないときもクイズはできるよ。家に帰ったら「きろくを送る」をおしてね（19時のおしらせにのせるため）</div>
   </div>
 
     <details class="xfer" id="xferCard">
