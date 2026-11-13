@@ -40,7 +40,7 @@
   </div>
 
   <div class="card" id="play" hidden>
-    <div class="stat"><span id="stMoves">0 かい</span><span id="stLeft">のこり 6 ペア</span></div>
+    <div class="stat"><span id="stMoves">ミス 0 かい</span><span id="stLeft">のこり 6 ペア</span></div>
     <div class="board" id="board"></div>
   </div>
 
@@ -113,7 +113,7 @@
     show("intro", false); show("clear", false); show("play", true);
   }
   function updateStat(){
-    $("stMoves").textContent = moves + " かい";
+    $("stMoves").textContent = "ミス " + (moves - matched) + " かい";
     $("stLeft").textContent = "のこり " + (PAIRS - matched) + " ペア";
   }
   function flip(b){
@@ -134,7 +134,8 @@
   }
   function finish(){
     show("play", false); show("clear", true);
-    var m = moves <= 8 ? "すごい！ " + moves + "かいで そろえたよ！" : moves <= 14 ? moves + "かいで そろえたよ！" : moves + "かいで そろえたよ。つぎは もっと はやく そろうかな？";
+    var miss = moves - matched, tries = miss + 1;
+    var m = miss === 0 ? "ノーミス！ 1かいで ぜんぶ そろえたよ！すごい！" : miss <= 4 ? "ミス " + miss + "かい。" + tries + "かいで そろえたよ！" : "ミス " + miss + "かい。" + tries + "かいで そろえたよ。つぎは もっと すくなく そろうかな？";
     $("clearMsg").textContent = m;
     var box = $("clearBtns"); box.innerHTML = "";
     if (E.canPlay()){
