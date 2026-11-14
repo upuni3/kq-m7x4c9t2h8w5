@@ -51,7 +51,9 @@
   </div>
 </div>
 
+<script src="stickers-award.js"></script>
 <script src="stickers.js"></script>
+<script src="stickers-season.js"></script>
 <script src="extras.js"></script>
 <script>
 (function(){
@@ -92,6 +94,14 @@
   function start(){
     if (!E.spend()){ showIntro(); return; }
     var cat = S.STICKER_CATALOG;
+    // 月のセット（その月になったものだけ）も柄に加える。古いファイルが残っていても動くよう、あるときだけ
+    try{
+      if (window.KQSeason && window.KQSeason.ALL && window.KQStickerAward && window.KQStickerAward.SEASONS){
+        var td = new Date(), tk = td.getFullYear() + "-" + ("0" + (td.getMonth() + 1)).slice(-2) + "-" + ("0" + td.getDate()).slice(-2);
+        var on = {}; window.KQStickerAward.SEASONS.forEach(function(se){ if (tk >= se.from) on[se.key] = 1; });
+        cat = cat.concat(window.KQSeason.ALL.filter(function(c){ return on[c.setKey]; }));
+      }
+    }catch(e){}
     // 3教科とキラから、ちがう柄を6つ
     var picks = shuffle(cat.slice()).slice(0, PAIRS);
     var deck = [];
@@ -105,7 +115,8 @@
       b.setAttribute("aria-label", "カード " + (idx + 1));
       var opts = {}; for (var key in c.p.opts) opts[key] = c.p.opts[key];
       opts.uid = "g" + idx;
-      b.innerHTML = '<span class="in"><span class="b">?</span><span class="f">' + S.makeCatSticker(opts) + '</span></span>';
+      var svg = (c.p.setKey && window.KQSeason) ? window.KQSeason.make(c.p, "-g" + idx) : S.makeCatSticker(opts);
+      b.innerHTML = '<span class="in"><span class="b">?</span><span class="f">' + svg + '</span></span>';
       b.addEventListener("click", function(){ flip(b); });
       board.appendChild(b);
     });

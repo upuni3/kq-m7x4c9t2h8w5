@@ -30,6 +30,21 @@
   var RESCUE_AFTER = 5;                     // ダブりがこの回数続いたら次は必ず新規
   var START_DATE = "2026-10-11"; // この日以降の記録だけシール対象（過去へは遡らない）
 
+  // ---- 月ごとの季節セット（その月の日付に獲得したシールは、ふだんの54種ではなくこのセットの柄から出る） ----
+  // セットの絵は stickers-season.js（KQSeason）。ID は "xmas-rika-03" のように セット名-教科-番号。
+  var SEASONS = [
+    { key: "xmas", from: "2026-12-01", to: "2026-12-31", name: "12がつ クリスマス", short: "12がつ" },
+    { key: "ny",   from: "2027-01-01", to: "2027-01-31", name: "1がつ おしょうがつ", short: "1がつ" }
+  ];
+  var SEASON_POOL = { rika: 5, shakai: 5, kokugo: 5, kira: 3 };   // セット内の種類数（18種）
+  var SEASON_RESCUE = 3;                                           // ダブりが3回続いたら次は必ず新柄（セットが小さいので短め）
+  function seasonFor(d) {
+    for (var i = 0; i < SEASONS.length; i++) if (d >= SEASONS[i].from && d <= SEASONS[i].to) return SEASONS[i];
+    return null;
+  }
+  function seasonIdOf(key, subject, index) { return key + "-" + subject + "-" + pad2(index + 1); }
+  var SEASON_ID_RE = /^([a-z]+)-(rika|shakai|kokugo|kira)-\d+$/;
+
   function num(v) {
     v = Number(v);
     return isFinite(v) && v > 0 ? Math.floor(v) : 0;
@@ -132,8 +147,24 @@
     opts = opts || {};
     var legacy = opts.legacy || {}, frozen = opts.frozen || {}, salt = opts.salt ? "|" + opts.salt : "";
     var bonus = opts.bonus || {};
-    var out = {}, count = {}, have = {}, run = {};
+    var out = {}, count = {}, have = {}, run = {}, scount = {}, srun = {};
     ALL.forEach(function (s) { out[s] = []; count[s] = 0; run[s] = 0; });
+    // 季節セットの抽選（セットごと・教科ごとに別カウント。同じ日付・同じ記録なら必ず同じ結果）
+    function pickSeason(se, s) {
+      var ck = se.key + "|" + s, n = scount[ck] || 0, pool = SEASON_POOL[s];
+      var r = rng(fmix(hashStr("kq-sticker-season1|" + ck + "|" + n + salt)))();
+      var id, rn = srun[ck] || 0, i;
+      if (rn >= SEASON_RESCUE) {
+        var un = [];
+        for (i = 0; i < pool; i++) if (!have[seasonIdOf(se.key, s, i)]) un.push(i);
+        id = un.length ? seasonIdOf(se.key, s, un[Math.floor(r * un.length)]) : seasonIdOf(se.key, s, Math.floor(r * pool));
+      } else {
+        id = seasonIdOf(se.key, s, Math.floor(r * pool));
+      }
+      srun[ck] = have[id] ? rn + 1 : 0;
+      scount[ck] = n + 1;
+      return id;
+    }
     function pick(s, n) {
       var L = legacy[s] === Infinity ? Infinity : num(legacy[s]);
       if (n < L) { run[s] = 0; return legacyStickerIdFor(s, n); }       // 旧分: 新規扱い・カウンタ0
@@ -157,14 +188,14 @@
     Object.keys(bonus).forEach(function (d) { if (days.indexOf(d) < 0) days.push(d); });
     days.sort().forEach(function (d) {
       if (d < START_DATE) return;
-      var c = dayCounts(daily && daily[d]), b = bonus[d] || {};
+      var c = dayCounts(daily && daily[d]), b = bonus[d] || {}, se = seasonFor(d);
       ALL.forEach(function (s) {
         var extra = SUBJECTS.indexOf(s) >= 0 ? num(b[s]) : 0;   // ボスのごほうびは教科シールだけ
         for (var i = 0; i < c[s] + extra; i++) {
-          var id = pick(s, count[s]);
+          var id = se ? pickSeason(se, s) : pick(s, count[s]);   // 季節セットの月は、その月のセットから
           have[id] = (have[id] || 0) + 1;
           out[s].push({ id: id, date: d, nth: have[id] });
-          count[s]++;
+          if (!se) count[s]++;                                   // ふだんの54種の通し番号は季節の月には進めない
         }
       });
     });
@@ -173,17 +204,21 @@
 
   /** 獲得リスト → 集計 { counts:{subject:枚数}, owned:{id:枚数}, distinct:{subject:種類数}, total } */
   function summarize(e) {
-    var counts = {}, owned = {}, distinct = {}, total = 0;
+    var counts = {}, owned = {}, distinct = {}, setDistinct = {}, total = 0;
     ALL.forEach(function (s) {
       counts[s] = e[s].length;
       total += e[s].length;
       distinct[s] = 0;
       e[s].forEach(function (a) {
-        if (!owned[a.id]) distinct[s]++;
+        var m = SEASON_ID_RE.exec(a.id);
+        if (!owned[a.id]) {
+          if (m) { setDistinct[m[1]] = setDistinct[m[1]] || {}; setDistinct[m[1]][s] = (setDistinct[m[1]][s] || 0) + 1; }
+          else distinct[s]++;                                    // distinct は「ふだんの54種」だけ数える
+        }
         owned[a.id] = (owned[a.id] || 0) + 1;
       });
     });
-    return { counts: counts, owned: owned, distinct: distinct, total: total };
+    return { counts: counts, owned: owned, distinct: distinct, setDistinct: setDistinct, total: total };
   }
 
   /** 未見の獲得分（教科の並び順 → 獲得順）。seen は {subject: 既見数}（無い教科は0）。 */
@@ -328,6 +363,7 @@
     legacyStickerIdFor: legacyStickerIdFor, legacyEarnedCounts: legacyEarnedCounts,
     parseLegacy: parseLegacy, readLegacy: readLegacy,
     idOf: idOf, permFor: permFor, stickerIdFor: stickerIdFor,
+    SEASONS: SEASONS, SEASON_POOL: SEASON_POOL, seasonFor: seasonFor, seasonIdOf: seasonIdOf,
     dayCounts: dayCounts, earned: earned, summarize: summarize, unseen: unseen,
     hintsForDay: hintsForDay, readDaily: readDaily,
     BOSS_KEY: BOSS_KEY, parseBonus: parseBonus, readBonus: readBonus,

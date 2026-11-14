@@ -337,6 +337,7 @@
 <script src="stars.js"></script>
 <script src="stickers-award.js"></script>
 <script src="stickers.js"></script>
+<script src="stickers-season.js"></script>
 <script src="shakai-rounds.js"></script>
 <script src="extras.js"></script>
 <script>
@@ -952,7 +953,10 @@ var catalog = {}, order = {};
 if(K && K.STICKER_CATALOG){
   K.STICKER_CATALOG.forEach(function(c){ catalog[c.id] = c; });
 }
+var SEASON_ON = !!(window.KQSeason && window.KQSeason.ALL && A && A.SEASONS && A.seasonFor);   // 季節セット（古いファイルが残っていたら無効）
+if(SEASON_ON){ window.KQSeason.ALL.forEach(function(c){ catalog[c.id] = c; }); }
 var curTab = "rika";
+var curSet = "";                         // "" = ふだんの54種 / "xmas" "ny" … = 月のセット
 var state = null;                        // { earned, sum, seen }
 
 function $(id){ return document.getElementById(id); }
@@ -963,6 +967,7 @@ function svgOf(id, suffix){
   var c = catalog[id];
   if(!c) return "";
   try{
+    if(c.setKey && window.KQSeason) return window.KQSeason.make(c, suffix || "");
     var o = {}; Object.keys(c.opts).forEach(function(k){ o[k] = c.opts[k]; });
     o.uid = id + (suffix || "");
     return K.makeCatSticker(o);
@@ -991,9 +996,20 @@ function compute(){
   return { daily:daily, earned:e, sum:A.summarize(e), seen:A.readSeen() };
 }
 function ids(subject){
-  var out = [], n = A.POOL[subject];
-  for(var i=0;i<n;i++) out.push(A.idOf(subject, i));
+  var out = [], i, n;
+  if(curSet && SEASON_ON){ n = A.SEASON_POOL[subject]; for(i=0;i<n;i++) out.push(A.seasonIdOf(curSet, subject, i)); return out; }
+  n = A.POOL[subject];
+  for(i=0;i<n;i++) out.push(A.idOf(subject, i));
   return out;
+}
+function poolOf(subject){ return (curSet && SEASON_ON) ? A.SEASON_POOL[subject] : A.POOL[subject]; }
+function distinctOf(sum, subject){ return (curSet && SEASON_ON) ? ((sum.setDistinct && sum.setDistinct[curSet] && sum.setDistinct[curSet][subject]) || 0) : sum.distinct[subject]; }
+function seasonOwned(sum, key){ var t = 0, d = (sum.setDistinct && sum.setDistinct[key]) || {}; Object.keys(d).forEach(function(s){ t += d[s]; }); return t; }
+function seasonPool(){ var t = 0; Object.keys(A.SEASON_POOL).forEach(function(s){ t += A.SEASON_POOL[s]; }); return t; }
+function visibleSeasons(sum){
+  if(!SEASON_ON) return [];
+  var today = (typeof todayKey === "function") ? todayKey() : "";
+  return A.SEASONS.filter(function(se){ return today >= se.from || seasonOwned(sum, se.key) > 0; });
 }
 
 /* ---- 玄関カードの1行ヒント ---- */
@@ -1021,7 +1037,32 @@ function renderBook(){
   var sum = state.sum;
   var types = 0, poolAll = 0;
   A.ALL.forEach(function(s){ types += sum.distinct[s]; poolAll += A.POOL[s]; });
+  var seasons = visibleSeasons(sum);
+  seasons.forEach(function(se){ types += seasonOwned(sum, se.key); poolAll += seasonPool(); });
   $("skSum").textContent = "もらったシール " + sum.total + "まい（しゅるい " + types + "/" + poolAll + "）";
+  if(curSet && !seasons.some(function(se){ return se.key === curSet; })) curSet = "";
+
+  // シリーズ（ふだん／月のセット）の切りかえ。月のセットが出ているときだけ表示
+  var sets = $("skSets");
+  if(!sets){
+    sets = el("div", "sk-tabs"); sets.id = "skSets"; sets.setAttribute("aria-label", "シールのシリーズ");
+    sets.style.marginBottom = "8px";
+    $("skTabs").parentNode.insertBefore(sets, $("skTabs"));
+  }
+  sets.innerHTML = "";
+  sets.hidden = !seasons.length;
+  if(seasons.length){
+    sets.style.gridTemplateColumns = "repeat(" + (seasons.length + 1) + ",1fr)";
+    var all = [{ key:"", name:"ふだんのネコ", n:types - seasons.reduce(function(a, se){ return a + seasonOwned(sum, se.key); }, 0), p:poolAll - seasons.length * seasonPool() }]
+      .concat(seasons.map(function(se){ return { key:se.key, name:se.short + " " + se.name.split(" ")[1], n:seasonOwned(sum, se.key), p:seasonPool() }; }));
+    all.forEach(function(x){
+      var b = el("button", "sk-tab"); b.type = "button"; b.setAttribute("role", "tab"); b.setAttribute("data-set", x.key);
+      b.setAttribute("aria-selected", x.key === curSet ? "true" : "false");
+      b.appendChild(el("span", "tn", x.name)); b.appendChild(el("span", "tc", x.n + "/" + x.p));
+      b.addEventListener("click", function(){ curSet = x.key; renderBook(); });
+      sets.appendChild(b);
+    });
+  }
 
   var tabs = $("skTabs");
   tabs.innerHTML = "";
@@ -1030,15 +1071,15 @@ function renderBook(){
     b.type = "button"; b.setAttribute("role", "tab"); b.setAttribute("data-s", s);
     b.setAttribute("aria-selected", s === curTab ? "true" : "false");
     b.appendChild(el("span", "tn", ICON[s] + A.NAMES[s]));
-    b.appendChild(el("span", "tc", sum.distinct[s] + "/" + A.POOL[s]));
+    b.appendChild(el("span", "tc", distinctOf(sum, s) + "/" + poolOf(s)));
     b.addEventListener("click", function(){ curTab = s; renderBook(); });
     tabs.appendChild(b);
   });
   renderTab();
 }
 function renderTab(){
-  var s = curTab, sum = state.sum, pool = A.POOL[s];
-  var have = sum.distinct[s], left = pool - have;
+  var s = curTab, sum = state.sum, pool = poolOf(s);
+  var have = distinctOf(sum, s), left = pool - have;
   var prog = $("skProg");
   prog.innerHTML = "";
   if(left > 0){
@@ -1094,7 +1135,7 @@ function finishReveal(){
   var fresh = compute();
   var first = state && state.pending && state.pending[0];
   A.writeSeen(fresh.sum.counts, fresh.seen);
-  if(first) curTab = first.subject;
+  if(first){ curTab = first.subject; var mm = /^([a-z]+)-(rika|shakai|kokugo|kira)-\d+$/.exec(first.id); curSet = (mm && SEASON_ON) ? mm[1] : ""; }
   state = null;
   renderBook();
 }
