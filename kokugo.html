@@ -140,6 +140,8 @@
   .progress-num{ font-size:12px; font-weight:700; color:var(--ink-soft); font-variant-numeric:tabular-nums; flex:none; }
 
   .quiz-card{ display:flex; flex-direction:column; gap:14px; }
+  .quiz-card{ position:relative; }
+  .score-chip{ position:absolute; top:12px; right:14px; min-width:44px; text-align:center; border-radius:999px; padding:4px 12px; font-weight:900; font-size:15px; font-variant-numeric:tabular-nums; line-height:1.3; }
   .cat-tag{
     align-self:flex-start; font-size:11px; font-weight:900; letter-spacing:.05em;
     color:var(--red-deep); background:var(--bg); border:1px solid var(--line);
@@ -1096,8 +1098,28 @@ function thisWeekTotals(){
   }
   return { total:total, correct:correct };
 }
+/* 問題の右上に「この問題の累積点」を出す（マイナスは黄→濃い赤、未挑戦はNew、プラスは緑） */
+function kqScoreChip(key){
+  try{
+    var host = document.querySelector(".quiz-card"); if(!host) return;
+    var el = document.getElementById("qScoreChip");
+    if(!el){ el = document.createElement("span"); el.id = "qScoreChip"; el.className = "score-chip"; host.appendChild(el); }
+    var seen = KQHub.hasAttempted ? KQHub.hasAttempted(key) : true, s = KQHub.getScore(key), bg, fg, txt;
+    if(!seen){ bg = "#e9e6dd"; fg = "#6b6a66"; txt = "New"; }
+    else if(s > 0){ bg = "#58cfae"; fg = "#063d30"; txt = "+" + s; }
+    else if(s === 0){ bg = "#FBE9A8"; fg = "#4a3a00"; txt = "0"; }
+    else if(s === -1){ bg = "#F7D154"; fg = "#4a3a00"; txt = "-1"; }
+    else if(s === -2){ bg = "#F2A33A"; fg = "#4a2a00"; txt = "-2"; }
+    else if(s === -3){ bg = "#E5693A"; fg = "#fff"; txt = "-3"; }
+    else if(s === -4){ bg = "#C73232"; fg = "#fff"; txt = "-4"; }
+    else { bg = "#8A1620"; fg = "#fff"; txt = String(s); }
+    el.style.background = bg; el.style.color = fg; el.textContent = txt;
+    el.setAttribute("aria-label", "この問題の累積点 " + txt);
+  }catch(e){}
+}
 function recordAnswer(unitId, id, correct){
   KQHub.recordAnswer(SUBJECT, fullKey(id), correct);
+  kqScoreChip(fullKey(id));
 }
 function weakCount(unitId, questions){
   return KQHub.countWeakFresh(questions.map(function(q){ return fullKey(q.id); }));
@@ -1472,6 +1494,7 @@ function renderQuestion(){
   progressNum.textContent = (quizIndex+1)+"/"+quizQueue.length;
   progressFill.style.width = ((quizIndex)/quizQueue.length*100)+"%";
   qCatTag.textContent = q.__catLabel || currentUnit.cats[q.cat];
+  kqScoreChip(fullKey(q.id));
   KQRetry.tag(qCatTag, retry.passAt(quizIndex));
   qText.innerHTML = String(q.q).replace(/\n/g, "<br>");
 
