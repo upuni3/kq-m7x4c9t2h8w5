@@ -409,14 +409,18 @@ function mostRecentWeekday(today, targetWd){
   while(d.getDay() !== targetWd) d = addDays(d, -1);
   return d;
 }
-// dはWed(3)またはFri(5)であること。基準金曜からのズレで回数を計算する（水曜は同じ週の金曜の回。金曜の休講ずれ=LESSON_OVERRIDESは水曜には及ばない）。
+// dはWed(3)またはFri(5)であること。水曜（算数・理科）と金曜（国語・社会）は別々に数える。
+// それぞれ「基準日の回」から1週ごとに+1。休講・振替で回がずれた日は LESSON_OVERRIDES に「日付: 回数」を足す（その日だけ上書き）。
+var LESSON_ANCHORS = { 3: ["2026-11-04", 11], 5: [LESSON_ANCHOR_FRI, LESSON_ANCHOR_NUM] };
 function lessonNumberForDate(d){
   var wd = d.getDay();
-  if(wd === 5 && LESSON_OVERRIDES[dateKey(d)] !== undefined) return LESSON_OVERRIDES[dateKey(d)];
-  var fri = (wd === 3) ? addDays(d, 2) : d;   // 水曜（算理）は同じ週の金曜と同じ回
-  var diffDays = daysBetween(parseDate(LESSON_ANCHOR_FRI), fri);
+  var ov = LESSON_OVERRIDES[dateKey(d)];
+  if(ov !== undefined) return ov;
+  var an = LESSON_ANCHORS[wd];
+  if(!an) return null;
+  var diffDays = daysBetween(parseDate(an[0]), d);
   if(diffDays % 7 !== 0) return null;
-  var n = LESSON_ANCHOR_NUM + diffDays / 7;
+  var n = an[1] + diffDays / 7;
   return n >= 1 ? n : null;
 }
 // 理科は水曜（算数理科）、国語は金曜（国語社会）に習う

@@ -128,14 +128,16 @@ function parseDate(s){ const [y,m,d]=s.split("-").map(Number); return new Date(y
 function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
 function todayStr(){ return fmtDate(new Date()); }
 
+// 水曜（算数・理科）と金曜（国語・社会）は別々に数える。基準日の回から1週ごとに+1。
+// 休講・振替でずれた日は LESSON_OVERRIDES に「日付: 回数」を足す（その日だけ上書き）。
+const LESSON_ANCHORS = { 3: ["2026-11-04", 11], 5: [LESSON_ANCHOR_FRI, LESSON_ANCHOR_NUM] };
 function lessonNumberForDate(ds){
   if(LESSON_OVERRIDES[ds] !== undefined) return LESSON_OVERRIDES[ds];
-  const d = parseDate(ds), wd = d.getDay();
-  if(wd!==3 && wd!==5) return null;
-  const fri = wd===3 ? addDays(d,2) : d;   // 水曜（算理）は同じ週の金曜と同じ回
-  const diff = Math.round((fri - parseDate(LESSON_ANCHOR_FRI))/86400000);
+  const d = parseDate(ds), an = LESSON_ANCHORS[d.getDay()];
+  if(!an) return null;
+  const diff = Math.round((d - parseDate(an[0]))/86400000);
   if(diff % 7 !== 0) return null;
-  return LESSON_ANCHOR_NUM + diff/7;
+  return an[1] + diff/7;
 }
 function lessonLabelForDate(ds){
   const n = lessonNumberForDate(ds); if(!n) return "";
