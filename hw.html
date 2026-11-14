@@ -132,7 +132,7 @@ function lessonNumberForDate(ds){
   if(LESSON_OVERRIDES[ds] !== undefined) return LESSON_OVERRIDES[ds];
   const d = parseDate(ds), wd = d.getDay();
   if(wd!==3 && wd!==5) return null;
-  const fri = wd===3 ? addDays(d,-5) : d;
+  const fri = wd===3 ? addDays(d,2) : d;   // 水曜（算理）は同じ週の金曜と同じ回
   const diff = Math.round((fri - parseDate(LESSON_ANCHOR_FRI))/86400000);
   if(diff % 7 !== 0) return null;
   return LESSON_ANCHOR_NUM + diff/7;

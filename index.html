@@ -409,11 +409,11 @@ function mostRecentWeekday(today, targetWd){
   while(d.getDay() !== targetWd) d = addDays(d, -1);
   return d;
 }
-// dはWed(3)またはFri(5)であること。基準金曜からのズレで回数を計算する。
+// dはWed(3)またはFri(5)であること。基準金曜からのズレで回数を計算する（水曜は同じ週の金曜の回。金曜の休講ずれ=LESSON_OVERRIDESは水曜には及ばない）。
 function lessonNumberForDate(d){
   var wd = d.getDay();
   if(wd === 5 && LESSON_OVERRIDES[dateKey(d)] !== undefined) return LESSON_OVERRIDES[dateKey(d)];
-  var fri = (wd === 3) ? addDays(d, -5) : d;
+  var fri = (wd === 3) ? addDays(d, 2) : d;   // 水曜（算理）は同じ週の金曜と同じ回
   var diffDays = daysBetween(parseDate(LESSON_ANCHOR_FRI), fri);
   if(diffDays % 7 !== 0) return null;
   var n = LESSON_ANCHOR_NUM + diffDays / 7;
