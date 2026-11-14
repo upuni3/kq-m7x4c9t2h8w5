@@ -198,8 +198,12 @@
   }
 
   /** にがて特訓の重み。スコアが低いほど選ばれやすいが、ゼロにはしない。 */
+  // マイナスほど急に出やすく（0点=4, -1=6, -3=10, -5=14）、プラスは出にくく（+1=2, +2=0.5, +3以上=0.3）。
   function weightForScore(score) {
-    return Math.max(1, 4 - score);
+    if (score <= 0) return 4 + 2 * (-score);
+    if (score === 1) return 2;
+    if (score === 2) return 0.5;
+    return 0.3;
   }
 
   /**
@@ -794,9 +798,10 @@
   function pickBattle(pool, keyFn, n) {
     var un = pool.filter(function (q) { return !isConquered(keyFn(q)); });
     var done = pool.filter(function (q) { return isConquered(keyFn(q)); });
-    // まぐれ正解の確認枠：+1点だけ（1回正解しただけ）の問題を、約3割（最低1問）ぶん混ぜる
+    // まぐれ正解の確認枠：+1点だけ（1回正解しただけ）の問題を、約1割（最低1問）ぶん混ぜる
     var once = done.filter(function (q) { return H.getScore(keyFn(q)) === 1; });
-    var quota = once.length ? Math.min(once.length, Math.max(1, Math.round(n * 0.3))) : 0;
+    // 未制覇が残っている間は約1割（最低1問）。未制覇がなければ混ぜない（残りは制覇済みから重み付きで補う）。
+    var quota = (once.length && un.length) ? Math.min(once.length, Math.max(1, Math.round(n * 0.1))) : 0;
     var a = H.weightedSample(un, keyFn, Math.min(n - quota, un.length));
     var onceP = H.weightedSample(once, keyFn, Math.min(n - a.length, quota));
     a = a.concat(onceP);
