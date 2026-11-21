@@ -205,11 +205,20 @@ function carriedOverItems(upto){
 }
 // 持ち越しはその日最初に表示した一覧を保持（チェックしても一覧から消えないように。親用画面と同じ挙動）
 let carryCacheDate = null, carryCache = [];
+// きょうの分も同じ：確認（おうちの人のチェック）まで終わったものは、🔄更新したときに一覧から消える。
+// 更新するまでは、チェックしても消えない。消えた分は「おわった」の数にだけ入れる。
+let todayCache = [], hiddenDone = 0;
 function carriedForToday(){
   const t = todayStr();
-  if(carryCacheDate!==t){ carryCacheDate=t; carryCache=carriedOverItems(t); }
+  if(carryCacheDate!==t){
+    carryCacheDate=t; carryCache=carriedOverItems(t);
+    const all = scheduledItemsForDate(t);
+    todayCache = all.filter(it=>{ const a = state.assignments.find(x=>x.id===it.aid); return !a || !isComplete(a, it.key, t); });
+    hiddenDone = all.length - todayCache.length;
+  }
   return carryCache;
 }
+function todayForToday(){ carriedForToday(); return todayCache; }
 
 function setSync(text, err){
   const el = document.getElementById("sync");
@@ -279,7 +288,7 @@ function render(){
   list.innerHTML = "";
   if(!state){ setStats(null); return; }
 
-  const items = scheduledItemsForDate(t).concat(carriedForToday());
+  const items = todayForToday().concat(carriedForToday());
   if(isTestDay(t)){
     list.innerHTML = `<div class="test-note">📝 きょうはテストの日。できる分だけやって、のこりは明日以降でOK</div>`;
   }
@@ -337,7 +346,7 @@ function twoTapButton(text, armedText, armedBg, filled, onConfirm){
 function setStats(items){
   const nL=document.getElementById("nLeft"), nD=document.getElementById("nDone"), nM=document.getElementById("nMin");
   if(!items){ nL.textContent=nD.textContent=nM.textContent="–"; return; }
-  let left=0, done=0, mins=0;
+  let left=0, done=hiddenDone, mins=0;
   items.forEach(it=>{
     const a = state.assignments.find(x=>x.id===it.aid); if(!a) return;
     if(getCheck(a,it.key).self) done++; else { left++; mins += minutesOf(it.est); }

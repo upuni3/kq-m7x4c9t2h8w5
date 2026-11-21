@@ -659,8 +659,14 @@
    [ボス] にがて退治のHPバー（window.KQBoss）
    - ボス = 教科 × カリキュラムテストの範囲（RANGES）。組分けテストは範囲内の2体。
    - HP = 範囲の問題のうち「まだ倒していない」問題の数（未挑戦 または score<=0）。最大HP = 範囲の問題数。
-   - HPが0になったら撃破。kq-hub-v1-boss に {"教科|範囲": 初めて倒した日} を保存（以後は復活しない）。
+   - HPが0になったら撃破。kq-hub-v1-boss に {"教科|範囲": 初めて倒した日} を保存。
      ごほうびシールは stickers-award.js がこの保存値を読んで、その日に教科シールを足す（ボス1まい・魔王2まい）。
+   - 周回（lap）: 各ボスに「N周目」がある（1始まり、上限 MAX_LAP）。N周目の制覇 ⇔ 累積点 >= N。HP = 範囲内で 累積点 < N の数。
+     N周目を倒したら報酬を保存して N+1 周目へ進む（1回の判定で進むのは最大1周）。報酬の保存キー:
+       1周目 = "教科|範囲"（従来と同じ。旧データはそのまま「1周目クリア済み＝いま2周目」）
+       N周目(N>=2) = "教科|範囲|N"。同じキーは1回だけ（冪等）＝ごほうび・ミニゲーム券の重複なし。
+     現在の周回は、この保存キーが連続して何周ぶんあるかで決まる（別の保存場所は持たない）。
+     あとで累積点が下がっても、もらった報酬は取り消さない。いまの周回の全問が基準を満たす（HP0）まで次の撃破は起きない。
    - 魔王：いちばん近いテストが組分けテストのとき、その範囲のボスは「魔王ぐも」になる（たおすとシール2まい）。
    - 回→問題キーの索引: 教科ページが開かれるたびに registerIndex() で kqidx-<教科>-v1 に書く
      （kq- で始めない＝「きろくを書き出す」に入れない。いつでも作り直せるキャッシュ）。
@@ -672,6 +678,7 @@
   var H = global.KQHub;
   if (!H) return;
   var STORE_KEY = "kq-hub-v1-boss";
+  var MAX_LAP = 99;   // 周回の上限（暴走防止）
   var IDX_PREFIX = "kqidx-";
   var IDX_VER = "-v1";
   var SUBJECTS = ["rika", "shakai", "kokugo"];
@@ -720,6 +727,9 @@
     return rounds.every(function (n) { return rec.test.rounds.indexOf(n) >= 0; });
   }
   function bossName(subject, rounds, maou) { return NAMES[subject] + " 第" + rounds.join("・") + "回の" + (maou ? "魔王" : "ボス"); }
+  function lapLabel(lap) { return Math.max(1, Math.floor(Number(lap)) || 1) + "周目"; }
+  /** 撃破報酬の保存キー：1周目は従来どおり "教科|範囲"、N周目(N>=2)は "教科|範囲|N" */
+  function lapKey(id, lap) { return lap <= 1 ? id : id + "|" + lap; }
 
   /* ---- 回→問題キーの索引 ---- */
   var live = {};
@@ -765,10 +775,11 @@
   }
 
   /* ---- HP ---- */
-  function isConquered(key) { return H.getScore(key) > 0; }
-  function hpOfKeys(keys) {
+  // lap周目の制覇 ⇔ 累積点 >= lap（1周目は従来の「累積点>0」と同じ）
+  function isConquered(key, lap) { return H.getScore(key) >= (lap > 1 ? lap : 1); }
+  function hpOfKeys(keys, lap) {
     var hp = 0;
-    keys.forEach(function (k) { if (!isConquered(k)) hp++; });
+    keys.forEach(function (k) { if (!isConquered(k, lap)) hp++; });
     return { hp: hp, max: keys.length };
   }
 
@@ -779,36 +790,61 @@
   // 保存値は "YYYY-MM-DD"（ふつうのボス＝シール1まい）か {d:"YYYY-MM-DD", n:2}（魔王＝シール2まい）
   function storeDate(v) { return typeof v === "string" ? v : (v && typeof v === "object" && typeof v.d === "string" ? v.d : null); }
   function storeReward(v) { return v && typeof v === "object" && Number(v.n) > 1 ? Math.floor(Number(v.n)) : 1; }
-  function defeatedOn(subject, rounds) { return storeDate(readStore()[bossId(subject, rounds)]); }
-  /** いまの状態 { subject, rounds, id, name, maou, reward, known, hp, max, defeated(日付|null), ready } */
+  /** いまの周回（保存キーが連続している数 + 1。旧形式 "教科|範囲" だけなら2周目） */
+  function lapIn(store, id) {
+    var n = 1;
+    while (n < MAX_LAP && store[lapKey(id, n)]) n++;
+    return n;
+  }
+  function lapOf(subject, rounds) { return lapIn(readStore(), bossId(subject, rounds)); }
+  /** 直近に倒した周回の保存値（まだ1周も倒していなければ undefined） */
+  function lastSaved(store, id, lap) {
+    if (lap >= MAX_LAP && store[lapKey(id, MAX_LAP)]) return store[lapKey(id, MAX_LAP)];
+    return lap > 1 ? store[lapKey(id, lap - 1)] : undefined;
+  }
+  /** 最後に倒した日（まだ倒していなければ null） */
+  function defeatedOn(subject, rounds) {
+    var id = bossId(subject, rounds), store = readStore();
+    return storeDate(lastSaved(store, id, lapIn(store, id)));
+  }
+  /** いまの状態 { subject, rounds, id, name, maou, reward, known, hp, max, lap, label, clears, lastDefeated,
+   *              defeated(日付|null: 上限周回まで倒した時だけ), ready }
+   *  hp はいまの周回の基準で数える。clears = 倒した周回の数。 */
   function status(subject, rounds, keys) {
     var ks = keys || keysFor(subject, rounds);
-    var saved = readStore()[bossId(subject, rounds)];
-    var dDate = storeDate(saved);
-    // たおしたあとは、たおした時の姿（魔王/ボス）のまま。まだなら今日の判定
-    var maou = dDate ? storeReward(saved) > 1 : isMaou(subject, rounds);
-    var o = { subject: subject, rounds: rounds.slice(), id: bossId(subject, rounds), name: bossName(subject, rounds, maou),
+    var id = bossId(subject, rounds), store = readStore();
+    var lap = lapIn(store, id);
+    var capped = lap >= MAX_LAP && !!store[lapKey(id, MAX_LAP)];
+    var last = lastSaved(store, id, lap);
+    var lastDate = storeDate(last);
+    // 上限まで倒したあとはその姿のまま。それ以外は今日の判定（魔王かどうか）
+    var maou = capped ? storeReward(store[lapKey(id, MAX_LAP)]) > 1 : isMaou(subject, rounds);
+    var o = { subject: subject, rounds: rounds.slice(), id: id, name: bossName(subject, rounds, maou),
               maou: maou, reward: maou ? 2 : 1,
-              known: !!ks, hp: null, max: null, defeated: dDate, ready: false };
-    if (ks) { var h = hpOfKeys(ks); o.hp = h.hp; o.max = h.max; o.ready = h.max > 0; }
+              lap: lap, label: lapLabel(lap), clears: capped ? lap : lap - 1, lastDefeated: lastDate,
+              known: !!ks, hp: null, max: null, defeated: capped ? lastDate : null, ready: false };
+    if (ks) { var h = hpOfKeys(ks, lap); o.hp = h.hp; o.max = h.max; o.ready = h.max > 0; }
     return o;
   }
-  /** HP0なら撃破を保存。初めての撃破なら true（ごほうびシールはこの保存から導かれる：ボス1まい・魔王2まい） */
+  /** いまの周回のHPが0なら撃破を保存して次の周回へ進む（1回の判定で最大1周）。撃破したら true。
+   *  ごほうびシール（ボス1まい・魔王2まい）とミニゲーム券は、この保存から導かれる。 */
   function checkDefeat(subject, rounds, keys) {
     var st = status(subject, rounds, keys);
     if (st.defeated || !st.ready || st.hp !== 0) return false;
-    var s = readStore();
-    if (s[st.id]) return false;
-    s[st.id] = st.maou ? { d: H.todayKey(), n: 2 } : H.todayKey();
+    var s = readStore(), k = lapKey(st.id, st.lap);
+    if (s[k]) return false;
+    noteBoss(st, false);   // [LINE通知用] HP0に届いた周回の最後の記録（保存後は次の周回の表示に変わる）
+    s[k] = st.maou ? { d: H.todayKey(), n: 2 } : H.todayKey();
     try { global.localStorage.setItem(STORE_KEY, JSON.stringify(s)); } catch (e) { return false; }
-    return defeatedOn(subject, rounds) !== null;
+    return !!readStore()[k];
   }
   /** ボスせんの出題：まだ倒していない問題（未挑戦＋にがて）を優先し、足りなければ倒した問題から補う */
-  function pickBattle(pool, keyFn, n) {
-    var un = pool.filter(function (q) { return !isConquered(keyFn(q)); });
-    var done = pool.filter(function (q) { return isConquered(keyFn(q)); });
-    // まぐれ正解の確認枠：+1点だけ（1回正解しただけ）の問題を、約1割（最低1問）ぶん混ぜる
-    var once = done.filter(function (q) { return H.getScore(keyFn(q)) === 1; });
+  function pickBattle(pool, keyFn, n, lap) {
+    if (!lap) lap = lapForPool(pool, keyFn);
+    var un = pool.filter(function (q) { return !isConquered(keyFn(q), lap); });
+    var done = pool.filter(function (q) { return isConquered(keyFn(q), lap); });
+    // まぐれ正解の確認枠：制覇ラインちょうど（1周目なら+1点＝1回正解しただけ）の問題を、約1割（最低1問）ぶん混ぜる
+    var once = done.filter(function (q) { return H.getScore(keyFn(q)) === lap; });
     // 未制覇が残っている間は約1割（最低1問）。未制覇がなければ混ぜない（残りは制覇済みから重み付きで補う）。
     var quota = (once.length && un.length) ? Math.min(once.length, Math.max(1, Math.round(n * 0.1))) : 0;
     var a = H.weightedSample(un, keyFn, Math.min(n - quota, un.length));
@@ -820,6 +856,15 @@
     }
     for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; }
     return a;
+  }
+  /** ボスせんの URL（?boss=1&rounds=..）のとき、その範囲のいまの周回。それ以外は1周目扱い */
+  function lapForPool(pool, keyFn) {
+    try {
+      var r = battleParam();
+      if (!r || !pool.length) return 1;
+      var k = String(keyFn(pool[0])), i = k.indexOf(":");
+      return i > 0 ? lapOf(k.slice(0, i), r) : 1;
+    } catch (e) { return 1; }
   }
   function battleUrl(subject, rounds) { return H.pageUrl(subject, { start: "weak", rounds: rounds.join(","), boss: 1 }); }
   /** URL が ?start=weak&rounds=..&boss=1 なら範囲を返す */
@@ -843,10 +888,12 @@
       if (!st || !st.ready || st.hp === null) return;
       var d = H.todayKey();
       if (st.defeated && st.defeated !== d) return;     // 前の日に倒したボスは対象外
-      var s = readDayStore(), day = s[d] || {}, e = day[st.id];
-      if (!e) e = { n: st.name, f: st.hp, t: st.hp, m: st.max };
-      if (!before) { e.t = st.hp; e.n = st.name; e.m = st.max; }
-      day[st.id] = e;
+      // 周回ごとに別の行（1周目のキーは従来どおり st.id）。名前に「N周目」を付けてLINEに送る
+      var lk = lapKey(st.id, st.lap), title = st.name + " " + st.label;
+      var s = readDayStore(), day = s[d] || {}, e = day[lk];
+      if (!e) e = { n: title, f: st.hp, t: st.hp, m: st.max };
+      if (!before) { e.t = st.hp; e.n = title; e.m = st.max; }
+      day[lk] = e;
       var out = {}, keep = Object.keys(s).sort().slice(-6);
       keep.forEach(function (k) { if (k !== d) out[k] = s[k]; });
       out[d] = day;
@@ -882,7 +929,8 @@
     var el = T.hud(subject, rounds);
     host.insertBefore(el, host.firstChild);
     function update() {
-      var first = checkDefeat(subject, rounds, keys);
+      noteBoss(status(subject, rounds, keys), false);
+      var first = checkDefeat(subject, rounds, keys);   // 撃破なら保存して次の周回へ（st は次の周回の姿、st.clears が倒した周回数）
       var st = status(subject, rounds, keys);
       noteBoss(st, false);
       T.updateHud(el, st);
@@ -938,6 +986,7 @@
     snapshotBefore: snapshotBefore, bossDay: bossDay,
     autoFocus: autoFocus, autoUpdate: autoUpdate, autoClear: autoClear, rangeOfKey: rangeOfKey,
     STORE_KEY: STORE_KEY, IDX_PREFIX: IDX_PREFIX, SUBJECTS: SUBJECTS, NAMES: NAMES, RANGES: RANGES, TESTS: TESTS,
+    MAX_LAP: MAX_LAP, lapOf: lapOf, lapLabel: lapLabel, lapKey: lapKey,
     rangeId: rangeId, bossId: bossId, findRange: findRange, bossesForTest: bossesForTest, recommend: recommend, bossName: bossName, isMaou: isMaou,
     storeDate: storeDate, storeReward: storeReward,
     registerIndex: registerIndex, indexFor: indexFor, keysFor: keysFor,
@@ -1017,13 +1066,15 @@
       hp: "のこりHP",
       fight: "たたかう",
       defeated: "たおした！",
+      cleared: function (n) { return n + "周クリア！"; },
       notReady: "📸 問題じゅんび中：テキストのこの回の写真をとって、パパにわたそう",
       unknown: "HPはクイズをひらくと わかるよ",
       other: "ほかのボスをえらぶ",
       otherClose: "とじる",
       range: function (r) { return "第" + r.join("・") + "回"; },
-      winTitle: function (st) { return st.maou ? "魔王をたおした！" : "ボスをたおした！"; },
-      winSub: function (st) { return st.name + "を やっつけたよ"; },
+      // st は撃破のあとの姿（st.clears = たおした周回の数、st.lap = つぎの周回）
+      winTitle: function (st) { return (st.maou ? "魔王をたおした！" : "ボスをたおした！") + "（" + (st.clears || 1) + "周目）"; },
+      winSub: function (st) { return st.name + " " + (st.clears || 1) + "周目を やっつけたよ" + (st.lap > 1 && st.clears < st.lap ? "　つぎは" + st.lap + "周目！" : ""); },
       winSticker: function (st) { return "ごほうびシールを" + (st.reward || 1) + "まい ゲット！"; },
       winStickerHub: "シール帳で はがしてね",
       winStickerPage: "げんかんの シール帳で はがしてね",
@@ -1033,6 +1084,8 @@
 
   var CSS = [
     ".kqb-card .kqb-sub{font-size:12.5px;font-weight:700;color:#6b6a66;margin:-4px 0 10px}",
+    ".kqb-lap{display:inline-block;margin-left:6px;font-size:11.5px;font-weight:900;border-radius:999px;padding:1px 8px;background:#fff;color:#444;border:1.5px solid currentColor;vertical-align:1px}",
+    ".kqb-hud.is-maou .kqb-lap,.kqb-row.is-maou .kqb-lap{background:#151219;color:#fff}",
     ".kqb-list{display:flex;flex-direction:column;gap:8px}",
     ".kqb-row{display:flex;align-items:center;gap:12px;border-radius:16px;padding:10px 12px;text-decoration:none;color:var(--kqb-ink);background:var(--kqb-bg);border:2px solid transparent}",
     "a.kqb-row:active{transform:scale(.99)}",
@@ -1132,6 +1185,7 @@
     var body = el("span", "kqb-body");
     body.appendChild(el("span", "kqb-name", st.name));
     body.lastChild.style.display = "block";
+    if (st.lap) body.lastChild.appendChild(el("span", "kqb-lap", st.label));
     if (st.ready) {
       body.appendChild(bar(st.hp, st.max, !!st.defeated));
       body.appendChild(el("span", "kqb-hpt", hpText(st)));
@@ -1142,6 +1196,7 @@
     }
     r.appendChild(body);
     if (st.defeated) r.appendChild(el("span", "kqb-badge", T.defeated));
+    else if (st.clears > 0) r.appendChild(el("span", "kqb-badge", T.cleared(st.clears)));
     else if (can) r.appendChild(el("span", "kqb-go", T.fight));
     return r;
   }
@@ -1162,7 +1217,9 @@
   }
   function updateHud(h, st) {
     var prev = h.getAttribute("data-hp");
-    h.querySelector(".kqb-name").textContent = st.name;
+    var nm = h.querySelector(".kqb-name");
+    nm.textContent = st.name;
+    if (st.lap) nm.appendChild(el("span", "kqb-lap", st.label));
     var ava = h.querySelector(".kqb-ava");
     var down = !!st.defeated || st.hp === 0;
     var look = (down ? "d" : "") + (st.maou ? "m" : "");
@@ -1171,7 +1228,7 @@
     h.classList.toggle("is-maou", !!st.maou && !down);
     setBar(h.querySelector(".kqb-bar"), st.hp || 0, st.max || 0);
     h.querySelector(".kqb-bar").className = "kqb-bar" + (st.defeated && st.hp > 0 ? " is-faded" : "");
-    h.querySelector(".kqb-hpt").textContent = hpText(st) + (st.defeated ? "　" + BOSS_THEME.text.defeated : "");
+    h.querySelector(".kqb-hpt").textContent = hpText(st) + (st.defeated ? "　" + BOSS_THEME.text.defeated : (st.clears > 0 ? "　" + BOSS_THEME.text.cleared(st.clears) : ""));
     if (prev !== null && Number(prev) > st.hp) { h.classList.remove("hit"); void h.offsetWidth; h.classList.add("hit"); }
     h.setAttribute("data-hp", String(st.hp));
   }

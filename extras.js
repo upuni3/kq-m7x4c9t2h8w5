@@ -34,7 +34,14 @@
     SUBJECTS.forEach(function (sub) {
       RANGES.forEach(function (r) {
         var e = entry(s[bossId(sub, r)]);
-        out.push({ subject: sub, rounds: r.slice(), defeated: e ? e.d : null, maou: !!(e && e.n > 1) });
+        // 周回: 2周目以降の報酬キー "教科|範囲|N"（N=2..99）。extra=その券の合計、laps=倒した周回数
+        var extra = 0, laps = e ? 1 : 0;
+        for (var lp = 2; lp <= 99; lp++) {
+          var e2 = entry(s[bossId(sub, r) + "|" + lp]);
+          if (!e2) break;
+          laps++; extra += (e2.n > 1 ? 2 : 1);
+        }
+        out.push({ subject: sub, rounds: r.slice(), defeated: e ? e.d : null, maou: !!(e && e.n > 1), extra: extra, laps: laps });
       });
     });
     return out;
@@ -42,7 +49,7 @@
 
   // ---- 券 ----
   function earned() {
-    return bossList().reduce(function (a, b) { return a + (b.defeated ? (b.maou ? 2 : 1) : 0); }, 0);
+    return bossList().reduce(function (a, b) { return a + (b.defeated ? (b.maou ? 2 : 1) : 0) + (b.extra || 0); }, 0);
   }
   function game() {
     var g = readJson(GAME_KEY);
@@ -126,7 +133,7 @@
       list.filter(function (b) { return b.subject === sub; }).forEach(function (b) {
         var c = el("div", "kx-b" + (b.defeated ? "" : " is-no") + (b.maou ? " is-maou" : ""));
         var ar = el("span", "art"); ar.innerHTML = art(b); c.appendChild(ar);
-        c.appendChild(el("div", "nm", b.defeated ? (b.maou ? "魔王 " : "") + "第" + b.rounds.join("・") + "回" : "？？？"));
+        c.appendChild(el("div", "nm", b.defeated ? (b.maou ? "魔王 " : "") + "第" + b.rounds.join("・") + "回" + (b.laps >= 2 ? "（" + b.laps + "周クリア）" : "") : "？？？"));
         c.appendChild(el("div", "dt", b.defeated ? b.defeated.slice(5).replace("-", "/") : "まだ"));
         g.appendChild(c);
       });
