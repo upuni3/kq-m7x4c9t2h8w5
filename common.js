@@ -134,6 +134,8 @@
    * 戻り値: { score, recovered } recovered はマイナス→プラスに戻った回（にがて克服）ならtrue
    */
   function recordAnswer(subject, key, correct) {
+    // [LINE通知用] 解く前のボスHPをその日の最初の1回だけ記録（HPが何から何に変わったかを送るため）
+    try { if (global.KQBoss && global.KQBoss.snapshotBefore) global.KQBoss.snapshotBefore(subject, key); } catch (e) {}
     var before = stats.score[key] || 0;
     var after = correct ? before + 1 : before - 1;
     stats.score[key] = after;
@@ -354,6 +356,13 @@
       out[s] = { total: t, correct: c };
       any = true;
     });
+    if (any) {
+      // [LINE通知用] その日HPが動いたボス [{n:名前, f:はじめのHP, t:いまのHP, m:最大HP}]
+      try {
+        var bd = global.KQBoss && global.KQBoss.bossDay ? global.KQBoss.bossDay(dateStr) : null;
+        if (bd && bd.length) out.boss = bd;
+      } catch (e) {}
+    }
     return any ? out : null;
   }
 
@@ -823,6 +832,48 @@
    * 教科ページのクイズ画面の上に出すHPバー。host（クイズ画面の section）の先頭に置く。
    * update() は1しゅうめの解答のあとに呼ぶ。HPが0になったらその場でお祝い（1回だけ）。
    */
+  /* ---- [LINE通知用] その日のボスHPの変化（はじめ→いま）を端末に記録 ----
+     保存先は stats.daily ではなく別キー（stats.daily の直下は教科ごとの集計なので混ぜない）。 */
+  var DAY_KEY = "kq-hub-v1-bossday";
+  function readDayStore() {
+    try { var p = JSON.parse(global.localStorage.getItem(DAY_KEY) || "{}"); return p && typeof p === "object" && !Array.isArray(p) ? p : {}; } catch (e) { return {}; }
+  }
+  function noteBoss(st, before) {
+    try {
+      if (!st || !st.ready || st.hp === null) return;
+      var d = H.todayKey();
+      if (st.defeated && st.defeated !== d) return;     // 前の日に倒したボスは対象外
+      var s = readDayStore(), day = s[d] || {}, e = day[st.id];
+      if (!e) e = { n: st.name, f: st.hp, t: st.hp, m: st.max };
+      if (!before) { e.t = st.hp; e.n = st.name; e.m = st.max; }
+      day[st.id] = e;
+      var out = {}, keep = Object.keys(s).sort().slice(-6);
+      keep.forEach(function (k) { if (k !== d) out[k] = s[k]; });
+      out[d] = day;
+      global.localStorage.setItem(DAY_KEY, JSON.stringify(out));
+    } catch (e) {}
+  }
+  /** 解く前のHPを記録（その日そのボスの最初の1回だけ効く） */
+  function snapshotBefore(subject, key) {
+    try {
+      var r = rangeOfKey(subject, key);
+      if (!r) return;
+      var keys = keysFor(subject, r);
+      if (!keys || !keys.length) return;
+      noteBoss(status(subject, r, keys), true);
+    } catch (e) {}
+  }
+  /** 指定日にHPが動いたボスの一覧（変わっていないものは含めない） */
+  function bossDay(dateStr) {
+    var day = readDayStore()[dateStr], out = [];
+    if (!day) return out;
+    Object.keys(day).forEach(function (id) {
+      var e = day[id];
+      if (e && e.f !== e.t) out.push({ n: String(e.n), f: Number(e.f), t: Number(e.t), m: Number(e.m) });
+    });
+    return out;
+  }
+
   function mountBattle(host, subject, rounds, keys) {
     var T = global.KQBossTheme;
     if (!host || !T) return null;
@@ -833,6 +884,7 @@
     function update() {
       var first = checkDefeat(subject, rounds, keys);
       var st = status(subject, rounds, keys);
+      noteBoss(st, false);
       T.updateHud(el, st);
       if (first) T.celebrate(st, { where: "page" });
       return st;
@@ -883,6 +935,7 @@
   function autoUpdate() { try { if (auto.hud) auto.hud.update(); } catch (e) {} }
 
   global.KQBoss = {
+    snapshotBefore: snapshotBefore, bossDay: bossDay,
     autoFocus: autoFocus, autoUpdate: autoUpdate, autoClear: autoClear, rangeOfKey: rangeOfKey,
     STORE_KEY: STORE_KEY, IDX_PREFIX: IDX_PREFIX, SUBJECTS: SUBJECTS, NAMES: NAMES, RANGES: RANGES, TESTS: TESTS,
     rangeId: rangeId, bossId: bossId, findRange: findRange, bossesForTest: bossesForTest, recommend: recommend, bossName: bossName, isMaou: isMaou,
