@@ -39,8 +39,18 @@
     { key: "xmas", from: "2026-11-23", to: "2026-12-31", name: "12がつ クリスマス", short: "12がつ" },
     { key: "ny",   from: "2099-01-01", to: "2027-01-31", name: "1がつ おしょうがつ", short: "1がつ" }
   ];
-  var SEASON_POOL = { rika: 5, shakai: 5, kokugo: 5, kira: 3 };   // セット内の種類数（18種）
-  var SEASON_RESCUE = 3;                                           // ダブりが3回続いたら次は必ず新柄（セットが小さいので短め）
+  // セット内の種類数。季節ごとに持つ（xmas=54種：ふだんと同じ15/15/15/9、ny=18種：5/5/5/3）。
+  // 使うときは poolFor(季節キー, 教科) を通す。ny を将来54種にするときは、ここの ny を 15/15/15/9 にして stickers-season.js の NY を足す。
+  // 【注意】プールの数を変えると、その季節で獲得済みのシールの絵が変わる（抽選は floor(乱数×プール数)）。公開済み・獲得者のいる季節の数字は変えないこと。
+  var SEASON_POOL = {
+    xmas: { rika: 15, shakai: 15, kokugo: 15, kira: 9 },
+    ny:   { rika: 5, shakai: 5, kokugo: 5, kira: 3 }
+  };
+  // ダブりが続いたら次は必ず新柄、にする回数（季節ごと）。54種のxmasは ふだん(RESCUE_AFTER=5)と同じ。小さいセット(ny=18種)は従来どおり3
+  var SEASON_RESCUE = { xmas: 5, ny: 3 };
+  var SEASON_RESCUE_DEFAULT = 3;
+  function poolFor(key, subject) { var p = SEASON_POOL[key]; return (p && p[subject]) || 0; }
+  function rescueFor(key) { return SEASON_RESCUE[key] || SEASON_RESCUE_DEFAULT; }
   function seasonFor(d) {
     for (var i = 0; i < SEASONS.length; i++) if (d >= SEASONS[i].from && d <= SEASONS[i].to) return SEASONS[i];
     return null;
@@ -154,10 +164,10 @@
     ALL.forEach(function (s) { out[s] = []; count[s] = 0; run[s] = 0; });
     // 季節セットの抽選（セットごと・教科ごとに別カウント。同じ日付・同じ記録なら必ず同じ結果）
     function pickSeason(se, s) {
-      var ck = se.key + "|" + s, n = scount[ck] || 0, pool = SEASON_POOL[s];
+      var ck = se.key + "|" + s, n = scount[ck] || 0, pool = poolFor(se.key, s);
       var r = rng(fmix(hashStr("kq-sticker-season1|" + ck + "|" + n + salt)))();
       var id, rn = srun[ck] || 0, i;
-      if (rn >= SEASON_RESCUE) {
+      if (rn >= rescueFor(se.key)) {
         var un = [];
         for (i = 0; i < pool; i++) if (!have[seasonIdOf(se.key, s, i)]) un.push(i);
         id = un.length ? seasonIdOf(se.key, s, un[Math.floor(r * un.length)]) : seasonIdOf(se.key, s, Math.floor(r * pool));
@@ -366,7 +376,7 @@
     legacyStickerIdFor: legacyStickerIdFor, legacyEarnedCounts: legacyEarnedCounts,
     parseLegacy: parseLegacy, readLegacy: readLegacy,
     idOf: idOf, permFor: permFor, stickerIdFor: stickerIdFor,
-    SEASONS: SEASONS, SEASON_POOL: SEASON_POOL, seasonFor: seasonFor, seasonIdOf: seasonIdOf,
+    SEASONS: SEASONS, SEASON_POOL: SEASON_POOL, SEASON_RESCUE: SEASON_RESCUE, poolFor: poolFor, rescueFor: rescueFor, seasonFor: seasonFor, seasonIdOf: seasonIdOf,
     dayCounts: dayCounts, earned: earned, summarize: summarize, unseen: unseen,
     hintsForDay: hintsForDay, readDaily: readDaily,
     BOSS_KEY: BOSS_KEY, parseBonus: parseBonus, readBonus: readBonus,

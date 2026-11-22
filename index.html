@@ -997,15 +997,17 @@ function compute(){
 }
 function ids(subject){
   var out = [], i, n;
-  if(curSet && SEASON_ON){ n = A.SEASON_POOL[subject]; for(i=0;i<n;i++) out.push(A.seasonIdOf(curSet, subject, i)); return out; }
+  if(curSet && SEASON_ON){ n = seasonPoolOf(curSet, subject); for(i=0;i<n;i++) out.push(A.seasonIdOf(curSet, subject, i)); return out; }
   n = A.POOL[subject];
   for(i=0;i<n;i++) out.push(A.idOf(subject, i));
   return out;
 }
-function poolOf(subject){ return (curSet && SEASON_ON) ? A.SEASON_POOL[subject] : A.POOL[subject]; }
+function poolOf(subject){ return (curSet && SEASON_ON) ? seasonPoolOf(curSet, subject) : A.POOL[subject]; }
 function distinctOf(sum, subject){ return (curSet && SEASON_ON) ? ((sum.setDistinct && sum.setDistinct[curSet] && sum.setDistinct[curSet][subject]) || 0) : sum.distinct[subject]; }
 function seasonOwned(sum, key){ var t = 0, d = (sum.setDistinct && sum.setDistinct[key]) || {}; Object.keys(d).forEach(function(s){ t += d[s]; }); return t; }
-function seasonPool(){ var t = 0; Object.keys(A.SEASON_POOL).forEach(function(s){ t += A.SEASON_POOL[s]; }); return t; }
+// 季節セットのプール数は季節ごと（xmas=54種／ny=18種）。古い stickers-award.js（教科だけのフラットな SEASON_POOL）が残っていても動くようにしてある
+function seasonPoolOf(key, subject){ if(A.poolFor) return A.poolFor(key, subject); var p = A.SEASON_POOL || {}; return (typeof p[subject] === "number" ? p[subject] : (p[key] && p[key][subject])) || 0; }
+function seasonPool(key){ var t = 0; A.ALL.forEach(function(s){ t += seasonPoolOf(key, s); }); return t; }
 function visibleSeasons(sum){
   if(!SEASON_ON) return [];
   var today = (typeof todayKey === "function") ? todayKey() : "";
@@ -1038,7 +1040,7 @@ function renderBook(){
   var types = 0, poolAll = 0;
   A.ALL.forEach(function(s){ types += sum.distinct[s]; poolAll += A.POOL[s]; });
   var seasons = visibleSeasons(sum);
-  seasons.forEach(function(se){ types += seasonOwned(sum, se.key); poolAll += seasonPool(); });
+  seasons.forEach(function(se){ types += seasonOwned(sum, se.key); poolAll += seasonPool(se.key); });
   $("skSum").textContent = "もらったシール " + sum.total + "まい（しゅるい " + types + "/" + poolAll + "）";
   if(curSet && !seasons.some(function(se){ return se.key === curSet; })) curSet = "";
 
@@ -1053,8 +1055,8 @@ function renderBook(){
   sets.hidden = !seasons.length;
   if(seasons.length){
     sets.style.gridTemplateColumns = "repeat(" + (seasons.length + 1) + ",1fr)";
-    var all = [{ key:"", name:"ふだんのネコ", n:types - seasons.reduce(function(a, se){ return a + seasonOwned(sum, se.key); }, 0), p:poolAll - seasons.length * seasonPool() }]
-      .concat(seasons.map(function(se){ return { key:se.key, name:se.short + " " + se.name.split(" ")[1], n:seasonOwned(sum, se.key), p:seasonPool() }; }));
+    var all = [{ key:"", name:"ふだんのネコ", n:types - seasons.reduce(function(a, se){ return a + seasonOwned(sum, se.key); }, 0), p:poolAll - seasons.reduce(function(a, se){ return a + seasonPool(se.key); }, 0) }]
+      .concat(seasons.map(function(se){ return { key:se.key, name:se.short + " " + se.name.split(" ")[1], n:seasonOwned(sum, se.key), p:seasonPool(se.key) }; }));
     all.forEach(function(x){
       var b = el("button", "sk-tab"); b.type = "button"; b.setAttribute("role", "tab"); b.setAttribute("data-set", x.key);
       b.setAttribute("aria-selected", x.key === curSet ? "true" : "false");

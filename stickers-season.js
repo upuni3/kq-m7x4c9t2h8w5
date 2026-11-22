@@ -2,7 +2,7 @@
    stickers-season.js — 季節（月）シリーズのネコシール（12月＝クリスマス／1月＝お正月）
    stickers.js（KQStickers）のあとに読み込む。新しい頭・服・小物を KQStickers の HEADS/OUTFITS/PROPS に足し、
    KQSeason.SETS = { xmas:[18枚], ny:[18枚] } と KQSeason.make(entry) を提供する。
-   各セット：理科5・社会5・国語5・キラ3。
+   各セット（ny）：理科5・社会5・国語5・キラ3。xmas は 54種：理科15・社会15・国語15・キラ9（先頭の5/5/5/3＝18種は従来のまま）。
    ============================================================ */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory(require('./stickers.js'));
@@ -106,6 +106,70 @@
       K('M72,50 C72,40 128,40 128,50 C130,58 120,60 100,60 C80,60 70,58 72,50Z', c, 3.2) + Ci(100, 36, 11, '#ff9a2e', 3) + HL('M94,32 q4,-4 9,-3', 2.2) + K('M100,26 q8,-8 16,-3 q-6,8 -16,3Z', '#4fbf6a', 2.2);
   } };
 
+  // ---- 12月クリスマス 54種化で追加した頭（ここから）----
+  function hollyLeaf(col, L) {
+    L = L || 26; var h = L / 26;
+    return K('M0,0 L' + r1(5 * h) + ',-5 L' + r1(8 * h) + ',-3 L' + r1(13 * h) + ',-8 L' + r1(16 * h) + ',-4 L' + r1(22 * h) + ',-6 L' + r1(L) + ',0 L' + r1(22 * h) + ',6 L' + r1(16 * h) + ',4 L' + r1(13 * h) + ',8 L' + r1(8 * h) + ',3 L' + r1(5 * h) + ',5Z', col, 2.2) + Q('M2,0 H' + r1(L - 4), shade(col, -0.3), 1.4, 0.8);
+  }
+  function hollyBerries(x, y, r) {
+    r = r || 4; return Ci(x, y, r, '#e23b3b', 1.8) + Ci(r1(x + r * 1.7), r1(y + r * 0.7), r, '#e23b3b', 1.8) + Ci(r1(x - r * 1.1), r1(y + r * 1.4), r, '#c42a2a', 1.8) + Ci(r1(x - r * 0.35), r1(y - r * 0.35), r * 0.28, '#fff', 0);
+  }
+  HEADS.earmuff = { c1: '#e23b3b', c2: '#fffaf0', draw: function (c, c2) {
+    function muff(sg) { var x = 100 + sg * 47, s = '', i; for (i = 0; i < 8; i++) { var a = i * Math.PI / 4; s += Ci(r1(x + Math.cos(a) * 10.5), r1(94 + Math.sin(a) * 10.5), 6.6, c2, 2.2); } return s + Ci(x, 94, 11, c2, 0) + HL('M' + (x - 7) + ',89 q4,-5 9,-4', 2.2); }
+    return Q('M55,90 C52,44 148,44 145,90', INK, 9.6) + Q('M55,90 C52,44 148,44 145,90', shade(c, -0.1), 5.8) + Q('M68,60 C82,51 98,49 112,52', '#fff', 2, 0.55) + muff(-1) + muff(1);
+  } };
+  HEADS.holly = { c1: '#2f9a52', draw: function (c) {
+    return Q('M57,86 C58,52 142,52 143,86', INK, 8.6) + Q('M57,86 C58,52 142,52 143,86', '#e23b3b', 5) +
+      Gp('translate(116,62) rotate(-150)', hollyLeaf(c, 30)) + Gp('translate(116,62) rotate(-28)', hollyLeaf(shade(c, -0.12), 30)) + Gp('translate(116,62) rotate(-92)', hollyLeaf(shade(c, 0.1), 26)) + hollyBerries(114, 64, 4.2);
+  } };
+  HEADS.candyhat = { c1: '#e23b3b', c2: '#fffaf0', draw: function (c, c2, x) {
+    var id = x.P + 'cdh', d = 'M74,70 L78,30 Q100,24 122,30 L126,70Z', st = '', i;
+    x.defs.push('<clipPath id="' + id + '"><path d="' + d + '"/></clipPath>');
+    for (i = -1; i < 7; i++) st += 'M' + (56 + i * 14) + ',74 L' + (96 + i * 14) + ',22 ';
+    return Gp('rotate(-7 100 62)', '<path d="' + d + '" fill="' + c2 + '"/><g clip-path="url(#' + id + ')">' + Q(st, c, 7.4) + '</g><path class="zk" d="' + d + '" fill="none" stroke-width="3.2"/>' +
+      El(100, 71, 38, 9, '#2f9a52', 3.2) + Rc(77, 58, 46, 10, 0, '#2f9a52', 0) + Q('M77,63 H123', '#1f6a3a', 1.4, 0.6) + Gp('translate(120,62) rotate(-20)', hollyLeaf('#3fb867', 16)) + hollyBerries(112, 64, 2.8) + Q('M76,31 Q100,24 124,31', '#fff', 2.2, 0.6));
+  } };
+  HEADS.icecrown = { c1: '#bfe8ff', draw: function (c) {
+    return K('M60,82 L61,50 L77,66 L90,36 L100,62 L110,36 L123,66 L139,50 L140,82Z', c, 3.2) + HL('M66,72 L66,58 M92,52 L94,44', 2.4) + K('M60,76 Q100,86 140,76 V88 Q100,98 60,88Z', shade(c, -0.1), 3) +
+      snowflake(100, 74, 6, '#fff', 1.8) + Ci(100, 90, 0, '#fff', 0) + Ci(70, 82, 3.2, '#ff8fd0', 1.6) + Ci(130, 82, 3.2, '#ff8fd0', 1.6) + st4(90, 34, 5, '#fff') + st4(110, 34, 5, '#fff') + st4(138, 46, 4, '#fff');
+  } };
+  HEADS.candlecrown = { c1: '#3fae5c', draw: function (c) {
+    var s = '', i;
+    [[82, 62], [100, 59], [118, 62]].forEach(function (p) { s += Rc(p[0] - 4.6, p[1] - 14, 9.2, 16, 2, '#fffaf0', 2.4) + K('M' + p[0] + ',' + (p[1] - 16) + ' q-5,-6 0,-12 q5,6 0,12Z', '#ffb02e', 2.2) + Q('M' + p[0] + ',' + (p[1] - 18) + ' v-4', '#fff3b0', 1.8); });
+    for (i = 0; i < 11; i++) { var a = Math.PI * (1.04 + i * 0.092), x = 100 + Math.cos(a) * 46, y = 88 + Math.sin(a) * 26; s += El(r1(x), r1(y), 10.5, 5.4, i % 2 ? c : shade(c, -0.14), 2.4, r1(a * 180 / Math.PI + 90)); }
+    return s + Ci(66, 66, 3.6, '#e23b3b', 1.8) + Ci(134, 66, 3.6, '#e23b3b', 1.8) + Ci(100, 70, 3.6, '#e23b3b', 1.8);
+  } };
+  HEADS.nutcracker = { c1: '#d03030', draw: function (c) {
+    return K('M72,78 L74,42 H126 L128,78Z', c, 3.2) + Rc(74, 40, 52, 7, 0, '#ffd23f', 2.4) + Rc(72, 64, 56, 12, 0, '#ffd23f', 2.4) + Q('M100,48 V62 M88,48 V62 M112,48 V62', '#ffd23f', 2.4, 0.9) +
+      K('M66,80 Q100,92 134,80 L134,86 Q100,98 66,86Z', '#2c2a3a', 2.6) + Ci(100, 36, 7, '#fffaf0', 2.8) + Ci(93, 39, 5, '#fffaf0', 2.4) + Ci(107, 39, 5, '#fffaf0', 2.4) + st5(100, 55, 4.6, '#fffaf0', 1.6);
+  } };
+  HEADS.jester = { c1: '#e23b3b', c2: '#2f9a52', draw: function (c, c2) {
+    return Gp('translate(100,80) scale(.93) translate(-100,-80)', K('M62,86 C54,64 42,54 30,62 C42,66 48,74 54,84 C64,84 82,80 100,74Z', c, 3.2) + Ci(29, 63, 5, '#ffd23f', 2.2) +
+      K('M138,86 C146,64 158,54 170,62 C158,66 152,74 146,84 C136,84 118,80 100,74Z', c2, 3.2) + Ci(171, 63, 5, '#ffd23f', 2.2) +
+      K('M60,86 C70,66 84,58 100,56 C116,58 130,66 140,86 C120,80 100,78 100,78 C100,78 80,80 60,86Z', shade(c, -0.05), 3.2) + Q('M100,56 C100,66 100,72 100,78', INK, 2.4, 0.5) +
+      K('M58,80 Q100,90 142,80 L144,92 Q100,102 56,92Z', '#fffaf0', 3) + Q('M64,86 l6,6 l6,-6 l6,6 l6,-6 l6,6 l6,-6 l6,6 l6,-6 l6,6 l6,-6 l6,6', '#ffd23f', 2, 0.9) + Ci(100, 52, 5, '#ffd23f', 2.2));
+  } };
+  HEADS.treehat = { c1: '#2f9a52', draw: function (c) {
+    return Gp('translate(100,66) scale(.74)', K('M-28,8 L0,-16 L28,8Z', c, 3.2) + K('M-21,-8 L0,-32 L21,-8Z', shade(c, 0.1), 3.2) + K('M-14,-24 L0,-46 L14,-24Z', shade(c, 0.2), 3.2) + st5(0, -50, 8, '#ffd23f', 2.2) +
+      Q('M-22,2 Q-8,-6 6,0 Q14,3 24,-2', '#fffaf0', 2.6, 0.9) + Ci(-14, 2, 3.2, '#e23b3b', 1.6) + Ci(16, 0, 3.2, '#4a90f0', 1.6) + Ci(-4, -14, 3, '#ffd23f', 1.6) + Ci(6, -28, 2.6, '#ff8fb6', 1.6));
+  } };
+  HEADS.giftbox = { c1: '#4a90f0', draw: function (c) {
+    return Gp('rotate(-7 100 62)', Rc(72, 46, 56, 24, 3, c, 3.2) + Rc(68, 38, 64, 11, 3, shade(c, 0.14), 3.2) + Rc(94.5, 38, 11, 32, 0, '#ffd23f', 2.4) + HL('M76,56 V64', 2.4) +
+      K('M100,38 C90,18 72,22 80,32 C85,38 95,38 100,38Z', '#ffd23f', 2.6) + K('M100,38 C110,18 128,22 120,32 C115,38 105,38 100,38Z', '#ffd23f', 2.6) + Ci(100, 36, 4, '#e8a010', 2));
+  } };
+  HEADS.xbow = { c1: '#e23b3b', c2: '#2f8a4a', draw: function (c, c2) {
+    var pl = Q('M-26,-12 V-2 M-20,-16 V0 M-14,-14 V-2', c2, 2.2, 0.8) + Q('M-28,-8 H-10', shade(c, -0.25), 1.6, 0.8);
+    return Gp('translate(126,64) rotate(-14)', K('M0,2 L-12,22 L-2,24 L6,8Z', shade(c, -0.1), 2.6) + K('M0,2 L14,20 L5,24 L-4,8Z', shade(c, -0.1), 2.6) + K('M0,0 C-8,-18 -30,-20 -32,-6 C-32,8 -12,8 0,0Z', c, 3) + pl + K('M0,0 C8,-18 30,-20 32,-6 C32,8 12,8 0,0Z', c, 3) + Gp('scale(-1,1)', pl) + Ci(0, 0, 6, shade(c, 0.12), 2.6) + Ci(0, 0, 2.4, '#ffd23f', 0));
+  } };
+  HEADS.hood = { c1: '#3a7bd5', c2: '#fffaf0', back: function (c) {
+    return K('M42,132 C30,80 62,34 100,34 C138,34 170,80 158,132Z', c, 3.4) + Q('M60,60 C70,46 86,40 98,40', '#fff', 2.4, 0.45);
+  }, draw: function (c, c2) {
+    var s = Q('M58,102 C56,70 76,60 100,60 C124,60 144,70 142,102', INK, 15.4) + Q('M58,102 C56,70 76,60 100,60 C124,60 144,70 142,102', c2, 11.4), i;
+    for (i = 0; i < 12; i++) { var a = Math.PI * (1.0 + i * 0.0865), px = 100 + Math.cos(a) * 43.5, py = 102 + Math.sin(a) * 40; s += Ci(r1(px), r1(py), 5.6, c2, 0); }
+    return s + Q('M66,84 C70,72 82,66 94,65', '#fff', 2, 0.7);
+  } };
+  // ---- 頭の追加ここまで ----
+
   // =====================================================================
   // 服（肩ライン上端 y=144）
   // =====================================================================
@@ -144,6 +208,78 @@
     s += Q('M30,196 H170', shade(oc, 0.2), 2.4, 0.6);
     return s;
   } };
+
+  // ---- 12月クリスマス 54種化で追加した服（ここから）----
+  function bodyClip(o) { return 'url(#cs' + (o && o.uid) + '_bc)'; }
+  OUTFITS.parka = { oc: '#2f7ad0', tc: '#fffaf0', sh: '#173a78', base: function (oc) { return oc; }, draw: function (oc, tc, F, o) {
+    var s = Q('M20,166 Q100,182 180,166 M14,182 Q100,198 186,182', shade(oc, -0.32), 3, 0.9) + Q('M58,158 L50,200 M142,158 L150,200 M78,164 L76,200 M122,164 L124,200', shade(oc, -0.25), 2.2, 0.55);
+    s += Q('M100,166 V200', INK, 4.6) + Q('M100,166 V200', '#fff', 1.6, 0.8) + K('M100,178 l-4,7 h8z', '#ffd23f', 1.8);
+    s += K('M58,146 Q100,170 142,146 L150,160 Q100,190 50,160Z', tc, 3.2);
+    for (var i = 0; i < 7; i++) { var t = i / 6; s += Ci(r1(56 + t * 88), r1(155 + Math.sin(t * Math.PI) * 15), 5.2, tc, 0); }
+    return s + Q('M64,156 Q100,176 136,156', shade(tc, -0.1), 2, 0.6);
+  } };
+  OUTFITS.plaid = { oc: '#c0392b', tc: '#fffaf0', sh: '#7a2a2e', base: function (oc) { return oc; }, draw: function (oc, tc, F, o) {
+    var s = '<g clip-path="' + bodyClip(o) + '">', i;
+    for (i = 0; i < 9; i++) s += Rc(18 + i * 20, 144, 7, 60, 0, shade(oc, -0.3), 0).replace('<rect', '<rect fill-opacity=".55"');
+    for (i = 0; i < 5; i++) s += '<rect x="0" y="' + (152 + i * 12) + '" width="200" height="5" fill="' + shade(oc, -0.3) + '" fill-opacity=".55"/>';
+    s += Q('M10,160 H190 M10,178 H190 M10,196 H190', '#ffd23f', 1.4, 0.7) + '</g>';
+    s += K('M72,144 L100,172 L128,144 L120,142 L100,160 L80,142Z', tc, 2.8) + Q('M100,172 V200', INK, 2.4, 0.8) + Ci(100, 182, 2.8, '#ffd23f', 1.6) + Ci(100, 194, 2.8, '#ffd23f', 1.6);
+    return s;
+  } };
+  OUTFITS.xapron = { oc: '#2f8a4a', tc: '#e23b3b', sh: '#174a28', base: function (oc) { return oc; }, draw: function (oc, tc) {
+    var s = K('M74,146 L126,146 L140,200 H60Z', '#fffaf0', 3.2) + Q('M74,146 L56,156 M126,146 L144,156', '#fffaf0', 4.6) + Q('M74,146 L56,156 M126,146 L144,156', INK, 1, 0.4);
+    s += Q('M70,172 H130', tc, 3, 0.9) + Q('M66,190 H134', tc, 3, 0.9);
+    s += Ci(100, 160, 7, tc, 2.4) + Ci(96.4, 158, 1.8, '#fff', 0) + K('M94,163 L100,170 L106,163Z', tc, 0);
+    s += Rc(84, 176, 32, 14, 3, '#fff', 2.6) + Q('M92,176 V166 q0,-5 5,-5', '#e23b3b', 3.4) + Q('M104,176 l4,-12', '#3fb867', 3.4) + Ci(112, 164, 3.6, '#ffd23f', 1.6);
+    return s;
+  } };
+  OUTFITS.nutcoat = { oc: '#d03030', tc: '#ffd23f', sh: '#7a1620', base: function (oc) { return oc; }, draw: function (oc, tc) {
+    var s = K('M82,144 H118 V158 L100,166 L82,158Z', tc, 2.8) + Q('M100,146 V200', INK, 2.6) + Q('M70,150 L112,200 M130,150 L88,200', '#fffaf0', 3.4, 0.95);
+    [[88, 172], [112, 172], [88, 186], [112, 186]].forEach(function (p) { s += Ci(p[0], p[1], 3.4, tc, 1.8); });
+    s += K('M30,168 L56,152 L64,163 L38,180Z', tc, 2.8) + Q('M36,174 L56,162', '#e8a010', 2) + K('M170,168 L144,152 L136,163 L162,180Z', tc, 2.8) + Q('M164,174 L144,162', '#e8a010', 2);
+    return s + Rc(20, 192, 160, 8, 0, '#2c2a3a', 2.4);
+  } };
+  OUTFITS.elfsuit = { oc: '#2f9a52', tc: '#e23b3b', sh: '#175a2c', base: function (oc) { return oc; }, draw: function (oc, tc) {
+    var s = K('M56,148 L66,166 L78,152 L88,168 L100,154 L112,168 L122,152 L134,166 L144,148 L136,144 H64Z', tc, 2.8) + Ci(100, 158, 5.4, '#ffd23f', 2.2) + Q('M97,157 h6', INK, 1.4);
+    s += Rc(14, 178, 172, 12, 0, '#2c2a3a', 3) + Rc(86, 175, 28, 18, 4, '#ffd23f', 2.8) + Rc(94, 180, 12, 8, 2, '#c8921a', 1.6);
+    for (var i = 0; i < 6; i++) s += st5(30 + i * 28, 168, 4, '#ffd23f', 1.2);
+    return s + Q('M18,198 l10,-8 l10,8 l10,-8 l10,8 l10,-8 l10,8 l10,-8 l10,8 l10,-8 l10,8 l10,-8 l10,8 l10,-8 l10,8', tc, 3, 0.9);
+  } };
+  OUTFITS.poncho = { oc: '#e23b3b', tc: '#fffaf0', sh: '#7a2a2e', base: function (oc) { return oc; }, draw: function (oc, tc, F, o) {
+    var s = '<g clip-path="' + bodyClip(o) + '">', cols = [oc, tc, '#2f8a4a', tc, oc, '#2f8a4a'], i;
+    for (i = 0; i < 6; i++) s += '<rect x="0" y="' + (148 + i * 10) + '" width="200" height="10" fill="' + cols[i] + '"/>';
+    s += Q('M10,158 H190 M10,168 H190 M10,178 H190 M10,188 H190 M10,198 H190', INK, 1.6, 0.35) + '</g>';
+    s += K('M66,146 Q100,162 134,146 L136,158 Q100,174 64,158Z', shade(oc, -0.12), 3) + Q('M72,156 q4,6 8,3 M92,162 q4,6 8,2 M112,161 q4,5 8,0', shade(oc, -0.32), 2, 0.7);
+    return s + Q('M100,172 V196', INK, 2, 0.4) + Ci(100, 190, 3.4, '#ffd23f', 1.8);
+  } };
+  OUTFITS.ginger = { oc: '#b9733a', tc: '#fffaf0', sh: '#6a3a14', base: function (oc) { return oc; }, draw: function (oc, tc) {
+    var s = Q('M52,158 q6,9 12,0 q6,9 12,0 q6,9 12,0 q6,9 12,0 q6,9 12,0 q6,9 12,0 q6,9 12,0', tc, 4.4) + Q('M18,184 q6,-9 12,0 q6,-9 12,0 q6,-9 12,0 q6,-9 12,0 q6,-9 12,0 q6,-9 12,0 q6,-9 12,0 q6,-9 12,0 q6,-9 12,0 q6,-9 12,0 q6,-9 12,0 q6,-9 12,0', tc, 3.6);
+    s += Ci(100, 172, 5.6, '#e23b3b', 2.2) + Ci(100, 192, 5.6, '#3fb867', 2.2) + Ci(98, 170, 1.6, '#fff', 0) + Ci(98, 190, 1.6, '#fff', 0);
+    return s + Ci(54, 176, 3.4, '#ffd23f', 1.6) + Ci(146, 176, 3.4, '#4a90f0', 1.6) + Ci(36, 194, 3, '#e23b3b', 1.4) + Ci(164, 194, 3, '#e23b3b', 1.4);
+  } };
+  OUTFITS.furcape = { oc: '#b0233a', tc: '#fffaf0', sh: '#5e1020', base: function (oc) { return oc; }, draw: function (oc, tc) {
+    var s = K('M92,158 H108 V200 H92Z', tc, 3) + Q('M70,150 Q86,178 90,200 M130,150 Q114,178 110,200', shade(oc, -0.3), 2.6, 0.7);
+    s += K('M54,146 Q100,172 146,146 L152,162 Q100,192 48,162Z', tc, 3.4);
+    [[64, 160], [82, 170], [118, 170], [136, 160], [100, 176]].forEach(function (p) { s += '<path d="M' + p[0] + ',' + p[1] + ' l-2.4,8 l2.4,-1.6 l2.4,1.6z" fill="' + INK + '"/>'; });
+    return s + Q('M84,150 Q100,164 116,150', '#ffd23f', 2.4) + Ci(100, 160, 5, '#ffd23f', 2.2) + st4(50, 180, 5, '#fff') + st4(152, 184, 5, '#fff');
+  } };
+  OUTFITS.xgown = { oc: '#9c1f3c', tc: '#f6b82e', sh: '#4a0c1c', base: function (oc) { return oc; }, draw: function (oc, tc) {
+    var s = K('M70,144 L100,178 L130,144 L122,144 L100,166 L78,144Z', tc, 2.8) + Q('M72,146 L100,176 L128,146', '#fff7c0', 1.8, 0.9);
+    s += Q('M12,170 C44,160 70,170 100,178 C130,170 156,160 188,170', tc, 3.4) + Q('M14,188 Q100,176 186,188', '#fffaf0', 6) + Q('M14,188 Q100,176 186,188', INK, 1, 0.3);
+    return s + st4(44, 176, 6, '#fff7c0', '#d9941a') + st4(156, 178, 6, '#fff7c0', '#d9941a') + st4(100, 192, 5, '#fff7c0', '#d9941a') + Ci(100, 182, 5, '#ff5f7a', 2.2) + Ci(98.4, 180.4, 1.4, '#fff', 0);
+  } };
+  OUTFITS.lightsuit = { oc: '#1f6a3a', tc: '#ffd23f', sh: '#0e3a1e', base: function (oc) { return oc; }, draw: function (oc, tc) {
+    var cols = ['#e23b3b', '#ffd23f', '#4a90f0', '#ff8fb6', '#6dffb4'], s = '';
+    [[150, 'M16,168 C50,186 150,186 184,168'], [168, 'M12,186 C50,204 150,204 188,186']].forEach(function (g, gi) {
+      s += Q(g[1], INK, 4.6) + Q(g[1], '#3a3a4a', 2);
+      for (var i = 0; i < 8; i++) {
+        var t = (i + 0.5) / 8, y0 = gi ? 186 : 168, px = (gi ? 12 : 16) + t * (gi ? 176 : 168), py = y0 + Math.sin(t * Math.PI) * 14.5;
+        s += Rc(r1(px - 2), r1(py + 1), 4, 4, 1, '#5b4a6a', 1.2) + '<path class="zk" d="M' + r1(px - 5) + ',' + r1(py + 5) + ' h10 q0,10 -5,10 q-5,0 -5,-10Z" fill="' + cols[(i + gi * 2) % 5] + '" stroke-width="1.8"/>' + Ci(r1(px - 1.6), r1(py + 9), 1.4, '#fff', 0);
+      }
+    });
+    return Q('M100,146 V164', INK, 2.4, 0.5) + s + st4(40, 156, 4, '#fff') + st4(160, 156, 4, '#fff');
+  } };
+  // ---- 服の追加ここまで ----
 
   // =====================================================================
   // 小物
@@ -249,6 +385,95 @@
     return pg(146, 132, Gp('rotate(26)', Q('M0,-54 V44', INK, 7) + Q('M0,-54 V44', '#e6b878', 3.6) + K('M0,-62 L-6,-48 H6Z', '#c8d0dc', 2.4) + K('M-8,30 L0,16 L8,30 L0,44Z', '#fffaf0', 2.6) + K('M-6,18 L-14,40 L-4,30Z', '#fffaf0', 2.4) + K('M6,18 L14,40 L4,30Z', '#fffaf0', 2.4) + Rc(-5, 0, 10, 6, 2, '#e23b3b', 2.2) + Ci(0, -10, 6, '#ffd23f', 2.2) + Q('M0,-4 v6', '#e23b3b', 2)) + x.paw(-6, 20, 0.95));
   };
 
+  // ---- 12月クリスマス 54種化で追加した小物（ここから）----
+  PROPS.flake = function (pc, x) {
+    return pg(144, 136, Ci(0, 0, 30, pc || '#6ec5ff', 3.4) + Ci(0, 0, 24.5, '#eaf7ff', 0) + snowflake(0, 0, 21, '#3a8ad8', 3) + Ci(0, 0, 3, '#3a8ad8', 0) + HL('M-20,-14 q4,-8 14,-11', 2.6) + x.paw(0, 32, 1));
+  };
+  PROPS.thermo = function (pc, x) {
+    return pg(144, 134, Rc(-7, -40, 14, 56, 7, '#fffaf0', 3.2) + Rc(-2.6, -10, 5.2, 28, 2.6, '#e23b3b', 0) + Ci(0, 24, 11, '#fffaf0', 3.2) + Ci(0, 24, 7, '#e23b3b', 0) + Ci(-2.4, 21.6, 1.8, '#fff', 0) +
+      Q('M11,-32 h8 M11,-22 h5 M11,-12 h8 M11,-2 h5 M11,8 h8', INK, 2, 0.7) + snowflake(-22, -26, 7, '#fff', 1.8) + x.paw(0, 2, 0.95));
+  };
+  PROPS.candle = function (pc, x) {
+    return pg(144, 140, '<circle cx="0" cy="-26" r="17" fill="#ffe27a" fill-opacity=".38"/>' + El(0, 28, 26, 7, '#ffd23f', 2.8) + Q('M26,26 C38,24 38,34 26,34', '#ffd23f', 3.2) + Rc(-8, -12, 16, 40, 3, pc || '#fffaf0', 3) + Q('M-8,2 l16,-6 M-8,14 l16,-6', '#e23b3b', 3.4) +
+      K('M0,-12 C-9,-22 -3,-30 0,-40 C3,-30 9,-22 0,-12Z', '#ff9a2e', 2.4) + K('M0,-14 C-4,-20 -1,-25 0,-29 C1,-25 4,-20 0,-14Z', '#fff3b0', 0) + x.paw(0, 30, 0.95));
+  };
+  PROPS.prism = function (pc, x) {
+    var cols = ['#ff5a5a', '#ff9a2e', '#ffd23f', '#3fb867', '#4a90f0'], s = Q('M-40,-4 L-6,6', '#fff', 3.6) + Q('M-40,-4 L-6,6', INK, 0.8, 0.3);
+    cols.forEach(function (c, i) { s += Q('M8,4 L30,' + (-12 + i * 9), c, 3); });
+    return pg(142, 138, s + K('M-20,28 L0,-20 L20,28Z', '#cfeeff', 3.2) + Q('M-8,18 L0,-4', '#fff', 2.4, 0.85) + x.paw(0, 30, 0.95));
+  };
+  PROPS.snowglobe = function (pc, x) {
+    return pg(144, 138, Ci(0, -6, 26, '#e2f4ff', 3.4) + K('M-9,12 L0,-8 L9,12Z', '#2f9a52', 2.2) + K('M-6,2 L0,-16 L6,2Z', '#3fb867', 2.2) + st5(0, -18, 3.6, '#ffd23f', 1.2) + Ci(-14, -14, 2, '#fff', 0) + Ci(14, -6, 2, '#fff', 0) + Ci(-16, 4, 2, '#fff', 0) + Ci(10, -20, 1.8, '#fff', 0) + Ci(16, 8, 1.8, '#fff', 0) + HL('M-18,-16 q4,-8 12,-10', 2.6) +
+      K('M-19,16 H19 L24,32 H-24Z', '#c8372d', 3) + Q('M-21,23 H21', '#ffd23f', 2.4) + x.paw(0, 30, 0.95));
+  };
+  PROPS.pinecone = function (pc, x) {
+    var s = '', r, c;
+    for (r = 0; r < 5; r++) for (c = 0; c < 3; c++) s += Q('M' + (-11 + c * 8 + (r % 2) * 4) + ',' + (-12 + r * 9) + ' q4,7 8,0', shade('#8a5a34', 0.28), 2.6, 0.9);
+    return pg(144, 138, El(0, 0, 16, 27, '#8a5a34', 3.2) + s + Q('M0,-26 l-9,-14 M0,-26 l0,-16 M0,-26 l9,-14', '#2f9a52', 3.6) + El(0, -24, 11, 5, '#fff', 2) + El(0, 24, 8, 3, '#6a4020', 0) + x.paw(0, 26, 0.95));
+  };
+  PROPS.ornament = function (pc, x) {
+    var c = pc || '#e23b3b';
+    return pg(144, 136, Q('M0,-20 q-6,-10 0,-12 q6,2 0,12', '#ffd23f', 2.6) + Ci(0, 6, 22, c, 3.4) + Q('M-20,2 Q0,14 20,2 M-18,14 Q0,26 18,14', '#fff', 3, 0.85) + Ci(-8, 8, 2, '#ffd23f', 0) + Ci(8, 8, 2, '#ffd23f', 0) + Rc(-6, -18, 12, 8, 2, '#ffd23f', 2.4) + HL('M-15,-4 q2,-8 10,-10', 2.8) + x.paw(0, 30, 0.95));
+  };
+  PROPS.sled = function (pc, x) {
+    return pg(132, 142, Gp('scale(.9)', Q('M-36,28 H30 C44,28 46,12 34,10', INK, 10) + Q('M-36,28 H30 C44,28 46,12 34,10', '#c8a060', 5.4) + Q('M-24,28 V22 M16,28 V22', INK, 3.4) + Rc(-30, 12, 60, 10, 2, '#c8372d', 3) + Rc(-12, -8, 24, 20, 2, '#4a90f0', 2.8) + Rc(-2, -8, 4, 20, 0, '#ffd23f', 2) + K('M0,-8 C-8,-18 -16,-14 -10,-9 C-6,-6 -2,-8 0,-8Z', '#ffd23f', 2) + K('M0,-8 C8,-18 16,-14 10,-9 C6,-6 2,-8 0,-8Z', '#ffd23f', 2) +
+      Q('M-30,16 Q-40,0 -28,-14', '#fffaf0', 3)) + x.paw(-24, -10, 0.9));
+  };
+  PROPS.sack = function (pc, x) {
+    return pg(144, 140, K('M-24,28 C-36,6 -22,-8 -10,-14 L10,-14 C22,-8 36,6 24,28Z', pc || '#b56a3a', 3.4) + Q('M-14,6 Q-10,14 -14,22 M12,2 Q16,12 12,20', shade('#b56a3a', -0.3), 2.4, 0.6) +
+      Rc(-10, -28, 11, 11, 1, '#4a90f0', 2.2) + Q('M-4.5,-28 v11', '#ffd23f', 2) + Q('M7,-14 V-32 q0,-7 7,-7', INK, 8) + Q('M7,-14 V-32 q0,-7 7,-7', '#fffaf0', 4.4) + Q('M7,-24 l5,-3', '#e23b3b', 2.6) + st5(-12, -36, 6, '#ffd23f', 1.8) +
+      K('M-14,-12 Q0,-2 14,-12 L14,-8 Q0,2 -14,-8Z', '#ffd23f', 2.6) + x.paw(0, 26, 0.95));
+  };
+  PROPS.advent = function (pc, x) {
+    var s = '', r, c, open;
+    for (r = 0; r < 4; r++) for (c = 0; c < 3; c++) { open = (r * 3 + c) % 5 === 1; s += Rc(-18 + c * 13, -26 + r * 14, 11, 11, 1, open ? '#ffe27a' : (r + c) % 2 ? '#fffaf0' : '#ffb3c0', 1.6); if (!open) s += Ci(-12.5 + c * 13, -20.5 + r * 14, 1.1, '#e23b3b', 0); }
+    return pg(144, 138, Rc(-24, -34, 48, 64, 3, '#2f8a4a', 3.4) + s + st5(0, -42, 8, '#ffd23f', 2) + x.paw(0, 34, 0.9));
+  };
+  PROPS.wreathd = function (pc, x) {
+    var s = '', i;
+    for (i = 0; i < 12; i++) { var a = i * Math.PI / 6; s += El(r1(Math.cos(a) * 23), r1(Math.sin(a) * 23), 11, 6, i % 2 ? '#2f9a52' : '#3fb867', 2.2, r1(a * 180 / Math.PI + 90)); }
+    return pg(144, 138, s + Ci(-14, -18, 3.6, '#e23b3b', 1.6) + Ci(16, -14, 3.6, '#e23b3b', 1.6) + Ci(-20, 8, 3.6, '#e23b3b', 1.6) + Ci(18, 12, 3.6, '#e23b3b', 1.6) +
+      K('M0,-24 C-10,-40 -28,-34 -22,-26 C-18,-20 -8,-22 0,-24Z', '#e23b3b', 2.6) + K('M0,-24 C10,-40 28,-34 22,-26 C18,-20 8,-22 0,-24Z', '#e23b3b', 2.6) + Ci(0, -24, 4, '#c42a2a', 2) + x.paw(0, 28, 0.95));
+  };
+  PROPS.lantern = function (pc, x) {
+    return pg(144, 144, '<circle cx="0" cy="4" r="30" fill="#ffe27a" fill-opacity=".16"/>' + Q('M-10,-24 C-10,-42 10,-42 10,-24', INK, 3.4) + K('M-15,-24 H15 L10,-16 H-10Z', '#2c2a3a', 2.8) + Rc(-12, -16, 24, 38, 3, '#ffe9a0', 3.2) + Q('M0,-16 V22 M-12,3 H12', INK, 2, 0.55) +
+      K('M0,18 C-8,10 -3,4 0,-6 C3,4 8,10 0,18Z', '#ff9a2e', 2.2) + K('M0,16 C-3,11 -1,8 0,4 C1,8 3,11 0,16Z', '#fff3b0', 0) + Rc(-14, 22, 28, 7, 2, '#c8372d', 2.8) + x.paw(0, -36, 0.95));
+  };
+  PROPS.cookie = function (pc, x) {
+    var c = pc || '#c8864a';
+    return pg(146, 140, Gp('scale(1.2)', K('M-8,-12 L-25,-9 C-32,-7 -29,5 -22,5 L-9,3 L-13,27 C-13,34 -4,34 -2,27 L0,17 L2,27 C4,34 13,34 13,27 L9,3 L22,5 C29,5 32,-7 25,-9 L8,-12Z', c, 3.2) + Ci(0, -23, 12, c, 3.2) + Ci(-4, -25, 1.7, INK, 0) + Ci(4, -25, 1.7, INK, 0) + Q('M-4,-19 q4,4 8,0', '#fffaf0', 2.2) +
+      Q('M-24,1 l5,-1 M-14,22 l5,0 M6,22 l5,0 M19,1 l5,0', '#fffaf0', 2.6) + Ci(0, -4, 2.4, '#e23b3b', 0) + Ci(0, 6, 2.4, '#3fb867', 0) + Q('M-7,-12 L0,-8 L7,-12', '#e23b3b', 2.6)) + x.paw(-8, 34, 0.95));
+  };
+  PROPS.giftstack = function (pc, x) {
+    return Rc(54, 170, 92, 26, 3, '#e23b3b', 3.4) + Rc(94, 170, 12, 26, 0, '#ffd23f', 2.4) + Rc(68, 150, 64, 22, 3, '#4a90f0', 3.2) + Rc(94, 150, 12, 22, 0, '#ffd23f', 2.4) + Rc(82, 132, 36, 20, 3, '#3fb867', 3) + Rc(94, 132, 12, 20, 0, '#ffd23f', 2.4) +
+      K('M100,132 C92,116 78,120 84,128 C88,134 96,132 100,132Z', '#ffd23f', 2.6) + K('M100,132 C108,116 122,120 116,128 C112,134 104,132 100,132Z', '#ffd23f', 2.6) + Ci(100, 131, 3.6, '#e8a010', 2) + HL('M60,178 V190', 2.4) + x.paw(56, 188, 1) + x.paw(144, 188, 1);
+  };
+  PROPS.carolbook = function (pc, x) {
+    return pg(144, 140, Gp('rotate(-8)', K('M-38,-26 V24 C-26,20 -12,20 0,26 C12,20 26,20 38,24 V-26 C26,-30 12,-30 0,-24 C-12,-30 -26,-30 -38,-26Z', '#c8372d', 3.4) + K('M-33,-22 V18 C-24,15 -10,15 0,20 V-20 C-10,-25 -24,-25 -33,-22Z', '#fffdf6', 2.6) + K('M33,-22 V18 C24,15 10,15 0,20 V-20 C10,-25 24,-25 33,-22Z', '#fffdf6', 2.6) +
+      Q('M-28,-12 H-6 M-28,-6 H-6 M-28,0 H-6 M6,-12 H28 M6,-6 H28 M6,0 H28', INK, 1.2, 0.5) + Ci(-22, -2, 3, INK, 0) + Q('M-19.4,-2 V-14', INK, 1.6) + Ci(-10, -8, 3, INK, 0) + Q('M-7.4,-8 V-20', INK, 1.6) + Ci(12, -2, 3, INK, 0) + Q('M14.6,-2 V-14', INK, 1.6) + Ci(22, -8, 3, INK, 0) + Q('M24.6,-8 V-20', INK, 1.6) + Q('M-19,-14 L-7,-20 M15,-14 L25,-20', INK, 2.6) + st4(0, -30, 5, '#ffd23f', INK)) + x.paw(0, 28, 1));
+  };
+  PROPS.handbell = function (pc, x) {
+    return pg(144, 138, Rc(-4.4, 4, 8.8, 30, 3.4, '#7a4a2a', 3) + K('M-22,6 C-22,-14 -12,-28 0,-28 C12,-28 22,-14 22,6Z', '#ffd23f', 3.4) + Rc(-25, 2, 50, 8, 3, '#f2b81c', 3) + HL('M-14,-2 C-14,-12 -10,-20 -5,-23', 2.6) + Ci(0, 12, 4, '#c8921a', 2) +
+      Q('M-12,-26 Q0,-36 12,-26', '#e23b3b', 3.6) + Ci(0, -30, 3.4, '#c42a2a', 1.8) + x.paw(0, 28, 0.95));
+  };
+  PROPS.hollysprig = function (pc, x) {
+    return pg(144, 136, Q('M0,34 C0,14 2,2 0,-8', '#6a4a2a', 3.2) + Gp('translate(0,2) rotate(-150)', hollyLeaf('#2f9a52', 36)) + Gp('translate(0,2) rotate(-30)', hollyLeaf('#3fb867', 36)) + Gp('translate(0,2) rotate(-90)', hollyLeaf('#2f9a52', 30)) + hollyBerries(0, -6, 5.4) + x.paw(0, 28, 0.95));
+  };
+  PROPS.yulelog = function (pc, x) {
+    return Rc(52, 158, 96, 34, 16, '#7a4a2a', 3.4) + Q('M66,168 q10,-4 22,0 M96,176 q12,-4 24,0 M70,184 q10,-3 20,0', shade('#7a4a2a', 0.25), 2.2, 0.8) + El(138, 175, 10, 17, '#e8c89a', 3) + Q('M138,175 m-4,0 a4,4 0 1 1 4,4 a8,8 0 1 1 -8,-8', '#7a4a2a', 1.8, 0.9) +
+      K('M54,162 C64,152 74,164 86,156 C98,150 108,162 120,155 C130,150 140,158 146,160 V164 H54Z', '#fffaf0', 2.8) + Gp('translate(88,152) rotate(-20)', hollyLeaf('#2f9a52', 20)) + Gp('translate(90,152) rotate(-150)', hollyLeaf('#3fb867', 20)) + hollyBerries(86, 154, 3) + x.paw(58, 186, 1) + x.paw(144, 188, 1);
+  };
+  PROPS.candyjar = function (pc, x) {
+    var cols = ['#e23b3b', '#ffd23f', '#3fb867', '#4a90f0', '#ff8fb6', '#fffaf0'], s = '', i;
+    for (i = 0; i < 9; i++) s += Ci(-10 + (i % 3) * 10, -2 + Math.floor(i / 3) * 11, 4.6, cols[(i * 5) % 6], 1.6);
+    return pg(144, 136, Rc(-18, -14, 36, 46, 9, '#e8f6ff', 3.2) + s + Rc(-20, -24, 40, 11, 3, '#e23b3b', 3) + Q('M-20,-18 H20', '#fff', 1.6, 0.7) + st5(0, -34, 5, '#ffd23f', 1.8) + HL('M-13,-6 V20', 2.4) + x.paw(0, 34, 0.95));
+  };
+  PROPS.mitten = function (pc, x) {
+    function mt(c, tx, rot) { return Gp('translate(' + tx + ',2) rotate(' + rot + ')', K('M-11,24 V-4 C-11,-18 10,-18 10,-4 V24Z', c, 3.2) + K('M-11,6 C-22,4 -22,-8 -12,-5Z', c, 3) + Rc(-12, 18, 23, 11, 2, '#fffaf0', 2.8) + snowflake(0, 4, 5.4, '#fffaf0', 1.6)); }
+    return pg(144, 136, Q('M-26,-30 Q0,-18 26,-30', '#fffaf0', 3) + mt('#e23b3b', -15, -8) + mt('#3a7bd5', 16, 8) + x.paw(0, -26, 0.9));
+  };
+  // ---- 小物の追加ここまで ----
+
   // =====================================================================
   // 背景の飾り（教科の色の上に重ねる）
   // =====================================================================
@@ -268,8 +493,73 @@
     return s;
   }
 
+  // ---- 12月クリスマス 54種化で追加した背景の飾り（season 名: snowB / night / pines / bokeh / lightrow / candy / hollyc / gold）----
+  function overlayIcicle() {
+    var s = '', i, h;
+    for (i = 0; i < 10; i++) { h = 12 + ((i * 7) % 4) * 7; s += '<path d="M' + (i * 21 - 6) + ',0 H' + (i * 21 + 14) + ' L' + (i * 21 + 4) + ',' + h + 'Z" fill="#fff" fill-opacity=".88"/>'; }
+    s += snowflake(26, 76, 15, '#fff', 2.8) + snowflake(174, 92, 17, '#fff', 2.8) + snowflake(20, 134, 9, '#fff', 2.2) + snowflake(184, 40, 9, '#fff', 2.2) + snowflake(150, 22, 6, '#fff', 2);
+    [[50, 52, 3], [76, 30, 2.6], [128, 38, 3.2], [160, 62, 2.6], [14, 104, 3], [190, 128, 3], [40, 112, 2.4], [168, 116, 2.4]].forEach(function (d) { s += '<circle cx="' + d[0] + '" cy="' + d[1] + '" r="' + d[2] + '" fill="#fff" fill-opacity=".95"/>'; });
+    return s + '<path d="M0,182 C40,172 72,184 104,178 C140,172 168,184 200,176 V200 H0Z" fill="#fff" fill-opacity=".92"/>';
+  }
+  function overlayNight() {
+    var s = '<rect width="200" height="200" fill="#1c2a66" fill-opacity=".4"/>';
+    s += '<path d="M160,24 a22,22 0 1 0 16,36 a17,17 0 1 1 -16,-36Z" fill="#fff3b0"/>';
+    [[28, 30, 9], [60, 54, 5], [100, 16, 6], [24, 96, 6], [184, 96, 7], [140, 40, 4], [172, 148, 5], [18, 144, 5], [76, 28, 4]].forEach(function (p) { s += st4(p[0], p[1], p[2], '#fff'); });
+    [[44, 66], [86, 40], [126, 22], [150, 70], [12, 66], [190, 66], [110, 50], [38, 118], [166, 126]].forEach(function (p) { s += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="1.8" fill="#fff"/>'; });
+    return s + '<path d="M0,184 C36,174 70,184 100,180 C140,174 170,184 200,178 V200 H0Z" fill="#dff1ff" fill-opacity=".9"/>';
+  }
+  function overlayPines() {
+    var s = '', xs = [12, 44, 150, 186, 172, 30], hs = [34, 26, 30, 36, 22, 20], i;
+    for (i = 0; i < xs.length; i++) {
+      var x = xs[i], h = hs[i], y = 176;
+      s += '<path d="M' + (x - h * 0.5) + ',' + y + ' L' + x + ',' + (y - h * 1.5) + ' L' + (x + h * 0.5) + ',' + y + 'Z" fill="#2f8a4a" fill-opacity=".92"/><path d="M' + (x - h * 0.3) + ',' + (y - h * 0.75) + ' L' + x + ',' + (y - h * 1.5) + ' L' + (x + h * 0.3) + ',' + (y - h * 0.75) + ' Q' + x + ',' + (y - h * 0.62) + ' ' + (x - h * 0.3) + ',' + (y - h * 0.75) + 'Z" fill="#fff" fill-opacity=".92"/>';
+    }
+    [[24, 40, 3], [60, 18, 2.6], [130, 20, 3], [176, 52, 3.4], [14, 82, 2.6], [190, 100, 2.6], [96, 12, 2.4]].forEach(function (d) { s += '<circle cx="' + d[0] + '" cy="' + d[1] + '" r="' + d[2] + '" fill="#fff" fill-opacity=".95"/>'; });
+    return s + snowflake(32, 62, 9, '#fff', 2.2) + snowflake(170, 78, 11, '#fff', 2.4) + '<path d="M0,178 C40,170 72,180 104,175 C140,170 170,180 200,172 V200 H0Z" fill="#fff" fill-opacity=".95"/>';
+  }
+  function overlayBokeh() {
+    var s = '';
+    [[28, 40, 15, '#ffd23f'], [64, 22, 9, '#ff8fb6'], [150, 28, 13, '#6dffb4'], [178, 70, 10, '#ffd23f'], [16, 96, 9, '#ff8fb6'], [186, 116, 14, '#ff6b6b'], [40, 146, 11, '#6dc8ff'], [164, 152, 9, '#ffd23f'], [104, 14, 7, '#fff']].forEach(function (b) {
+      s += '<circle cx="' + b[0] + '" cy="' + b[1] + '" r="' + b[2] + '" fill="' + b[3] + '" fill-opacity=".42"/><circle cx="' + b[0] + '" cy="' + b[1] + '" r="' + b[2] + '" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1.6"/>';
+    });
+    return s + st4(48, 70, 6, '#fff') + st4(150, 60, 7, '#fff') + st4(24, 126, 5, '#fff') + st4(180, 150, 5, '#fff') + st4(120, 30, 5, '#fff');
+  }
+  function overlayLightRow() {
+    var cols = ['#e23b3b', '#ffd23f', '#3fb867', '#4a90f0', '#ff8fb6'], s = '', i;
+    [[-6, 38, 100, 66, 206, 38], [-6, 78, 100, 106, 206, 78]].forEach(function (c, ci) {
+      s += '<path d="M' + c[0] + ',' + c[1] + ' Q' + c[2] + ',' + c[3] + ' ' + c[4] + ',' + c[5] + '" fill="none" stroke="#33284a" stroke-opacity=".7" stroke-width="2.4"/>';
+      for (i = 0; i < 8; i++) {
+        var t = (i + 0.5) / 8, px = c[0] * (1 - t) * (1 - t) + 2 * c[2] * t * (1 - t) + c[4] * t * t, py = c[1] * (1 - t) * (1 - t) + 2 * c[3] * t * (1 - t) + c[5] * t * t;
+        s += '<circle cx="' + r1(px) + '" cy="' + r1(py + 6) + '" r="5.2" fill="' + cols[(i + ci * 2) % 5] + '" stroke="#33284a" stroke-opacity=".7" stroke-width="1.4"/><circle cx="' + r1(px - 1.6) + '" cy="' + r1(py + 4.4) + '" r="1.4" fill="#fff"/>';
+      }
+    });
+    return s + st4(30, 130, 6, '#fff') + st4(172, 138, 6, '#fff') + '<path d="M0,184 C40,176 72,186 104,180 C140,174 170,186 200,178 V200 H0Z" fill="#fff" fill-opacity=".9"/>';
+  }
+  function overlayCandy() {
+    var s = '', i;
+    for (i = -2; i < 9; i++) s += '<path d="M' + (i * 28 - 20) + ',210 L' + (i * 28 + 70) + ',-20" stroke="#fff" stroke-opacity=".3" stroke-width="14"/>';
+    [[26, 40], [176, 44], [186, 120], [18, 120], [100, 14]].forEach(function (p, k) { s += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (k % 2 ? 6 : 8) + '" fill="#fff" fill-opacity=".9"/><circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (k % 2 ? 2.6 : 3.4) + '" fill="#e23b3b" fill-opacity=".85"/>'; });
+    return s + st4(60, 28, 6, '#fff') + st4(150, 24, 6, '#fff') + st4(30, 150, 5, '#fff') + st4(170, 154, 5, '#fff');
+  }
+  function overlayHollyCorner() {
+    var s = '';
+    s += Gp('translate(8,30) rotate(10)', hollyLeaf('#2f9a52', 30)) + Gp('translate(6,34) rotate(55)', hollyLeaf('#3fb867', 26)) + hollyBerries(20, 36, 4);
+    s += Gp('translate(192,30) rotate(170)', hollyLeaf('#2f9a52', 30)) + Gp('translate(194,34) rotate(125)', hollyLeaf('#3fb867', 26)) + hollyBerries(178, 36, 4);
+    s += Gp('translate(6,150) rotate(-10)', hollyLeaf('#3fb867', 28)) + Gp('translate(8,146) rotate(-55)', hollyLeaf('#2f9a52', 24)) + hollyBerries(20, 146, 3.6);
+    s += Gp('translate(194,150) rotate(190)', hollyLeaf('#3fb867', 28)) + Gp('translate(192,146) rotate(235)', hollyLeaf('#2f9a52', 24)) + hollyBerries(180, 146, 3.6);
+    [[60, 16, 2.6], [100, 10, 2.4], [142, 16, 2.6], [30, 86, 2.4], [172, 86, 2.4]].forEach(function (d) { s += '<circle cx="' + d[0] + '" cy="' + d[1] + '" r="' + d[2] + '" fill="#fff" fill-opacity=".95"/>'; });
+    return s + snowflake(52, 44, 8, '#fff', 2) + snowflake(148, 44, 8, '#fff', 2);
+  }
+  function overlayGold() {
+    var s = '', cf = [[22, 60, 0], [46, 24, 1], [84, 14, 0], [124, 16, 1], [158, 26, 0], [180, 58, 1], [190, 96, 0], [12, 96, 1], [30, 140, 0], [172, 142, 1], [60, 170, 1], [140, 174, 0], [102, 190, 1]];
+    cf.forEach(function (p) { s += p[2] ? '<rect x="' + (p[0] - 3) + '" y="' + (p[1] - 3) + '" width="6" height="6" rx="1" fill="#ffe27a" transform="rotate(30 ' + p[0] + ' ' + p[1] + ')" fill-opacity=".95"/>' : '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="3" fill="#fff7c0" fill-opacity=".95"/>'; });
+    s += snowflake(32, 36, 13, '#fff7c0', 2.6) + snowflake(170, 40, 12, '#fff7c0', 2.6) + snowflake(184, 132, 9, '#fff', 2.2) + snowflake(16, 130, 9, '#fff', 2.2);
+    return s + st4(56, 60, 7, '#fff', '#d9941a') + st4(146, 70, 6, '#fff', '#d9941a');
+  }
+  var XOV = { snowB: overlayIcicle, night: overlayNight, pines: overlayPines, bokeh: overlayBokeh, lightrow: overlayLightRow, candy: overlayCandy, hollyc: overlayHollyCorner, gold: overlayGold };
+
   // =====================================================================
-  // カタログ：理科5・社会5・国語5・キラ3 ×（12月・1月）
+  // カタログ：12月＝54種（理科15・社会15・国語15・キラ9）／1月＝18種（理科5・社会5・国語5・キラ3）
   // =====================================================================
   function E(id, subject, name, opts) { opts.bg = subject === 'kira' ? 'kira' : subject === 'rika' ? 'sci' : subject === 'shakai' ? 'soc' : 'jpn'; return { id: id, subject: subject, name: name, opts: opts }; }
   var XMAS = [
@@ -278,19 +568,55 @@
     E('xmas-rika-03', 'rika', 'でんしょくけんきゅういん', { fur: 'gray', face: 'happy', head: 'elf', outfit: 'coat', tie: 'none', prop: 'lights', season: 'snow' }),
     E('xmas-rika-04', 'rika', 'ココアじっけん', { fur: 'cream', face: 'closed', head: 'knit', outfit: 'sweater', prop: 'cocoa', season: 'snow' }),
     E('xmas-rika-05', 'rika', 'ゆきだるまはかせ', { fur: 'kuro', face: 'wink', head: 'goggles', hc: '#e23b3b', outfit: 'scarf', prop: 'snowman', season: 'snow' }),
+    E('xmas-rika-06', 'rika', 'けっしょうスケッチのはかせ', { fur: 'gray', face: 'closed', head: 'earmuff', outfit: 'parka', prop: 'flake', season: 'snowB' }),
+    E('xmas-rika-07', 'rika', 'ろうそくのほのおけんきゅう', { fur: 'chairo', face: 'surprise', head: 'holly', outfit: 'coat', tie: 'none', prop: 'candle', season: 'bokeh' }),
+    E('xmas-rika-08', 'rika', 'プリズムのクリスマス', { fur: 'mike', face: 'sparkle', head: 'jester', outfit: 'elfsuit', prop: 'prism', season: 'night' }),
+    E('xmas-rika-09', 'rika', 'ゆきのおんどけいはかせ', { fur: 'kuro', face: 'smile', head: 'hood', hc: '#3a7bd5', outfit: 'poncho', prop: 'thermo', season: 'snow' }),
+    E('xmas-rika-10', 'rika', 'まつぼっくりかんさつ', { fur: 'shiro', face: 'wink', head: 'treehat', outfit: 'plaid', prop: 'pinecone', season: 'pines' }),
+    E('xmas-rika-11', 'rika', 'スノードームじっけん', { fur: 'cream', face: 'happy', head: 'goggles', hc: '#9ad8ff', hc2: '#ffffff', outfit: 'coat', oc: '#dff1ff', tc: '#4a90f0', prop: 'snowglobe', season: 'snowB' }),
+    E('xmas-rika-12', 'rika', 'クリスマスでんきゅうはかせ', { fur: 'tuxedo', face: 'sparkle', head: 'lamp', hc: '#ffd23f', outfit: 'sweater', oc: '#2f8a4a', tc: '#fffaf0', prop: 'ornament', pc: '#ffd23f', season: 'lightrow' }),
+    E('xmas-rika-13', 'rika', 'もみのきのひみつ', { fur: 'hachi', face: 'happy', head: 'wreath', outfit: 'vestG', prop: 'sprout', pc: '#e23b3b', season: 'pines' }),
+    E('xmas-rika-14', 'rika', 'ふゆのせいざかんそく', { fur: 'kiji', face: 'closed', head: 'starhat', hc: '#4a7ae0', outfit: 'zip', oc: '#1f3a6a', tc: '#ffd23f', prop: 'binoculars', season: 'night' }),
+    E('xmas-rika-15', 'rika', 'ふゆのくうきじっけん', { fur: 'chatora', face: 'surprise', head: 'knit', hc: '#2fa0b8', hc2: '#fffaf0', outfit: 'sweater', oc: '#3a5fa8', tc: '#fffaf0', prop: 'flask', pc: '#8fe0ff', season: 'snow' }),
     E('xmas-shakai-01', 'shakai', 'せかいのクリスマス', { fur: 'mike', face: 'smile', head: 'explorer', outfit: 'jacket', prop: 'globe', season: 'snow' }),
     E('xmas-shakai-02', 'shakai', 'サンタのはいたつルート', { fur: 'shiro', face: 'happy', head: 'santa', outfit: 'santa', prop: 'map', season: 'snow' }),
     E('xmas-shakai-03', 'shakai', 'ゆきぐにたんけんたい', { fur: 'hachi', face: 'smile', head: 'knit', hc: '#3a7bd5', outfit: 'scarf', prop: 'compass', season: 'snow' }),
     E('xmas-shakai-04', 'shakai', 'トナカイはいたついん', { fur: 'kiji', face: 'happy', head: 'antlers', outfit: 'scarf', oc: '#c0392b', tc: '#3fb867', prop: 'gift', season: 'snow' }),
     E('xmas-shakai-05', 'shakai', 'ツリーのまちのネコ', { fur: 'tuxedo', face: 'sparkle', head: 'elf', outfit: 'vestG', prop: 'tree', season: 'snow' }),
+    E('xmas-shakai-06', 'shakai', 'ゆきぞりたんけんたい', { fur: 'hachi', face: 'smile', head: 'explorer', hc: '#c0392b', outfit: 'parka', oc: '#c0392b', tc: '#fffaf0', prop: 'sled', season: 'snowB' }),
+    E('xmas-shakai-07', 'shakai', 'クリスマスマーケットのまち', { fur: 'shiro', face: 'wink', head: 'knit', hc: '#2f8a4a', hc2: '#fffaf0', outfit: 'plaid', oc: '#2f6a3a', tc: '#fffaf0', prop: 'candyjar', season: 'lightrow' }),
+    E('xmas-shakai-08', 'shakai', 'せかいのクリスマスりょこう', { fur: 'cream', face: 'sparkle', head: 'beret', hc: '#c0392b', outfit: 'cardigan', oc: '#2f8a4a', prop: 'globe', season: 'bokeh' }),
+    E('xmas-shakai-09', 'shakai', 'クリスマスのふねのはいたつ', { fur: 'tuxedo', face: 'happy', head: 'captain', hc: '#e23b3b', outfit: 'captain', oc: '#2f6a3a', tc: '#ffd23f', prop: 'giftstack', season: 'snow' }),
+    E('xmas-shakai-10', 'shakai', 'アドベントカレンダーやさん', { fur: 'gray', face: 'closed', head: 'helmet', hc: '#e23b3b', outfit: 'jacket', oc: '#2f8a4a', tc: '#ffd23f', prop: 'advent', season: 'pines' }),
+    E('xmas-shakai-11', 'shakai', 'きたのくにのたんけん', { fur: 'kiji', face: 'surprise', head: 'earmuff', hc: '#4a90f0', hc2: '#fffaf0', outfit: 'zip', oc: '#c0392b', tc: '#fffaf0', prop: 'compass', season: 'snowB' }),
+    E('xmas-shakai-12', 'shakai', 'プレゼントのふくろやさん', { fur: 'mike', face: 'happy', head: 'santa', hc: '#2f8a4a', outfit: 'vestG', prop: 'sack', season: 'candy' }),
+    E('xmas-shakai-13', 'shakai', 'かざりつけのだいくさん', { fur: 'chairo', face: 'wink', head: 'giftbox', hc: '#e23b3b', outfit: 'cardigan', oc: '#2f8a4a', prop: 'wreathd', season: 'hollyc' }),
+    E('xmas-shakai-14', 'shakai', 'イルミネーションのまち', { fur: 'chatora', face: 'smile', head: 'hard', hc: '#ffd23f', outfit: 'zip', oc: '#e8504f', tc: '#ffffff', prop: 'lantern', season: 'lightrow' }),
+    E('xmas-shakai-15', 'shakai', 'ジンジャーブレッドのまち', { fur: 'shiro', face: 'sparkle', head: 'explorer', hc: '#2f9a52', outfit: 'jacket', oc: '#c0392b', prop: 'cookie', season: 'candy' }),
     E('xmas-kokugo-01', 'kokugo', 'クリスマスカードやさん', { fur: 'cream', face: 'smile', head: 'wreath', outfit: 'sailor', prop: 'letter', season: 'snow' }),
     E('xmas-kokugo-02', 'kokugo', 'えほんのじかん', { fur: 'shiro', face: 'closed', head: 'knit', hc: '#3fae5c', outfit: 'cardigan', oc: '#c0392b', prop: 'book', season: 'snow' }),
     E('xmas-kokugo-03', 'kokugo', 'すずのおとのうた', { fur: 'chatora', face: 'happy', head: 'santa', outfit: 'sweater', prop: 'bell', season: 'snow' }),
     E('xmas-kokugo-04', 'kokugo', 'くつしたのプレゼント', { fur: 'gray', face: 'wink', head: 'antlers', outfit: 'sweater', oc: '#2f8a4a', prop: 'stocking', season: 'snow' }),
     E('xmas-kokugo-05', 'kokugo', 'ケーキやさんのネコ', { fur: 'mike', face: 'sparkle', head: 'knit', hc: '#ff8fb6', outfit: 'smock', prop: 'xcake', season: 'snow' }),
+    E('xmas-kokugo-06', 'kokugo', 'キャロルのうたごえ', { fur: 'shiro', face: 'smile', head: 'xbow', outfit: 'cardigan', oc: '#2f8a4a', prop: 'carolbook', season: 'snow' }),
+    E('xmas-kokugo-07', 'kokugo', 'ハンドベルのおと', { fur: 'hachi', face: 'wink', head: 'bow', hc: '#e23b3b', outfit: 'smock', oc: '#2f8a4a', prop: 'handbell', season: 'bokeh' }),
+    E('xmas-kokugo-08', 'kokugo', 'ヒイラギのことば', { fur: 'tuxedo', face: 'happy', head: 'round', hc: '#2f9a52', outfit: 'sailor', oc: '#c0392b', prop: 'hollysprig', season: 'hollyc' }),
+    E('xmas-kokugo-09', 'kokugo', 'ブッシュドノエルやさん', { fur: 'cream', face: 'closed', head: 'beret', hc: '#c0392b', outfit: 'xapron', prop: 'yulelog', season: 'snow' }),
+    E('xmas-kokugo-10', 'kokugo', 'サンタさんへのおねがいがき', { fur: 'mike', face: 'surprise', head: 'pencilEar', outfit: 'plaid', prop: 'pencil', pc: '#e23b3b', season: 'pines' }),
+    E('xmas-kokugo-11', 'kokugo', 'クリスマスのしりとり', { fur: 'gray', face: 'sparkle', head: 'big', hc: '#e23b3b', outfit: 'vestY', oc: '#2f8a4a', prop: 'paper', season: 'bokeh' }),
+    E('xmas-kokugo-12', 'kokugo', 'おかしのいえのものがたり', { fur: 'chairo', face: 'happy', head: 'candyhat', outfit: 'ginger', prop: 'candyjar', season: 'candy' }),
+    E('xmas-kokugo-13', 'kokugo', 'クリスマスことばじてん', { fur: 'kiji', face: 'wink', head: 'mortar', hc: '#2f8a4a', outfit: 'cardigan', oc: '#c0392b', prop: 'dict', season: 'snowB' }),
+    E('xmas-kokugo-14', 'kokugo', 'サンタへのおてがみのまき', { fur: 'kuro', face: 'sparkle', head: 'elf', hc: '#e23b3b', outfit: 'smock', oc: '#3a7bd5', prop: 'scroll', pc: '#e23b3b', season: 'night' }),
+    E('xmas-kokugo-15', 'kokugo', 'てぶくろのおはなし', { fur: 'chatora', face: 'happy', head: 'knit', hc: '#fffaf0', hc2: '#e23b3b', outfit: 'sweater', oc: '#7a4aa8', tc: '#fffaf0', prop: 'mitten', season: 'snowB' }),
     E('xmas-kira-01', 'kira', 'キラキラ・ゴールドサンタ', { fur: 'shiro', face: 'sparkle', head: 'santa', hc: '#f6b82e', outfit: 'santa', prop: 'bigstar', kira: true, season: 'snow' }),
     E('xmas-kira-02', 'kira', 'ツリーのおうさま', { fur: 'cream', face: 'happy', head: 'starhat', outfit: 'cape', prop: 'tree', kira: true, season: 'snow' }),
-    E('xmas-kira-03', 'kira', 'ゆきのじょおう', { fur: 'gray', face: 'sparkle', head: 'tiara', outfit: 'dress', prop: 'candycane', kira: true, season: 'snow' })
+    E('xmas-kira-03', 'kira', 'ゆきのじょおう', { fur: 'gray', face: 'sparkle', head: 'tiara', outfit: 'dress', prop: 'candycane', kira: true, season: 'snow' }),
+    E('xmas-kira-04', 'kira', 'キラキラ・こがねのトナカイ', { fur: 'shiro', face: 'sparkle', head: 'antlers', hc: '#f6b82e', outfit: 'xgown', prop: 'ornament', pc: '#ffd23f', kira: true, season: 'gold' }),
+    E('xmas-kira-05', 'kira', 'キラキラ・ダイヤのツリー', { fur: 'cream', face: 'happy', head: 'treehat', hc: '#2fd08a', outfit: 'cape', oc: '#1f6a9a', prop: 'crystal', kira: true, season: 'gold' }),
+    E('xmas-kira-06', 'kira', 'キラキラ・こおりのおうじ', { fur: 'kuro', face: 'wink', head: 'icecrown', outfit: 'furcape', prop: 'starwand', pc: '#7ac8ff', kira: true, season: 'gold' }),
+    E('xmas-kira-07', 'kira', 'キラキラ・くるみわりたいちょう', { fur: 'gray', face: 'surprise', head: 'nutcracker', outfit: 'nutcoat', prop: 'shield', kira: true, season: 'gold' }),
+    E('xmas-kira-08', 'kira', 'キラキラ・ろうそくのひめ', { fur: 'mike', face: 'closed', head: 'candlecrown', outfit: 'xgown', oc: '#f3ead8', tc: '#e8a010', prop: 'candle', kira: true, season: 'gold' }),
+    E('xmas-kira-09', 'kira', 'キラキラ・ひかりのサンタ', { fur: 'tuxedo', face: 'sparkle', head: 'santa', hc: '#7a3fd0', outfit: 'lightsuit', prop: 'giftstack', kira: true, season: 'gold' })
   ];
   var NY = [
     E('ny-rika-01', 'rika', 'はつひのでけんきゅう', { fur: 'chatora', face: 'sparkle', head: 'hachimaki', outfit: 'coat', prop: 'sunfan', season: 'wa' }),
@@ -320,7 +646,7 @@
     o.uid = 's' + (entry.id + (suffix || '')).replace(/[^A-Za-z0-9]/g, '');
     var P = 'cs' + o.uid + '_';
     var svg = S.makeCatSticker(o);
-    var ov = o.season === 'wa' ? overlayWa() : o.season === 'snow' ? overlaySnow() : '';
+    var ov = o.season === 'wa' ? overlayWa() : o.season === 'snow' ? overlaySnow() : XOV[o.season] ? XOV[o.season]() : '';
     if (!ov) return svg;
     var mark = '<circle cx="100" cy="100" r="88.2" fill="none"';
     var i = svg.indexOf(mark);
