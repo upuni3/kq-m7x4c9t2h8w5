@@ -2,7 +2,7 @@
    stickers-season.js — 季節（月）シリーズのネコシール（12月＝クリスマス／1月＝お正月）
    stickers.js（KQStickers）のあとに読み込む。新しい頭・服・小物を KQStickers の HEADS/OUTFITS/PROPS に足し、
    KQSeason.SETS = { xmas:[18枚], ny:[18枚] } と KQSeason.make(entry) を提供する。
-   各セット（ny）：理科5・社会5・国語5・キラ3。xmas は 54種：理科15・社会15・国語15・キラ9（先頭の5/5/5/3＝18種は従来のまま）。
+   xmas と ny は どちらも 54種：理科15・社会15・国語15・キラ9（先頭の5/5/5/3＝18種は従来のまま。ny は 2027年が未年＝ひつじ）。
    ============================================================ */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory(require('./stickers.js'));
@@ -168,6 +168,104 @@
     for (i = 0; i < 12; i++) { var a = Math.PI * (1.0 + i * 0.0865), px = 100 + Math.cos(a) * 43.5, py = 102 + Math.sin(a) * 40; s += Ci(r1(px), r1(py), 5.6, c2, 0); }
     return s + Q('M66,84 C70,72 82,66 94,65', '#fff', 2, 0.7);
   } };
+  // ---- 1月お正月 54種化で追加した頭（ここから）----
+  var NYF = '\'Hiragino Maru Gothic ProN\',\'Zen Maru Gothic\',\'Yu Gothic\',sans-serif';
+  function pineFan(x, y, rot, len, col) {
+    var d = '', i;
+    for (i = -4; i <= 4; i++) { var a = i * 0.2; d += 'M0,0 L' + r1(Math.sin(a) * len) + ',' + r1(-Math.cos(a) * len); }
+    return Gp('translate(' + x + ',' + y + ') rotate(' + rot + ')', Q(d, INK, 4.2) + Q(d, col, 2.4) + Ci(0, 0, 2.4, '#e8dfc9', 1.4));
+  }
+  function plumFlower(x, y, r, col) {
+    var s = '', i;
+    for (i = 0; i < 5; i++) { var a = -Math.PI / 2 + i * 2 * Math.PI / 5; s += Ci(r1(x + Math.cos(a) * r * 0.95), r1(y + Math.sin(a) * r * 0.95), r * 0.68, col, 2); }
+    return s + Ci(x, y, r * 0.46, shade(col, 0.5), 0) + Ci(x, y, r * 0.2, '#ffd23f', 0);
+  }
+  HEADS.shishi = { c1: '#d9302c', c2: '#ffd23f', back: function (c) {
+    var s = '', i;
+    for (i = 0; i < 11; i++) { var a = Math.PI * (1.02 + i * 0.096), x = 100 + Math.cos(a) * 53, y = 98 + Math.sin(a) * 50; s += Ci(r1(x), r1(y), 13.5, i % 2 ? c : shade(c, -0.16), 2.6); }
+    return s;
+  }, draw: function (c, c2) {
+    return K('M60,80 C60,60 140,60 140,80 Q100,70 60,80Z', '#2f9a52', 2.8) + Ci(78, 71, 2.2, '#fffaf0', 0) + Ci(92, 68, 2.2, '#fffaf0', 0) + Ci(108, 68, 2.2, '#fffaf0', 0) + Ci(122, 71, 2.2, '#fffaf0', 0) +
+      Q('M60,90 Q74,76 92,86', INK, 8.6) + Q('M60,90 Q74,76 92,86', c2, 5) + Q('M140,90 Q126,76 108,86', INK, 8.6) + Q('M140,90 Q126,76 108,86', c2, 5) +
+      Ci(100, 66, 7.4, c2, 2.6) + Ci(100, 66, 3, c, 0) + Ci(50, 86, 6.4, '#fffaf0', 2.4) + Ci(150, 86, 6.4, '#fffaf0', 2.4) + Q('M52,84 q-3,6 1,10 M148,84 q3,6 -1,10', '#d8cfc0', 1.6, 0.8);
+  } };
+  HEADS.daruma = { c1: '#d9302c', c2: '#fffaf0', draw: function (c, c2) {
+    return K('M56,92 C52,48 148,48 144,92 Q100,76 56,92Z', c, 3.4) + HL('M68,64 C76,56 88,52 98,52', 2.6) +
+      Q('M60,89 Q100,73 140,89', INK, 9) + Q('M60,89 Q100,73 140,89', c2, 5.8) + Ci(74, 82, 1.6, '#ffd23f', 0) + Ci(100, 78, 1.6, '#ffd23f', 0) + Ci(126, 82, 1.6, '#ffd23f', 0) +
+      Q('M66,92 C72,82 84,80 92,86', INK, 5.6) + Q('M134,92 C128,82 116,80 108,86', INK, 5.6) +
+      '<text x="100" y="72" font-size="17" font-weight="900" text-anchor="middle" fill="#ffd23f" stroke="' + INK + '" stroke-width="2" paint-order="stroke" font-family="' + NYF + '">福</text>';
+  } };
+  HEADS.tsuru = { c1: '#fffaf0', c2: '#e23b3b', draw: function (c, c2) {
+    var tail = K('M80,62 L56,52 L62,62 L54,70 L80,70Z', '#2c2a3a', 2.6);
+    return tail + Q('M116,56 C132,52 134,46 130,40', INK, 8.4) + Q('M116,56 C132,52 134,46 130,40', c, 4.6) + Ci(130, 39, 5.4, c, 2.4) + El(130, 36, 3.2, 2.2, c2, 0) + K('M134,39 L148,43 L134,43Z', '#f2b81c', 2) + Ci(129, 39, 1.2, INK, 0) +
+      El(98, 60, 25, 11, c, 3) + K('M84,60 C90,42 112,42 122,54 C112,62 98,66 84,60Z', shade(c, -0.05), 2.6) + Q('M90,56 C98,48 108,48 116,52', '#d8cfc0', 1.8);
+  } };
+  HEADS.kame = { c1: '#4fa86a', c2: '#b8d87a', draw: function (c, c2) {
+    var hx = Q('M78,52 L90,47 L110,47 L122,52 L120,66 L100,72 L80,66Z M90,47 L88,63 M110,47 L112,63 M88,63 L100,72 M112,63 L100,72', shade(c, -0.4), 2.2, 0.85);
+    return Ci(148, 70, 8.4, c2, 2.8) + Ci(151, 68, 1.6, INK, 0) + Q('M149,74 q3,1 5,-1', INK, 1.4) + El(64, 78, 7, 4.4, c2, 2.4) + El(136, 78, 7, 4.4, c2, 2.4) +
+      K('M60,74 C58,42 142,42 140,74 Q100,84 60,74Z', c, 3.4) + hx + Q('M66,60 C72,52 84,47 96,46', '#fff', 2.2, 0.5) + Q('M62,72 Q100,81 138,72', shade(c, -0.25), 2.4, 0.8);
+  } };
+  HEADS.matsu = { c1: '#2f8a4a', draw: function (c) {
+    return Q('M54,88 C58,66 84,54 146,66', INK, 8.6) + Q('M54,88 C58,66 84,54 146,66', '#8a5a34', 5) +
+      pineFan(72, 66, -60, 26, c) + pineFan(100, 56, -8, 28, shade(c, 0.1)) + pineFan(128, 62, 52, 26, shade(c, -0.1)) + pineFan(86, 60, -34, 22, shade(c, -0.14)) + pineFan(116, 58, 30, 22, shade(c, 0.06)) +
+      Q('M104,70 C92,80 84,74 90,68 C96,64 104,70 104,70Z M104,70 C116,80 124,74 118,68 C112,64 104,70 104,70Z', '#e23b3b', 5.4) + Q('M104,70 C92,80 84,74 90,68 C96,64 104,70 104,70Z M104,70 C116,80 124,74 118,68 C112,64 104,70 104,70Z', '#fffaf0', 2.2) + Ci(104, 70, 4.4, '#e23b3b', 2) + plumFlower(132, 74, 6, '#ff8fb6');
+  } };
+  HEADS.ume = { c1: '#ff8fb6', draw: function (c) {
+    return Q('M52,92 C54,66 82,48 148,62', INK, 8.2) + Q('M52,92 C54,66 82,48 148,62', '#7a4a2a', 4.6) + Q('M110,52 C112,46 118,42 124,42 M84,58 C80,50 82,44 88,40', '#7a4a2a', 3) +
+      plumFlower(66, 76, 9, c) + plumFlower(92, 56, 8.4, '#fffaf0') + plumFlower(124, 54, 9.4, c) + plumFlower(142, 64, 7, shade(c, 0.35)) + plumFlower(124, 41, 5.4, '#fffaf0') + plumFlower(88, 40, 5, c) + Ci(108, 50, 3, '#e23b6a', 1.6) + Ci(76, 62, 3, '#e23b6a', 1.6);
+  } };
+  HEADS.fuji = { c1: '#4a6fd0', c2: '#fffaf0', draw: function (c, c2) {
+    return Ci(132, 54, 11, '#e23b3b', 2.6) + K('M58,84 C62,70 84,52 94,40 L100,38 L106,40 C116,52 138,70 142,84 Q100,94 58,84Z', c, 3.4) + K('M84,56 C90,48 94,44 100,38 C106,44 110,48 116,56 L108,52 L102,58 L96,52 L90,58Z', c2, 2.6) + Q('M66,78 C80,64 92,54 100,46', '#fff', 2, 0.35) +
+      Q('M60,84 Q100,94 140,84', '#fffaf0', 3, 0.9) + Q('M30,30 q10,-6 18,0 M150,36 q10,-6 18,0', '#fff', 3.2, 0.8);
+  } };
+  HEADS.hinode = { c1: '#ff6a3a', c2: '#ffd23f', back: function (c, c2) {
+    var d = '', i;
+    for (i = 0; i < 13; i++) { var a = Math.PI * (1.0 + i * 0.0833); d += 'M' + r1(100 + Math.cos(a) * 52) + ',' + r1(88 + Math.sin(a) * 50) + 'L' + r1(100 + Math.cos(a) * 62) + ',' + r1(88 + Math.sin(a) * 60); }
+    return Q(d, INK, 8) + Q(d, c2, 4.4) + Ci(100, 88, 50, c, 3.4) + Ci(100, 88, 38, shade(c, 0.22), 0) + Q('M62,66 C68,54 80,46 92,44', '#fff', 3, 0.6);
+  }, draw: function (c, c2) {
+    return st4(54, 56, 6, '#fff') + st4(150, 52, 5, '#fff') + st4(100, 38, 4, '#fff');
+  } };
+  HEADS.tenugui = { c1: '#2a5fb0', c2: '#fffaf0', draw: function (c, c2, x) {
+    var s = '', i, j;
+    for (j = 0; j < 3; j++) for (i = 0; i < 6; i++) s += '<path d="M' + (56 + i * 16 + (j % 2) * 8) + ',' + (68 + j * 9) + ' a8,8 0 0 1 16,0" fill="none" stroke="' + c2 + '" stroke-width="1.8" stroke-opacity=".85" stroke-linecap="round"/>';
+    var cd = 'M55,84 C52,52 148,52 145,84 Q100,70 55,84Z', cid = x.P + 'tgc';
+    x.defs.push('<clipPath id="' + cid + '"><path d="' + cd + '"/></clipPath>');
+    return K(cd, c, 3.2) + '<g clip-path="url(#' + cid + ')">' + s + '</g>' + '<path class="zk" d="' + cd + '" fill="none" stroke-width="3.2"/>' +
+      Q('M52,86 Q100,70 148,86', INK, 11) + Q('M52,86 Q100,70 148,86', c2, 7.4) + Q('M62,80 l4,10 M76,76 l4,10 M90,73 l4,10 M104,72 l4,10 M118,74 l4,10 M132,78 l4,10', shade(c2, -0.2), 1.6, 0.7) +
+      K('M144,84 L158,70 L160,90Z', c2, 2.6) + K('M144,84 L162,96 L152,100Z', c2, 2.6) + Ci(145, 85, 4.4, c2, 2.4);
+  } };
+  HEADS.ebisu = { c1: '#e8a82e', c2: '#d9302c', draw: function (c, c2) {
+    return K('M60,84 C60,62 82,44 108,38 C124,34 142,40 148,54 L138,58 C134,52 126,50 118,54 C110,62 130,74 142,84Z', c, 3.2) + HL('M72,68 C78,56 90,47 104,43', 2.6) + Q('M80,72 C86,62 96,56 108,53', shade(c, -0.22), 1.8, 0.6) +
+      Q('M58,80 Q100,92 144,80', INK, 10.4) + Q('M58,80 Q100,92 144,80', c2, 6.4) + Q('M70,84 l0,-4 M86,87 l0,-4 M102,88 l0,-4 M118,87 l0,-4 M132,84 l0,-4', '#ffd23f', 1.8, 0.9) +
+      Q('M148,54 C152,62 152,70 148,76', INK, 5.4) + Q('M148,54 C152,62 152,70 148,76', c2, 2.6) + Ci(148, 78, 4, c2, 2) + Ci(104, 36, 0, c, 0);
+  } };
+  HEADS.daikoku = { c1: '#3a3a4c', c2: '#ffd23f', draw: function (c, c2) {
+    return K('M54,84 C48,54 70,40 100,40 C130,40 152,54 146,84 Q100,70 54,84Z', c, 3.4) + Q('M62,62 C70,50 84,44 98,43', '#fff', 2.4, 0.4) + Q('M76,74 C72,60 76,50 82,46 M100,72 V44 M124,74 C128,60 124,50 118,46', shade(c, 0.28), 2.2, 0.8) +
+      K('M52,78 Q100,66 148,78 L150,90 Q100,78 50,90Z', '#fffaf0', 3) + Ci(100, 40, 6, c2, 2.4) + Q('M100,46 q-6,10 0,18', c2, 2) + Ci(148, 88, 4, c2, 2) + Ci(52, 88, 4, c2, 2);
+  } };
+  HEADS.kasa = { c1: '#e6c27a', c2: '#c8372d', draw: function (c, c2) {
+    var w = '', i;
+    for (i = 0; i < 9; i++) w += 'M100,36 L' + (36 + i * 16) + ',84 ';
+    return K('M100,34 C80,48 52,66 30,86 Q100,100 170,86 C148,66 120,48 100,34Z', c, 3.4) + Q(w, shade(c, -0.3), 1.6, 0.6) + Q('M40,86 Q100,98 160,86', shade(c, -0.25), 3, 0.7) + Q('M72,48 C64,56 54,64 46,74', '#fff', 2.2, 0.5) +
+      Q('M52,92 Q44,106 50,120 M148,92 Q156,106 150,120', INK, 6) + Q('M52,92 Q44,106 50,120 M148,92 Q156,106 150,120', c2, 3) + Ci(100, 34, 3.2, c2, 1.8);
+  } };
+  HEADS.hanagasa = { c1: '#ff8fb6', c2: '#fffaf0', draw: function (c, c2) {
+    var s = '', cols = [c, '#fffaf0', '#e23b3b', '#ffd23f', c, '#fffaf0', '#e23b6a', '#ffd23f'], i;
+    for (i = 0; i < 8; i++) { var a = Math.PI * (1.04 + i * 0.131); s += plumFlower(r1(100 + Math.cos(a) * 46), r1(74 + Math.sin(a) * 26), 8.2, cols[i]); }
+    return El(100, 68, 52, 15, c2, 3.2) + El(100, 66, 46, 11, '#e23b3b', 0) + Q('M50,68 Q100,78 150,68', INK, 2.4, 0.4) + s + El(100, 52, 8, 4, '#ffd23f', 2.2) + Q('M60,74 Q56,92 60,102 M140,74 Q144,92 140,102', '#e23b3b', 3);
+  } };
+  HEADS.shimekazari = { c1: '#d9c48a', c2: '#fffaf0', draw: function (c, c2) {
+    var tw = '', i, sh = '';
+    for (i = 0; i < 14; i++) tw += 'M' + (56 + i * 6.8) + ',' + (78 - Math.sin(i / 13 * Math.PI) * 24 + 3) + ' l5,-7 ';
+    [[74, 60], [100, 50], [126, 60]].forEach(function (p) { sh += K('M' + p[0] + ',' + p[1] + ' l-5,5 l5,3 l-6,6 l7,4 l-3,7 l8,-5 l-4,-8 l6,-3 l-5,-5 l4,-4Z', c2, 1.8); });
+    return Q('M52,84 C56,56 144,56 148,84', INK, 11) + Q('M52,84 C56,56 144,56 148,84', c, 7.4) + Q('M52,84 C56,56 144,56 148,84', shade(c, -0.3), 2, 0.5).replace('stroke-width="2"', 'stroke-width="2" stroke-dasharray="3 5"') + sh +
+      Ci(100, 66, 10, '#ff9a2e', 2.8) + HL('M95,62 q4,-4 9,-3', 2) + K('M100,57 q8,-9 16,-4 q-6,9 -16,4Z', '#4fbf6a', 2) + Q('M70,76 C66,88 72,96 70,104 M130,76 C134,88 128,96 130,104', '#e23b3b', 3.4) + Q('M70,76 C66,88 72,96 70,104 M130,76 C134,88 128,96 130,104', '#fffaf0', 1.4);
+  } };
+  HEADS.take = { c1: '#6fc25a', draw: function (c) {
+    function stalk(x, top, w) { return K('M' + (x - w) + ',86 V' + (top + 10) + ' L' + (x + w) + ',' + top + ' V86Z', c, 3) + Q('M' + (x - w) + ',' + (top + 26) + ' H' + (x + w) + ' M' + (x - w) + ',' + (top + 52) + ' H' + (x + w), shade(c, -0.35), 2) + Q('M' + (x - w + 3) + ',' + (top + 16) + ' V80', '#fff', 1.8, 0.55) + Ci(x + 1, top + 4, w * 0.5, '#3a7a2a', 0); }
+    return stalk(80, 38, 9) + stalk(112, 30, 10) + stalk(138, 48, 8) + Q('M62,84 Q100,92 150,84', '#e23b3b', 6) + Q('M62,84 Q100,92 150,84', '#fffaf0', 2.4) + pineFan(66, 78, -70, 20, '#2f8a4a') + pineFan(148, 80, 70, 18, '#2f8a4a') + plumFlower(104, 80, 6, '#ff8fb6');
+  } };
+  // ---- 頭の追加（お正月）ここまで ----
   // ---- 頭の追加ここまで ----
 
   // =====================================================================
@@ -279,6 +377,94 @@
     });
     return Q('M100,146 V164', INK, 2.4, 0.5) + s + st4(40, 156, 4, '#fff') + st4(160, 156, 4, '#fff');
   } };
+  // ---- 1月お正月 54種化で追加した服（ここから）----
+  OUTFITS.happi = { oc: '#d9302c', tc: '#fffaf0', sh: '#8a1a1e', base: function (oc) { return oc; }, draw: function (oc, tc) {
+    var s = K('M82,144 L100,168 L118,144Z', '#fffaf0', 2.6) + Q('M76,146 L96,200 M124,146 L104,200', INK, 12) + Q('M76,146 L96,200 M124,146 L104,200', tc, 8);
+    s += Ci(52, 172, 14, tc, 2.6) + '<text x="52" y="178" font-size="17" font-weight="900" text-anchor="middle" fill="' + oc + '" font-family="' + NYF + '">祭</text>';
+    s += Ci(148, 172, 14, tc, 2.6) + '<text x="148" y="178" font-size="17" font-weight="900" text-anchor="middle" fill="' + oc + '" font-family="' + NYF + '">福</text>';
+    return s + Rc(14, 186, 172, 9, 0, '#2a3a6a', 2.6) + Q('M18,190 H182', '#fff', 1.2, 0.5) + Ci(100, 190, 5, '#fffaf0', 2.2);
+  } };
+  OUTFITS.hakama = { oc: '#4a4f9a', tc: '#fffaf0', sh: '#262a60', base: function (oc) { return oc; }, draw: function (oc, tc) {
+    var dk = shade(oc, -0.28), s = K('M16,176 H184 L194,204 H6Z', dk, 3) + Q('M44,178 L34,204 M70,178 L66,204 M100,178 V204 M130,178 L134,204 M156,178 L166,204', shade(oc, 0.15), 2.2, 0.8);
+    s += K('M78,144 L100,172 L122,144 L114,144 L100,160 L86,144Z', '#fffaf0', 2.8) + Q('M82,146 L100,170 L118,146', '#d8cfc0', 1.8, 0.8);
+    s += Rc(16, 170, 168, 8, 0, tc, 2.6) + Q('M20,174 H180', shade(tc, -0.15), 1.2, 0.6) + Ci(100, 174, 5, tc, 2.2) + Q('M100,178 L92,198 M100,178 L108,198', tc, 3.2);
+    return s + Ci(62, 160, 6.4, tc, 1.8) + Ci(62, 160, 3.2, oc, 0) + Ci(138, 160, 6.4, tc, 1.8) + Ci(138, 160, 3.2, oc, 0);
+  } };
+  OUTFITS.furisode = { oc: '#ff6f9a', tc: '#ffd23f', sh: '#a02a5a', base: function (oc) { return oc; }, draw: function (oc, tc, F, o) {
+    var sl = function (sg) { var x0 = sg < 0 ? 4 : 196; return K('M' + (100 + sg * 80) + ',154 C' + (x0 + sg * 6) + ',166 ' + (x0 + sg * 8) + ',192 ' + (x0 + sg * 2) + ',206 H' + (100 + sg * 54) + ' C' + (100 + sg * 52) + ',186 ' + (100 + sg * 52) + ',168 ' + (100 + sg * 60) + ',156Z', shade(oc, 0.1), 3.2) + plumFlower(100 + sg * 74, 182, 7, '#fffaf0') + plumFlower(100 + sg * 62, 168, 5, tc) + plumFlower(100 + sg * 68, 198, 5, '#fffaf0'); };
+    var s = sl(-1) + sl(1) + K('M80,144 L100,172 L120,144 L112,144 L100,160 L88,144Z', '#fffaf0', 2.8);
+    s += Rc(40, 174, 120, 22, 3, tc, 3.2) + Q('M40,180 H160 M40,190 H160', '#e23b3b', 2, 0.9);
+    s += K('M100,184 C82,162 58,168 66,182 C72,194 90,190 100,184Z', '#e23b6a', 2.8) + K('M100,184 C118,162 142,168 134,182 C128,194 110,190 100,184Z', '#e23b6a', 2.8) + Ci(100, 184, 6, tc, 2.4);
+    return s + plumFlower(72, 160, 5, '#fffaf0') + plumFlower(130, 158, 5, '#fffaf0');
+  } };
+  OUTFITS.samue = { oc: '#3a4a8a', tc: '#fffaf0', sh: '#1c2658', base: function (oc) { return oc; }, draw: function (oc, tc) {
+    var s = K('M78,144 L102,160 L122,144 L114,144 L102,154 L84,144Z', shade(oc, 0.3), 2.6) + Q('M80,146 L112,200 M122,146 L92,200', INK, 3.2);
+    s += Q('M104,168 h6 M100,182 h6', tc, 3.4) + Ci(103, 168, 3.2, tc, 1.6) + Ci(99, 182, 3.2, tc, 1.6);
+    s += K('M30,170 H68 V198 H30Z', shade(oc, -0.12), 2.6) + Q('M30,176 H68', shade(oc, 0.3), 1.8, 0.7) + K('M132,170 H170 V198 H132Z', shade(oc, -0.12), 2.6) + Q('M132,176 H170', shade(oc, 0.3), 1.8, 0.7);
+    return s + Q('M14,160 Q40,168 66,156 M186,160 Q160,168 134,156', shade(oc, -0.3), 2.2, 0.6);
+  } };
+  OUTFITS.tanzen = { oc: '#7a4a9a', tc: '#fffaf0', sh: '#3e2058', base: function (oc) { return oc; }, draw: function (oc, tc, F, o) {
+    var s = '<g clip-path="' + bodyClip(o) + '">', i;
+    for (i = 0; i < 9; i++) s += '<rect x="' + (14 + i * 22) + '" y="144" width="8" height="60" fill="' + shade(oc, 0.35) + '" fill-opacity=".55"/>';
+    for (i = 0; i < 5; i++) s += '<rect x="0" y="' + (150 + i * 12) + '" width="200" height="4" fill="' + shade(oc, -0.3) + '" fill-opacity=".6"/>';
+    s += '</g>' + K('M78,144 L100,164 L122,144 L114,144 L100,156 L86,144Z', '#fffaf0', 2.6);
+    s += Q('M72,146 L96,200 M128,146 L104,200', INK, 14) + Q('M72,146 L96,200 M128,146 L104,200', '#2c2a3a', 10) + Q('M74,148 L96,196 M126,148 L104,196', shade('#2c2a3a', 0.3), 1.6, 0.8);
+    return s + Rc(14, 180, 172, 12, 0, '#e8b84a', 3) + Q('M16,186 H184', shade('#e8b84a', -0.3), 1.4, 0.7) + Ci(100, 186, 6, '#e8b84a', 2.4);
+  } };
+  OUTFITS.ichimatsu = { oc: '#c8372d', tc: '#2c2a3a', sh: '#7a1c1c', base: function (oc) { return oc; }, draw: function (oc, tc, F, o) {
+    var s = '<g clip-path="' + bodyClip(o) + '">', r, c;
+    for (r = 0; r < 5; r++) for (c = 0; c < 11; c++) if ((r + c) % 2) s += '<rect x="' + (c * 18 + 1) + '" y="' + (146 + r * 14) + '" width="18" height="14" fill="' + tc + '"/>';
+    s += '</g>' + K('M78,144 L100,172 L122,144 L114,144 L100,160 L86,144Z', '#fffaf0', 2.8) + Q('M82,146 L100,170 L118,146', '#d8cfc0', 1.8, 0.8);
+    return s + Rc(20, 178, 160, 16, 3, '#ffd23f', 3) + Q('M20,183 H180 M20,189 H180', '#e8a010', 1.6, 0.8) + Ci(100, 186, 7, '#e23b3b', 2.4);
+  } };
+  function craneMark(x, y, k, col) {
+    return Gp('translate(' + x + ',' + y + ') scale(' + k + ')', '<path d="M-14,2 C-8,-8 -2,-8 0,-2 C2,-8 8,-8 14,2 C8,0 4,2 0,6 C-4,2 -8,0 -14,2Z" fill="' + col + '"/><path d="M0,-2 C4,-8 8,-10 12,-9 L16,-8 L12,-6 C8,-6 6,-4 4,0Z" fill="' + col + '"/><path d="M0,6 L-8,12 L-2,9Z" fill="' + col + '"/>');
+  }
+  OUTFITS.tsurugara = { oc: '#2f6ab0', tc: '#fffaf0', sh: '#163a70', base: function (oc) { return oc; }, draw: function (oc, tc, F, o) {
+    var s = '<g clip-path="' + bodyClip(o) + '">';
+    [[34, 160, 1.1], [168, 164, 1.1], [58, 192, 0.9], [146, 190, 1.0], [14, 190, 0.8], [186, 188, 0.8]].forEach(function (p) { s += craneMark(p[0], p[1], p[2], tc); });
+    s += '</g>' + K('M80,144 L100,172 L120,144 L112,144 L100,160 L88,144Z', '#fffaf0', 2.8) + Q('M82,146 L100,170 L118,146', '#d8cfc0', 1.8, 0.8);
+    return s + Rc(60, 178, 80, 18, 3, '#e23b3b', 3) + Q('M60,184 H140 M60,190 H140', '#ffd23f', 1.8, 0.9) + Ci(100, 187, 5, '#ffd23f', 2);
+  } };
+  OUTFITS.uroko = { oc: '#f2b81c', tc: '#2c2a3a', sh: '#a87008', base: function (oc) { return oc; }, draw: function (oc, tc, F, o) {
+    var s = '<g clip-path="' + bodyClip(o) + '">', r, c;
+    for (r = 0; r < 5; r++) for (c = 0; c < 12; c++) s += '<path d="M' + (c * 16 + (r % 2) * 8 - 8) + ',' + (160 + r * 12) + ' l8,-12 l8,12Z" fill="' + tc + '"/>';
+    s += '</g>' + K('M80,144 L100,170 L120,144 L112,144 L100,158 L88,144Z', '#fffaf0', 2.8) + Q('M82,146 L100,168 L118,146', '#d8cfc0', 1.8, 0.8);
+    return s + Rc(20, 182, 160, 12, 2, '#d9302c', 3) + Q('M22,188 H178', '#fff', 1.4, 0.6) + Ci(100, 188, 6, '#ffd23f', 2.2);
+  } };
+  OUTFITS.asanoha = { oc: '#e23b6a', tc: '#fffaf0', sh: '#8e1f48', base: function (oc) { return oc; }, draw: function (oc, tc, F, o) {
+    var d = '', i, j;
+    for (i = 0; i < 11; i++) for (j = 0; j < 4; j++) {
+      var cx = -2 + i * 21, cy = 150 + j * 24.2 + (i % 2) * 12.1, R = 14;
+      d += 'M' + (cx - R) + ',' + cy + ' L' + (cx + R) + ',' + cy + ' M' + r1(cx - R / 2) + ',' + r1(cy - R * 0.866) + ' L' + r1(cx + R / 2) + ',' + r1(cy + R * 0.866) + ' M' + r1(cx - R / 2) + ',' + r1(cy + R * 0.866) + ' L' + r1(cx + R / 2) + ',' + r1(cy - R * 0.866) +
+        ' M' + (cx - R) + ',' + cy + ' L' + r1(cx - R / 2) + ',' + r1(cy - R * 0.866) + ' L' + r1(cx + R / 2) + ',' + r1(cy - R * 0.866) + ' L' + (cx + R) + ',' + cy + ' L' + r1(cx + R / 2) + ',' + r1(cy + R * 0.866) + ' L' + r1(cx - R / 2) + ',' + r1(cy + R * 0.866) + 'Z';
+    }
+    var s = '<g clip-path="' + bodyClip(o) + '">' + Q(d, tc, 1.5, 0.75) + '</g>' + K('M80,144 L100,172 L120,144 L112,144 L100,160 L88,144Z', '#fffaf0', 2.8) + Q('M82,146 L100,170 L118,146', '#d8cfc0', 1.8, 0.8);
+    return s + Rc(24, 180, 152, 16, 3, '#2c2a3a', 3) + Q('M24,188 H176', '#ffd23f', 2, 0.9) + Ci(100, 188, 6, '#ffd23f', 2.2);
+  } };
+  OUTFITS.shippo = { oc: '#2a7ad0', tc: '#fffaf0', sh: '#123e82', base: function (oc) { return oc; }, draw: function (oc, tc, F, o) {
+    var d = '', i, j;
+    for (i = 0; i < 9; i++) for (j = 0; j < 4; j++) {
+      [[i * 28, 150 + j * 28], [i * 28 + 14, 164 + j * 28]].forEach(function (p) { d += 'M' + (p[0] - 19.8) + ',' + p[1] + ' a19.8,19.8 0 1 0 39.6,0 a19.8,19.8 0 1 0 -39.6,0'; });
+    }
+    var s = '<g clip-path="' + bodyClip(o) + '">' + Q(d, tc, 1.7, 0.8) + '</g>' + K('M80,144 L100,172 L120,144 L112,144 L100,160 L88,144Z', '#fffaf0', 2.8) + Q('M82,146 L100,170 L118,146', '#d8cfc0', 1.8, 0.8);
+    return s + Rc(24, 180, 152, 16, 3, '#ffd23f', 3) + Q('M24,188 H176', '#e8a010', 1.6, 0.8) + Ci(100, 188, 6.4, '#e23b3b', 2.2);
+  } };
+  OUTFITS.kamishimo = { oc: '#2a3a6a', tc: '#fffaf0', sh: '#141c3a', base: function (oc) { return oc; }, draw: function (oc, tc) {
+    var w = function (sg) { return K('M' + (100 + sg * 86) + ',160 L' + (100 + sg * 38) + ',146 L' + (100 + sg * 22) + ',178 L' + (100 + sg * 78) + ',186Z', shade(oc, 0.12), 3.2) + Q('M' + (100 + sg * 82) + ',164 L' + (100 + sg * 40) + ',152', '#ffd23f', 1.8, 0.9) + Ci(100 + sg * 62, 168, 6.6, tc, 1.8) + Ci(100 + sg * 62, 168, 3.2, oc, 0); };
+    var s = K('M78,144 L100,172 L122,144 L114,144 L100,160 L86,144Z', '#fffaf0', 2.8) + w(-1) + w(1);
+    s += Q('M70,176 L96,200 M130,176 L104,200', shade(oc, 0.2), 2.4, 0.8) + Rc(40, 184, 120, 8, 0, '#ffd23f', 2.4) + Ci(100, 172, 8.4, tc, 2.2) + Ci(100, 172, 4.2, oc, 0) + Q('M100,164 v16 M92,172 h16', tc, 1.2);
+    return s;
+  } };
+  OUTFITS.woolvest = { oc: '#fffaf0', tc: '#ff8fb6', sh: '#c8b898', base: function (oc) { return oc; }, draw: function (oc, tc) {
+    var s = '', i;
+    for (i = 0; i < 9; i++) s += Ci(r1(40 + i * 15), r1(166 + Math.sin(i / 8 * Math.PI) * 8), 11, oc, 2.8);
+    for (i = 0; i < 8; i++) s += Ci(r1(48 + i * 14.4), r1(160 + Math.sin(i / 7 * Math.PI) * 10), 10, shade(oc, -0.03), 2.8);
+    for (i = 0; i < 6; i++) s += Ci(r1(34 + i * 26.5), 192, 11, oc, 2.8);
+    s += Q('M78,152 Q100,170 122,152', tc, 3.4) + K('M100,168 C88,156 74,160 80,170 C86,178 96,174 100,168Z', tc, 2.6) + K('M100,168 C112,156 126,160 120,170 C114,178 104,174 100,168Z', tc, 2.6) + Ci(100, 168, 4, shade(tc, -0.15), 2) + Ci(100, 184, 5.4, '#ffd23f', 2.2) + Q('M100,188 v4', INK, 1.4);
+    return s;
+  } };
+  // ---- 服の追加（お正月）ここまで ----
   // ---- 服の追加ここまで ----
 
   // =====================================================================
@@ -472,6 +658,104 @@
     function mt(c, tx, rot) { return Gp('translate(' + tx + ',2) rotate(' + rot + ')', K('M-11,24 V-4 C-11,-18 10,-18 10,-4 V24Z', c, 3.2) + K('M-11,6 C-22,4 -22,-8 -12,-5Z', c, 3) + Rc(-12, 18, 23, 11, 2, '#fffaf0', 2.8) + snowflake(0, 4, 5.4, '#fffaf0', 1.6)); }
     return pg(144, 136, Q('M-26,-30 Q0,-18 26,-30', '#fffaf0', 3) + mt('#e23b3b', -15, -8) + mt('#3a7bd5', 16, 8) + x.paw(0, -26, 0.9));
   };
+  // ---- 1月お正月 54種化で追加した小物（ここから）----
+  PROPS.hane = function (pc, x) {
+    return pg(146, 134, Gp('rotate(24)', K('M-9,22 L-24,-18 Q-12,-26 -4,-14 Q0,-28 4,-14 Q12,-26 24,-18 L9,22Z', '#fffaf0', 3) + Q('M-16,-6 L-6,18 M0,-12 V18 M16,-6 L6,18', '#e23b3b', 2.6, 0.9) + Q('M-22,-18 Q-12,-24 -5,-14 M5,-14 Q12,-24 22,-18', '#2c2a3a', 3) +
+      Ci(0, 30, 11, '#2c2a3a', 3) + Q('M-9,24 Q0,28 9,24', '#ffd23f', 3) + HL('M-5,28 q2,-3 6,-3', 2)) + x.paw(2, 36, 0.95));
+  };
+  PROPS.orizuru = function (pc, x) {
+    var c = pc || '#e23b3b';
+    return pg(144, 138, Gp('rotate(-6)', K('M-30,4 L-40,-14 L-32,-16Z', c, 2.4) + K('M-30,4 L0,-4 L30,4 L2,24Z', c, 3.2) + K('M-30,4 L-6,-30 L0,-4Z', '#fffaf0', 3) + K('M30,4 L14,-26 L0,-4Z', shade(c, 0.35), 3) + K('M30,4 L46,10 L36,16Z', c, 2.4) + Q('M-6,-30 L-6,-6 M0,-4 L2,24', INK, 1.4, 0.4) + Ci(-36, -14, 1.2, INK, 0)) + x.paw(2, 24, 0.95));
+  };
+  PROPS.mochitsuki = function (pc, x) {
+    return K('M50,174 H150 L142,198 H58Z', '#8a5a34', 3.4) + Q('M60,182 H140 M64,190 H136', shade('#8a5a34', 0.25), 2, 0.7) + El(100, 174, 50, 9, '#c8934e', 3) + El(100, 172, 36, 6.4, '#fffaf0', 2.4) + Q('M86,170 q10,-4 24,0', '#e6dccb', 1.6) +
+      pg(150, 130, Gp('rotate(22)', Rc(-5, -4, 10, 60, 3, '#a8743e', 3) + Rc(-13, -46, 26, 44, 7, '#c8934e', 3.2) + Q('M-8,-40 V-8', '#fff', 1.8, 0.5) + x.paw(0, 30, 0.95))) + x.paw(60, 172, 0.95);
+  };
+  PROPS.taiko = function (pc, x) {
+    return K('M62,166 C54,180 58,194 68,200 H132 C142,194 146,180 138,166Z', '#c8372d', 3.4) + Q('M68,176 H132 M64,188 H136', '#ffd23f', 2.4, 0.9) + [72, 86, 100, 114, 128].map(function (px) { return Ci(px, 172, 1.8, '#ffd23f', 0) + Ci(px, 194, 1.8, '#ffd23f', 0); }).join('') +
+      El(100, 166, 38, 11, '#f3e2b8', 3.2) + Q('M80,166 a20,6 0 0 1 40,0', '#e23b3b', 2.4, 0.8) + Q('M48,140 L88,162', INK, 7) + Q('M48,140 L88,162', '#e6b878', 3.6) + Q('M152,140 L112,162', INK, 7) + Q('M152,140 L112,162', '#e6b878', 3.6) + Ci(48, 140, 3.4, '#e6b878', 2) + Ci(152, 140, 3.4, '#e6b878', 2) + x.paw(76, 156, 0.95) + x.paw(124, 156, 0.95);
+  };
+  PROPS.suzuri = function (pc, x) {
+    return Rc(56, 170, 88, 28, 4, '#3a3a4c', 3.4) + Rc(62, 176, 76, 16, 3, '#262636', 0) + Ci(110, 182, 8, '#0e0e18', 1.6) + Q('M68,182 H92', '#6a6a82', 2.4, 0.8) + Q('M72,160 L132,148', INK, 7) + Q('M72,160 L132,148', '#c88a4a', 3.4) + K('M132,148 L146,140 L140,154Z', '#2c2a3a', 2) + Ci(146, 150, 2.4, '#2c2a3a', 0) + x.paw(86, 162, 0.95) + x.paw(60, 190, 0.9);
+  };
+  PROPS.tai = function (pc, x) {
+    var c = pc || '#f0505a';
+    return pg(142, 138, Gp('rotate(-18)', K('M30,2 L52,-14 Q46,2 52,18Z', shade(c, -0.1), 3) + K('M-38,0 C-32,-24 8,-28 30,-4 C36,2 36,6 30,10 C8,30 -32,24 -38,0Z', c, 3.4) + K('M-20,-20 L-8,-30 L12,-22 C0,-26 -10,-24 -20,-20Z', shade(c, -0.15), 2.4) + Q('M-12,-8 C-6,-2 -6,6 -12,12 M-2,-12 C4,-4 4,8 -2,14 M8,-10 C14,-4 14,6 8,12', shade(c, 0.35), 1.8, 0.6) +
+      Ci(-26, -4, 4.6, '#fffaf0', 2) + Ci(-27, -4, 2.2, INK, 0) + Q('M-34,6 q4,3 8,0', INK, 1.8) + K('M-6,14 L2,24 L8,12Z', shade(c, -0.1), 2.2)) + x.paw(2, 20, 0.9));
+  };
+  PROPS.ebi = function (pc, x) {
+    var s = '', i;
+    for (i = 0; i < 7; i++) { var a = -1.2 + i * 0.5, cx = r1(Math.cos(a) * 34), cy = r1(Math.sin(a) * 34 + 6); s += El(cx, cy, 11 - i * 0.7, 8 - i * 0.4, i % 2 ? '#e8504f' : '#d9302c', 2.6, r1(a * 180 / Math.PI + 90)); }
+    return pg(142, 136, Q('M-20,-22 C-36,-34 -46,-34 -54,-24 M-16,-26 C-30,-44 -42,-46 -52,-40', INK, 2.4) + Gp('rotate(-10)', s) + K('M-4,32 L8,44 L0,38 L-8,46Z', '#e8504f', 2.4) + Ci(-22, -14, 2.6, '#fffaf0', 1.6) + Ci(-22, -14, 1, INK, 0) + x.paw(10, 22, 0.9));
+  };
+  PROPS.mikan = function (pc, x) {
+    function m(cx, cy, r) { return Ci(cx, cy, r, '#ff9a2e', 3) + HL('M' + (cx - r * 0.6) + ',' + (cy - r * 0.3) + ' q3,-6 9,-7', 2.2) + Ci(cx, cy - r + 1, 1.8, '#4a7a2a', 0); }
+    return pg(144, 138, Rc(-26, 14, 52, 8, 2, '#e6b878', 3) + m(-12, 6, 13) + m(13, 6, 13) + m(0, -12, 13) + K('M0,-24 q10,-10 18,-3 q-8,9 -18,3Z', '#4fbf6a', 2.2) + Q('M0,-24 v4', '#4a7a2a', 2) + x.paw(0, 26, 0.9));
+  };
+  PROPS.ozoni = function (pc, x) {
+    return K('M52,166 H148 C148,190 128,202 100,202 C72,202 52,190 52,166Z', '#c8372d', 3.4) + Q('M56,176 H144', '#ffd23f', 2.4, 0.9) + El(100, 166, 48, 9, '#d8a050', 3) + El(86, 163, 17, 8, '#fffaf0', 2.4) + Q('M76,162 q8,-4 20,0', '#e6dccb', 1.6) +
+      '<path class="zk" d="M110,167 a14,12 0 0 1 28,0Z" fill="#fff" stroke-width="2.2"/><path d="M114,167 a10,8 0 0 1 20,0Z" fill="#ff8fb6"/>' + K('M98,158 q8,-10 16,-4 q-6,9 -16,4Z', '#4fbf6a', 2) + Q('M80,152 q-6,-8 0,-14 q6,-6 0,-14 M104,150 q-6,-8 0,-14 q6,-6 0,-14', '#fff', 3.4, 0.8) + x.paw(52, 180, 0.95) + x.paw(148, 180, 0.95);
+  };
+  PROPS.takarabune = function (pc, x) {
+    return Q('M100,110 V176', INK, 8) + Q('M100,110 V176', '#8a5a34', 4) + K('M102,114 L102,170 L146,170 C144,146 128,124 102,114Z', '#fffaf0', 3.2) + '<text x="124" y="160" font-size="26" font-weight="900" text-anchor="middle" fill="#e23b3b" font-family="' + NYF + '">宝</text>' + K('M100,110 l-18,6 l18,6Z', '#e23b3b', 2.2) +
+      K('M46,176 H154 C150,190 136,200 118,200 H82 C64,200 50,190 46,176Z', '#c8372d', 3.4) + Q('M52,184 H148', '#ffd23f', 2.4, 0.9) + K('M46,176 L38,168 L54,172Z', '#c8372d', 2.4) + x.paw(60, 178, 0.95) + x.paw(146, 176, 0.95);
+  };
+  PROPS.suzu = function (pc, x) {
+    var rope = 'M0,-50 C-3,-36 3,-30 0,-20', i, tw = '';
+    for (i = 0; i < 6; i++) tw += 'M-4,' + (-48 + i * 5) + ' l8,3 ';
+    return pg(144, 136, Q('M0,-52 V-16', INK, 11) + Q('M0,-52 V-16', '#fffaf0', 7) + Q(tw, '#e23b3b', 2.4) + Ci(0, -12, 16, '#ffd23f', 3.4) + Q('M-15,-8 H15', INK, 2.2, 0.7) + Ci(0, 0, 3.4, INK, 0) + HL('M-10,-18 q3,-5 8,-6', 2.2) + Q('M-8,6 L-10,30 M8,6 L10,30', INK, 9) + Q('M-8,6 L-10,30 M8,6 L10,30', '#e23b3b', 5) + Q('M-9,16 l4,2 M9,16 l-4,2', '#fffaf0', 2.4) + x.paw(0, 28, 0.95));
+  };
+  PROPS.saisen = function (pc, x) {
+    var s = '', i; for (i = 0; i < 9; i++) s += 'M' + (62 + i * 9) + ',172 V196 ';
+    return Rc(54, 168, 92, 30, 3, '#8a5a34', 3.4) + Q(s, '#4a2a14', 2.4, 0.8) + Rc(50, 162, 100, 9, 2, '#a8743e', 3) + Q('M100,124 V150', '#fffaf0', 3, 0.7) + Ci(100, 146, 8, '#ffd23f', 2.4) + Ci(100, 146, 2.6, '#c8921a', 0) + Q('M92,128 l-4,-8 M108,128 l4,-8', '#ffe27a', 2.2) + x.paw(56, 180, 0.95) + x.paw(144, 180, 0.95);
+  };
+  PROPS.omamori = function (pc, x) {
+    var c = pc || '#e23b6a';
+    return pg(144, 138, Gp('rotate(8)', Q('M0,-28 C-10,-46 10,-46 0,-34', INK, 5) + Q('M0,-28 C-10,-46 10,-46 0,-34', '#ffd23f', 2.4) + K('M-15,-28 H15 V28 H-15Z', c, 3.4) + Rc(-15, -28, 30, 11, 0, '#f6b82e', 3) + Q('M-9,-20 h18', '#fff', 1.2, 0.8) + '<text x="0" y="14" font-size="23" font-weight="900" text-anchor="middle" fill="#fffaf0" font-family="' + NYF + '">守</text>' + Q('M-15,26 H15', '#ffd23f', 2.2) + Q('M-4,28 v10 M4,28 v10', '#ffd23f', 3)) + x.paw(2, 32, 0.9));
+  };
+  PROPS.fujie = function (pc, x) {
+    return pg(144, 140, Rc(-30, -26, 60, 50, 3, '#8a5a34', 3.4) + Rc(-25, -21, 50, 40, 0, '#bfe8ff', 0) + K('M-25,19 L-4,-14 L2,-14 L25,19Z', '#4a6fd0', 2.4) + K('M-11,-2 L-4,-14 L2,-14 L8,-3 L3,-6 L-1,-1 L-6,-6Z', '#fff', 1.6) + Ci(16, -10, 6, '#e23b3b', 0) + Q('M-24,-12 q6,-4 12,0 M10,6 q5,-3 12,0', '#fff', 2, 0.9) + Q('M-25,19 H25', '#7cc88a', 3) + x.paw(0, 28, 0.9));
+  };
+  PROPS.kakejiku = function (pc, x) {
+    return pg(144, 138, Rc(-20, -40, 40, 5, 2, '#8a5a34', 2.6) + K('M-17,-35 H17 V32 H-17Z', '#c8372d', 3.2) + Rc(-12, -28, 24, 50, 0, '#fffdf6', 2) + '<text x="0" y="2" font-size="28" font-weight="900" text-anchor="middle" fill="#2c2a3a" font-family="\'Hiragino Mincho ProN\',' + NYF + '">寿</text>' + Ci(8, 16, 2.6, '#e23b3b', 0) + Rc(-20, 31, 40, 6, 3, '#8a5a34', 2.6) + x.paw(0, 38, 0.9));
+  };
+  PROPS.sugoroku = function (pc, x) {
+    var cols = ['#ff8fb6', '#ffd23f', '#6dc8ff', '#7cd88a', '#ff9a2e'], s = '', i;
+    for (i = 0; i < 12; i++) { var cx = 64 + (i % 4) * 22, cy = 166 + Math.floor(i / 4) * 12; s += Rc(r1(cx), r1(cy), 18, 10, 2, cols[i % 5], 1.6); }
+    return Rc(54, 158, 92, 42, 3, '#fffdf6', 3.4) + s + st5(122, 190, 4.4, '#ffd23f', 1.2) + Gp('translate(138,146) rotate(14)', Rc(-9, -9, 18, 18, 3, '#fff', 2.6) + Ci(-3.4, -3.4, 1.8, INK, 0) + Ci(3.4, 3.4, 1.8, INK, 0) + Ci(0, 0, 1.8, INK, 0)) + x.paw(56, 190, 0.95) + x.paw(146, 190, 0.95);
+  };
+  PROPS.fukubiki = function (pc, x) {
+    return pg(142, 136, Q('M-20,24 L-30,42 M20,24 L30,42', '#8a5a34', 3.6) + K('M-12,-26 H12 L26,-12 V10 L12,26 H-12 L-26,10 V-12Z', '#e8b060', 3.4) + Q('M-12,-26 V26 M12,-26 V26 M-26,-12 H26 M-26,10 H26', '#c8934e', 2, 0.9) + Ci(0, 0, 8, '#fffaf0', 2.2) + Q('M26,0 H40', INK, 4) + Ci(42, 0, 4.4, '#e23b3b', 2) + Ci(0, 32, 5, '#e23b3b', 2) + x.paw(42, 8, 0.9));
+  };
+  PROPS.darumadoll = function (pc, x) {
+    var c = pc || '#d9302c';
+    return pg(144, 138, El(0, 8, 24, 28, c, 3.6) + HL('M-16,-6 q-4,10 -2,20', 2.6) + El(0, -4, 15, 13, '#fffaf0', 2.4) + Q('M-12,-12 Q-6,-18 -2,-12 M12,-12 Q6,-18 2,-12', INK, 3) + Ci(-6, -3, 2.6, INK, 0) + Ci(6, -3, 2.6, '#fff', 1.6) + Q('M-8,6 Q0,12 8,6', INK, 1.8) + '<text x="0" y="24" font-size="16" font-weight="900" text-anchor="middle" fill="#ffd23f" font-family="' + NYF + '">福</text>' + x.paw(0, 32, 0.9));
+  };
+  PROPS.umebranch = function (pc, x) {
+    return pg(142, 134, Q('M-26,38 C-14,16 8,2 24,-30', INK, 9) + Q('M-26,38 C-14,16 8,2 24,-30', '#7a4a2a', 5) + Q('M-6,14 C0,10 8,12 14,6 M10,-8 C14,-12 22,-10 28,-14', '#7a4a2a', 3) + plumFlower(24, -32, 8.4, '#ff8fb6') + plumFlower(8, -10, 9, '#fffaf0') + plumFlower(-4, 6, 7.4, '#ff8fb6') + plumFlower(28, -12, 6, '#fffaf0') + Ci(16, 4, 3, '#e23b6a', 1.6) + Ci(-12, 22, 3, '#e23b6a', 1.6) + x.paw(-8, 24, 0.9));
+  };
+  PROPS.tanzaku = function (pc, x) {
+    var f = '\'Hiragino Mincho ProN\',' + NYF;
+    return pg(144, 138, Gp('rotate(-10) translate(-12,0)', K('M-10,-36 H10 V34 H-10Z', '#bfe8ff', 3) + Q('M-10,-30 H10', '#ffd23f', 2) + '<text x="0" y="-12" font-size="14" font-weight="900" text-anchor="middle" fill="#2c2a3a" font-family="' + f + '">は</text><text x="0" y="4" font-size="14" font-weight="900" text-anchor="middle" fill="#2c2a3a" font-family="' + f + '">る</text><text x="0" y="20" font-size="14" font-weight="900" text-anchor="middle" fill="#2c2a3a" font-family="' + f + '">が</text>') +
+      Gp('rotate(8) translate(16,4)', K('M-10,-36 H10 V34 H-10Z', '#ffc4d6', 3) + Q('M-10,-30 H10', '#ffd23f', 2) + '<text x="0" y="-12" font-size="14" font-weight="900" text-anchor="middle" fill="#2c2a3a" font-family="' + f + '">き</text><text x="0" y="4" font-size="14" font-weight="900" text-anchor="middle" fill="#2c2a3a" font-family="' + f + '">た</text>') + x.paw(0, 30, 0.9));
+  };
+  PROPS.nanakusa = function (pc, x) {
+    var s = '', i, cols = ['#4fbf6a', '#3fae5c', '#6fd47a', '#2f9a52', '#8fe08a', '#4fbf6a', '#3fae5c'];
+    for (i = 0; i < 7; i++) { var a = (i - 3) * 0.2, len = 30 + (i % 3) * 5, ex = r1(Math.sin(a) * len), ey = r1(-Math.cos(a) * len); s += Q('M0,12 L' + ex + ',' + ey, INK, 6) + Q('M0,12 L' + ex + ',' + ey, cols[i], 3) + El(ex, ey, 6, 9, cols[(i + 2) % 7], 2.2, r1(a * 57.3)); }
+    return pg(144, 136, s + Ci(-14, -20, 2.4, '#fffaf0', 1.4) + Ci(16, -24, 2.4, '#fffaf0', 1.4) + Rc(-9, 8, 18, 8, 2, '#e23b3b', 2.4) + Q('M-9,12 H9', '#fffaf0', 1.4) + K('M0,16 l-8,12 l8,-4 l8,4Z', '#e23b3b', 2) + x.paw(0, 26, 0.9));
+  };
+  PROPS.temari = function (pc, x) {
+    var c = pc || '#e23b6a';
+    return pg(144, 138, Ci(0, 0, 25, c, 3.6) + Q('M-25,0 Q0,-14 25,0 M-25,0 Q0,14 25,0 M0,-25 Q-14,0 0,25 M0,-25 Q14,0 0,25', '#ffd23f', 3) + Q('M-18,-17 Q0,-4 18,-17 M-18,17 Q0,4 18,17', '#fffaf0', 2.6) + Ci(0, 0, 4.6, '#3fb867', 1.8) + Ci(-12, -10, 2.4, '#fff', 0) + HL('M-18,-10 q3,-8 11,-12', 2.4) + x.paw(0, 28, 0.9));
+  };
+  PROPS.tsuzumi = function (pc, x) {
+    return pg(144, 138, Gp('rotate(-14)', K('M-22,-24 C-22,-10 -6,-6 -6,0 C-6,6 -22,10 -22,24 H22 C22,10 6,6 6,0 C6,-6 22,-10 22,-24Z', '#c8372d', 3.4) + El(0, -24, 22, 6, '#f3e2b8', 3) + El(0, 24, 22, 6, '#f3e2b8', 3) + Q('M-22,-22 L-12,22 M-7,-22 L-4,22 M7,-22 L4,22 M22,-22 L12,22', '#fffaf0', 2.2, 0.9) + Q('M-14,-18 q4,-4 8,0', '#fff', 1.6, 0.6) + Ci(0, 0, 3, '#ffd23f', 1.6)) + x.paw(0, 26, 0.9));
+  };
+  PROPS.tsurukame = function (pc, x) {
+    return pg(144, 140, El(0, 24, 30, 8, '#8a5a34', 3) + El(10, 12, 20, 10, '#4fa86a', 3.2) + Q('M0,6 L6,18 M12,4 L12,20 M22,6 L18,18', shade('#4fa86a', -0.4), 1.6, 0.8) + Ci(-12, 12, 6, '#b8d87a', 2.4) + Ci(-14, 11, 1.2, INK, 0) +
+      El(-14, -8, 12, 6, '#fffaf0', 2.8) + K('M-22,-8 L-34,-16 L-28,-6Z', '#2c2a3a', 2) + Q('M-6,-10 C2,-14 4,-22 0,-28', INK, 6) + Q('M-6,-10 C2,-14 4,-22 0,-28', '#fffaf0', 3) + Ci(0, -29, 3.6, '#fffaf0', 2) + El(0, -31, 2, 1.4, '#e23b3b', 0) + K('M3,-29 L12,-26 L3,-25Z', '#f2b81c', 1.6) + x.paw(-18, 24, 0.9));
+  };
+  // ---- 小物の追加（お正月）ここまで ----
   // ---- 小物の追加ここまで ----
 
   // =====================================================================
@@ -556,10 +840,95 @@
     s += snowflake(32, 36, 13, '#fff7c0', 2.6) + snowflake(170, 40, 12, '#fff7c0', 2.6) + snowflake(184, 132, 9, '#fff', 2.2) + snowflake(16, 130, 9, '#fff', 2.2);
     return s + st4(56, 60, 7, '#fff', '#d9941a') + st4(146, 70, 6, '#fff', '#d9941a');
   }
-  var XOV = { snowB: overlayIcicle, night: overlayNight, pines: overlayPines, bokeh: overlayBokeh, lightrow: overlayLightRow, candy: overlayCandy, hollyc: overlayHollyCorner, gold: overlayGold };
+  // ---- 1月お正月 54種化で追加した背景の飾り（season 名: hinode / hoshi / fujiB / matsuB / umeB / torii / matsuri / sumi / kinpaku / tsuruB / kumo）----
+  function overlayHinode() {
+    var s = '', i, cx = 158, cy = 42;
+    for (i = 0; i < 14; i++) { var a = i * Math.PI / 7; s += '<path d="M' + cx + ',' + cy + ' L' + r1(cx + Math.cos(a - 0.1) * 160) + ',' + r1(cy + Math.sin(a - 0.1) * 160) + ' L' + r1(cx + Math.cos(a + 0.1) * 160) + ',' + r1(cy + Math.sin(a + 0.1) * 160) + 'Z" fill="#fff" fill-opacity=".2"/>'; }
+    s += '<circle cx="' + cx + '" cy="' + cy + '" r="27" fill="#ff5a4a" fill-opacity=".95"/><circle cx="' + cx + '" cy="' + cy + '" r="27" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="2.4"/><circle cx="' + (cx - 8) + '" cy="' + (cy - 8) + '" r="9" fill="#fff" fill-opacity=".3"/>';
+    s += '<path d="M0,170 q12,-10 24,0 t24,0 t24,0 t24,0 t24,0 t24,0 t24,0 t24,0 V200 H0Z" fill="#fff" fill-opacity=".85"/>';
+    return s + st4(24, 40, 8, '#ffe27a') + st4(46, 92, 5, '#fff') + st4(18, 128, 6, '#fff') + '<path d="M60,28 l5,-5 l5,5 M80,40 l4,-4 l4,4" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="2.2" stroke-linecap="round"/>';
+  }
+  function overlayHoshi() {
+    var s = '<rect width="200" height="200" fill="#1a2a6a" fill-opacity=".45"/><path d="M-10,150 L40,170 L210,50 L170,20Z" fill="#fff" fill-opacity=".18"/><path d="M0,170 L30,176 L200,64 L190,48Z" fill="#ffe27a" fill-opacity=".14"/>';
+    [[28, 30, 9], [64, 18, 6], [150, 22, 8], [184, 70, 6], [20, 88, 6], [178, 130, 8], [30, 150, 5], [112, 12, 5], [96, 40, 4]].forEach(function (p) { s += st4(p[0], p[1], p[2], '#fff'); });
+    [[44, 52], [78, 30], [132, 38], [168, 44], [10, 62], [190, 100], [52, 128], [160, 150], [120, 22], [186, 28], [40, 14]].forEach(function (p) { s += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="1.8" fill="#fff"/>'; });
+    return s + '<path d="M170,20 L132,48" stroke="#fff" stroke-opacity=".9" stroke-width="2.6" stroke-linecap="round"/><path d="M170,20 L150,34" stroke="#ffe27a" stroke-width="1.6" stroke-linecap="round"/>' + '<path d="M0,184 C40,176 80,186 120,180 C150,176 180,184 200,178 V200 H0Z" fill="#fff" fill-opacity=".85"/>';
+  }
+  function overlayFuji() {
+    var s = '<circle cx="150" cy="36" r="15" fill="#ff5a4a" fill-opacity=".95"/><circle cx="150" cy="36" r="15" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="2"/>';
+    s += '<path d="M-6,128 L40,58 L46,58 L100,128Z" fill="#5a7fd8" fill-opacity=".92" stroke="#fff" stroke-opacity=".8" stroke-width="2.2" stroke-linejoin="round"/><path d="M24,82 L40,58 L46,58 L62,84 L54,78 L48,86 L42,76 L34,86Z" fill="#fff" fill-opacity=".95"/>';
+    s += '<path d="M120,150 L162,96 L166,96 L206,150Z" fill="#4a6fd0" fill-opacity=".9" stroke="#fff" stroke-opacity=".8" stroke-width="2" stroke-linejoin="round"/><path d="M150,110 L162,96 L166,96 L178,112 L170,106 L164,114 L158,104Z" fill="#fff" fill-opacity=".95"/>';
+    s += '<path d="M0,26 q10,-8 22,0 q10,-8 22,0 M108,20 q8,-6 18,0 q8,-6 18,0 M150,150 q10,-8 22,0" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="3.2" stroke-linecap="round"/>';
+    return s + st4(86, 24, 6, '#fff') + st4(18, 150, 5, '#fff') + '<path d="M0,180 C40,170 70,182 100,176 C140,170 170,182 200,174 V200 H0Z" fill="#fff" fill-opacity=".9"/>';
+  }
+  function overlayMatsu() {
+    var s = '', xs = [[12, 150], [26, 170], [174, 170], [188, 150]], i, j, y;
+    xs.forEach(function (p, k) {
+      var x = p[0], top = 44 + k % 2 * 16;
+      s += '<rect x="' + (x - 6) + '" y="' + top + '" width="12" height="' + (186 - top) + '" fill="#7cc24a" fill-opacity=".95" stroke="#33284a" stroke-opacity=".6" stroke-width="2"/>';
+      for (y = top + 30; y < 180; y += 34) s += '<path d="M' + (x - 6) + ',' + y + ' H' + (x + 6) + '" stroke="#33284a" stroke-opacity=".6" stroke-width="2.4"/>';
+      s += '<path d="M' + (x - 2) + ',' + (top + 4) + ' V176" stroke="#fff" stroke-opacity=".5" stroke-width="2"/><path d="M' + (x - 6) + ',' + top + ' L' + (x + 6) + ',' + (top - 8) + ' V' + top + 'Z" fill="#5aa02a" stroke="#33284a" stroke-opacity=".6" stroke-width="2"/>';
+    });
+    function fan(x, y, rot) { var d = ''; for (j = -3; j <= 3; j++) { var a = j * 0.25; d += 'M0,0 L' + r1(Math.sin(a) * 28) + ',' + r1(-Math.cos(a) * 28); } return '<g transform="translate(' + x + ',' + y + ') rotate(' + rot + ')"><path d="' + d + '" stroke="#2f8a4a" stroke-width="2.6" stroke-linecap="round" fill="none"/></g>'; }
+    s += fan(40, 32, -50) + fan(52, 22, -10) + fan(160, 22, 10) + fan(172, 32, 50) + fan(28, 112, -70) + fan(172, 112, 70);
+    s += '<circle cx="36" cy="46" r="4" fill="#ff8fb6"/><circle cx="166" cy="46" r="4" fill="#ff8fb6"/><circle cx="100" cy="14" r="3" fill="#ffe27a"/>';
+    return s + st4(60, 60, 6, '#fff') + st4(144, 66, 6, '#fff') + '<path d="M0,184 C40,176 80,186 120,180 C150,176 180,184 200,178 V200 H0Z" fill="#fff" fill-opacity=".85"/>';
+  }
+  function overlayUmeB() {
+    var s = '';
+    s += '<path d="M206,8 C170,24 150,40 128,70 M170,22 C176,40 182,52 196,62 M150,44 C140,38 130,40 122,34" fill="none" stroke="#7a4a2a" stroke-width="5" stroke-linecap="round"/>' + '<path d="M-6,150 C20,140 40,120 60,100 M26,132 C20,146 22,156 14,168" fill="none" stroke="#7a4a2a" stroke-width="5" stroke-linecap="round"/>';
+    [[186, 14, 10, '#ff8fb6'], [160, 30, 9, '#fffaf0'], [176, 50, 8, '#ff8fb6'], [138, 52, 9, '#fffaf0'], [196, 62, 7, '#ff8fb6'], [124, 34, 6, '#ff8fb6'], [60, 104, 9, '#ff8fb6'], [38, 118, 8, '#fffaf0'], [14, 168, 8, '#ff8fb6'], [22, 140, 7, '#fffaf0'], [10, 150, 6, '#ff8fb6']].forEach(function (f) {
+      for (var i = 0; i < 5; i++) { var a = -Math.PI / 2 + i * 2 * Math.PI / 5; s += '<circle cx="' + r1(f[0] + Math.cos(a) * f[2] * 0.9) + '" cy="' + r1(f[1] + Math.sin(a) * f[2] * 0.9) + '" r="' + r1(f[2] * 0.66) + '" fill="' + f[3] + '" stroke="#33284a" stroke-opacity=".55" stroke-width="1.6"/>'; }
+      s += '<circle cx="' + f[0] + '" cy="' + f[1] + '" r="' + r1(f[2] * 0.4) + '" fill="#fff3b0"/>';
+    });
+    [[100, 14, 2.4], [60, 24, 2.4], [186, 96, 2.4], [14, 90, 2.4], [90, 40, 2], [176, 128, 2.4]].forEach(function (d) { s += '<circle cx="' + d[0] + '" cy="' + d[1] + '" r="' + d[2] + '" fill="#fff" fill-opacity=".95"/>'; });
+    return s + '<path d="M0,182 C40,174 72,184 104,178 C140,172 168,184 200,176 V200 H0Z" fill="#fff" fill-opacity=".88"/>';
+  }
+  function overlayTorii() {
+    var s = '<path d="M14,196 V54 M186,196 V54" stroke="#33284a" stroke-opacity=".6" stroke-width="19" fill="none"/><path d="M14,196 V54 M186,196 V54" stroke="#e23b3b" stroke-width="14" fill="none"/>';
+    s += '<path d="M-4,50 Q100,38 204,50 L204,36 Q100,22 -4,36Z" fill="#2c2a3a" fill-opacity=".9"/><path d="M-4,50 Q100,38 204,50 L204,60 Q100,48 -4,60Z" fill="#e23b3b" stroke="#33284a" stroke-opacity=".6" stroke-width="2.2"/><rect x="2" y="76" width="196" height="10" fill="#e23b3b" stroke="#33284a" stroke-opacity=".6" stroke-width="2.2"/>';
+    [[38, 106], [162, 106]].forEach(function (p) { s += '<path d="M' + p[0] + ',86 V' + (p[1] - 12) + '" stroke="#33284a" stroke-opacity=".6" stroke-width="1.6"/><rect x="' + (p[0] - 9) + '" y="' + (p[1] - 12) + '" width="18" height="26" rx="3" fill="#ffe9a0" stroke="#33284a" stroke-opacity=".7" stroke-width="2"/><path d="M' + (p[0] - 9) + ',' + (p[1] - 2) + ' H' + (p[0] + 9) + ' M' + (p[0] - 9) + ',' + (p[1] + 8) + ' H' + (p[0] + 9) + '" stroke="#e23b3b" stroke-width="2"/>'; });
+    return s + st4(70, 30, 6, '#fff') + st4(134, 24, 6, '#fff') + '<path d="M0,184 C40,176 80,186 120,180 C150,176 180,184 200,178 V200 H0Z" fill="#fff" fill-opacity=".85"/>';
+  }
+  function overlayMatsuri() {
+    var s = '<path d="M-6,22 Q100,52 206,22" fill="none" stroke="#33284a" stroke-opacity=".7" stroke-width="2.2"/>', i;
+    var cols = ['#e23b3b', '#ffd23f', '#fffaf0', '#4a90f0', '#ff8fb6'];
+    for (i = 0; i < 9; i++) { var t = (i + 0.5) / 9, px = -6 + 212 * t, py = 22 * (1 - t) * (1 - t) + 2 * 37 * t * (1 - t) + 22 * t * t; s += '<path d="M' + r1(px - 9) + ',' + r1(py) + ' L' + r1(px + 9) + ',' + r1(py) + ' L' + r1(px) + ',' + r1(py + 20) + 'Z" fill="' + cols[i % 5] + '" stroke="#33284a" stroke-opacity=".6" stroke-width="1.6"/>'; }
+    [[30, 76], [170, 76], [12, 128], [188, 128]].forEach(function (p) { s += '<path d="M' + p[0] + ',' + (p[1] - 22) + ' V' + (p[1] - 12) + '" stroke="#33284a" stroke-opacity=".7" stroke-width="2"/><ellipse cx="' + p[0] + '" cy="' + p[1] + '" rx="13" ry="16" fill="#e23b3b" stroke="#33284a" stroke-opacity=".7" stroke-width="2.2"/><path d="M' + (p[0] - 12) + ',' + (p[1] - 6) + ' H' + (p[0] + 12) + ' M' + (p[0] - 12) + ',' + (p[1] + 6) + ' H' + (p[0] + 12) + '" stroke="#fff" stroke-opacity=".6" stroke-width="1.6"/><rect x="' + (p[0] - 6) + '" y="' + (p[1] - 19) + '" width="12" height="4" fill="#2c2a3a"/><rect x="' + (p[0] - 6) + '" y="' + (p[1] + 15) + '" width="12" height="4" fill="#2c2a3a"/><circle cx="' + p[0] + '" cy="' + p[1] + '" r="5" fill="#ffe9a0" fill-opacity=".85"/>'; });
+    return s + st4(100, 60, 5, '#fff') + st4(56, 150, 5, '#fff') + st4(146, 152, 5, '#fff') + '<path d="M0,184 C40,176 80,186 120,180 C150,176 180,184 200,178 V200 H0Z" fill="#fff" fill-opacity=".85"/>';
+  }
+  function overlaySumi() {
+    var s = '<rect width="200" height="200" fill="#fffdf6" fill-opacity=".38"/>';
+    s += '<path d="M-6,40 C30,20 60,46 96,24 C120,10 150,22 206,6" fill="none" stroke="#33284a" stroke-opacity=".55" stroke-width="10" stroke-linecap="round"/><path d="M-6,46 C30,28 60,52 96,32" fill="none" stroke="#33284a" stroke-opacity=".3" stroke-width="5" stroke-linecap="round"/>';
+    s += '<path d="M-6,170 C30,156 70,176 110,164 C150,152 180,168 206,156" fill="none" stroke="#33284a" stroke-opacity=".5" stroke-width="12" stroke-linecap="round"/><path d="M130,150 C150,140 170,142 190,134" fill="none" stroke="#33284a" stroke-opacity=".3" stroke-width="5" stroke-linecap="round"/>';
+    [[22, 90, 5], [34, 100, 3], [180, 84, 4], [168, 100, 2.6], [14, 120, 3], [190, 112, 3.4], [60, 14, 3], [140, 12, 2.6]].forEach(function (d) { s += '<circle cx="' + d[0] + '" cy="' + d[1] + '" r="' + d[2] + '" fill="#33284a" fill-opacity=".6"/>'; });
+    return s + '<rect x="160" y="26" width="22" height="22" rx="3" fill="#e23b3b" fill-opacity=".92"/><path d="M165,33 h12 M165,38 h12 M171,31 v14" stroke="#fff" stroke-width="2" fill="none"/>' + st4(40, 60, 6, '#fff') + st4(150, 70, 5, '#fff');
+  }
+  function overlayKinpaku() {
+    var s = '', i, pts = [[18, 50], [44, 20], [86, 12], [128, 18], [160, 30], [184, 56], [190, 100], [14, 100], [28, 142], [170, 146], [60, 168], [140, 170], [102, 186], [34, 78], [168, 78]];
+    pts.forEach(function (p, k) { var a = 6 + (k % 4) * 2; s += '<path d="M' + (p[0] - a) + ',' + p[1] + ' L' + (p[0] - 1) + ',' + (p[1] - a) + ' L' + (p[0] + a) + ',' + (p[1] - 2) + ' L' + (p[0] + 2) + ',' + (p[1] + a) + 'Z" fill="' + (k % 3 ? '#ffe27a' : '#f6b82e') + '" fill-opacity=".92" stroke="#fff" stroke-opacity=".7" stroke-width="1.2"/>'; });
+    s += '<path d="M-6,30 C20,20 40,36 70,26 C100,16 130,34 160,24 C180,18 196,24 206,20" fill="none" stroke="#fff7c0" stroke-opacity=".8" stroke-width="5" stroke-linecap="round"/>';
+    return s + st4(56, 60, 7, '#fff', '#d9941a') + st4(148, 64, 7, '#fff', '#d9941a') + st4(100, 22, 5, '#fff', '#d9941a') + st4(30, 124, 5, '#fff') + st4(172, 126, 5, '#fff');
+  }
+  function overlayTsuruB() {
+    var s = '<circle cx="36" cy="40" r="14" fill="#ff5a4a" fill-opacity=".92"/><circle cx="36" cy="40" r="14" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="2"/>', i;
+    [[150, 34, 1.5], [176, 80, 1.1], [26, 104, 1.0], [170, 134, 0.9], [74, 20, 0.9]].forEach(function (p) { s += '<g stroke="#33284a" stroke-opacity=".55" stroke-width="1.6" stroke-linejoin="round">' + craneMark(p[0], p[1], p[2], '#fffaf0') + '</g>'; });
+    for (i = 0; i < 3; i++) s += '<path d="M' + (i * 70 - 20) + ',' + (176 + i * 4) + ' q17,-14 34,0 t34,0" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="2.4"/>';
+    return s + st4(124, 18, 6, '#fff') + st4(14, 70, 5, '#fff') + st4(188, 112, 5, '#fff');
+  }
+  function overlayKumo() {
+    var s = '';
+    [[0, 40, 0], [60, 126, 1], [110, 170, 0]].forEach(function (b) {
+      var y = b[1], o = b[0];
+      s += '<path d="M' + (o - 10) + ',' + (y + 12) + ' C' + (o + 10) + ',' + (y - 10) + ' ' + (o + 30) + ',' + (y - 4) + ' ' + (o + 44) + ',' + (y + 4) + ' C' + (o + 60) + ',' + (y - 14) + ' ' + (o + 86) + ',' + (y - 8) + ' ' + (o + 96) + ',' + (y + 6) + ' C' + (o + 120) + ',' + (y - 6) + ' ' + (o + 146) + ',' + (y + 2) + ' ' + (o + 160) + ',' + (y + 12) + 'Z" fill="#f8d878" fill-opacity=".88" stroke="#fff" stroke-opacity=".8" stroke-width="2.4"/>';
+    });
+    [[150, 24, 0], [8, 106, 1]].forEach(function (b) { var x = b[0], y = b[1]; s += '<path d="M' + (x - 20) + ',' + (y + 8) + ' C' + (x - 14) + ',' + (y - 8) + ' ' + (x + 2) + ',' + (y - 8) + ' ' + x + ',' + y + ' C' + (x + 12) + ',' + (y - 10) + ' ' + (x + 30) + ',' + (y - 4) + ' ' + (x + 28) + ',' + (y + 8) + 'Z" fill="#f8d878" fill-opacity=".88" stroke="#fff" stroke-opacity=".8" stroke-width="2.2"/>'; });
+    return s + st4(60, 20, 6, '#fff') + st4(176, 96, 6, '#fff') + st4(30, 76, 5, '#fff') + st4(130, 100, 4, '#fff');
+  }
+  var XOV = { snowB: overlayIcicle, night: overlayNight, pines: overlayPines, bokeh: overlayBokeh, lightrow: overlayLightRow, candy: overlayCandy, hollyc: overlayHollyCorner, gold: overlayGold, hinode: overlayHinode, hoshi: overlayHoshi, fujiB: overlayFuji, matsuB: overlayMatsu, umeB: overlayUmeB, torii: overlayTorii, matsuri: overlayMatsuri, sumi: overlaySumi, kinpaku: overlayKinpaku, tsuruB: overlayTsuruB, kumo: overlayKumo };
 
   // =====================================================================
-  // カタログ：12月＝54種（理科15・社会15・国語15・キラ9）／1月＝18種（理科5・社会5・国語5・キラ3）
+  // カタログ：12月＝54種／1月＝54種（どちらも 理科15・社会15・国語15・キラ9）
   // =====================================================================
   function E(id, subject, name, opts) { opts.bg = subject === 'kira' ? 'kira' : subject === 'rika' ? 'sci' : subject === 'shakai' ? 'soc' : 'jpn'; return { id: id, subject: subject, name: name, opts: opts }; }
   var XMAS = [
@@ -624,19 +993,55 @@
     E('ny-rika-03', 'rika', 'もちのひみつはかせ', { fur: 'cream', face: 'happy', head: 'mochi', outfit: 'coat', tie: 'none', prop: 'kagami', season: 'wa' }),
     E('ny-rika-04', 'rika', 'こまのかがくしゃ', { fur: 'kuro', face: 'surprise', head: 'goggles', hc: '#e23b3b', outfit: 'coat', prop: 'koma', season: 'wa' }),
     E('ny-rika-05', 'rika', 'かぜのたこあげ', { fur: 'gray', face: 'wink', head: 'hachimaki', outfit: 'zip', prop: 'kite', season: 'wa' }),
+    E('ny-rika-06', 'rika', 'もちつきのてこのひみつ', { fur: 'shiro', face: 'happy', head: 'tenugui', outfit: 'happi', prop: 'mochitsuki', season: 'hinode' }),
+    E('ny-rika-07', 'rika', 'はつゆめのほしぞらかんそく', { fur: 'kuro', face: 'closed', head: 'lamp', hc: '#ffd23f', outfit: 'tanzen', prop: 'telescope', season: 'hoshi' }),
+    E('ny-rika-08', 'rika', 'つるのひこうかんさつ', { fur: 'gray', face: 'surprise', head: 'tsuru', outfit: 'zip', oc: '#3a6fb0', tc: '#fffaf0', prop: 'binoculars', season: 'tsuruB' }),
+    E('ny-rika-09', 'rika', 'かめのこうらのひみつ', { fur: 'chairo', face: 'smile', head: 'kame', outfit: 'jacket', prop: 'lens', season: 'kumo' }),
+    E('ny-rika-10', 'rika', 'まつのはのひみつ', { fur: 'kiji', face: 'wink', head: 'matsu', outfit: 'coat', prop: 'sprout', season: 'matsuB' }),
+    E('ny-rika-11', 'rika', 'うめのはなのふしぎ', { fur: 'cream', face: 'sparkle', head: 'ume', outfit: 'asanoha', prop: 'umebranch', season: 'umeB' }),
+    E('ny-rika-12', 'rika', 'はねつきのくうきていこう', { fur: 'mike', face: 'surprise', head: 'goggles', hc: '#ff8fb6', outfit: 'zip', oc: '#e23b6a', tc: '#fffaf0', prop: 'hane', season: 'matsuri' }),
+    E('ny-rika-13', 'rika', 'おぞうにのだしけんきゅう', { fur: 'chatora', face: 'happy', head: 'beret', hc: '#fffaf0', outfit: 'smock', prop: 'ozoni', season: 'wa' }),
+    E('ny-rika-14', 'rika', 'すみとふでのかがく', { fur: 'hachi', face: 'closed', head: 'mortar', hc: '#2c2a3a', outfit: 'hakama', prop: 'suzuri', season: 'sumi' }),
+    E('ny-rika-15', 'rika', 'みかんのひみつ', { fur: 'tuxedo', face: 'wink', head: 'round', hc: '#ff9a2e', outfit: 'samue', oc: '#2f8a6a', prop: 'mikan', season: 'fujiB' }),
     E('ny-shakai-01', 'shakai', 'はつもうでのネコ', { fur: 'shiro', face: 'closed', head: 'eboshi', outfit: 'haori', prop: 'ema', season: 'wa' }),
     E('ny-shakai-02', 'shakai', 'おせちにほんたんけん', { fur: 'mike', face: 'sparkle', head: 'explorer', outfit: 'haori', prop: 'osechi', season: 'wa' }),
     E('ny-shakai-03', 'shakai', 'おみくじだいきち', { fur: 'chairo', face: 'happy', head: 'hachimaki', outfit: 'haori', oc: '#7a2a4a', prop: 'omikuji', season: 'wa' }),
     E('ny-shakai-04', 'shakai', 'ふくぶくろやさん', { fur: 'hachi', face: 'wink', head: 'sheep', outfit: 'jacket', prop: 'fukubukuro', season: 'wa' }),
     E('ny-shakai-05', 'shakai', 'かどまつのまち', { fur: 'kiji', face: 'smile', head: 'eboshi', outfit: 'haori', oc: '#3a5a3a', prop: 'kadomatsu', season: 'wa' }),
+    E('ny-shakai-06', 'shakai', 'ふじさんとにほんちず', { fur: 'hachi', face: 'smile', head: 'fuji', outfit: 'jacket', oc: '#c0392b', prop: 'compass', season: 'fujiB' }),
+    E('ny-shakai-07', 'shakai', 'しちふくじんたんけん', { fur: 'cream', face: 'happy', head: 'ebisu', outfit: 'vestY', prop: 'takarabune', season: 'hinode' }),
+    E('ny-shakai-08', 'shakai', 'ししまいのまち', { fur: 'chatora', face: 'surprise', head: 'shishi', outfit: 'happi', oc: '#2a5fb0', prop: 'taiko', season: 'matsuri' }),
+    E('ny-shakai-09', 'shakai', 'はつもうでのみち', { fur: 'shiro', face: 'smile', head: 'kasa', outfit: 'haori', oc: '#6a4a2a', prop: 'suzu', season: 'torii' }),
+    E('ny-shakai-10', 'shakai', 'さいせんばこのまち', { fur: 'kiji', face: 'happy', head: 'daikoku', outfit: 'tanzen', oc: '#2a7a4a', prop: 'saisen', season: 'torii' }),
+    E('ny-shakai-11', 'shakai', 'すごろくにほんいっしゅう', { fur: 'mike', face: 'wink', head: 'explorer', hc: '#c8372d', outfit: 'zip', oc: '#c8372d', tc: '#fffaf0', prop: 'sugoroku', season: 'wa' }),
+    E('ny-shakai-12', 'shakai', 'ふくびきやさん', { fur: 'kuro', face: 'sparkle', head: 'tenugui', hc: '#d9302c', outfit: 'happi', oc: '#2c2a3a', tc: '#fffaf0', prop: 'fukubiki', season: 'matsuri' }),
+    E('ny-shakai-13', 'shakai', 'おぞうにでにほんいっしゅう', { fur: 'gray', face: 'closed', head: 'straw', outfit: 'vestG', prop: 'map', season: 'kumo' }),
+    E('ny-shakai-14', 'shakai', 'たいのとれるうみのまち', { fur: 'chairo', face: 'surprise', head: 'hachimaki', hc: '#2a5fb0', outfit: 'sailor', oc: '#2a5a9a', prop: 'tai', season: 'tsuruB' }),
+    E('ny-shakai-15', 'shakai', 'えんぎもののまち', { fur: 'tuxedo', face: 'happy', head: 'daruma', outfit: 'ichimatsu', prop: 'omamori', season: 'matsuB' }),
     E('ny-kokugo-01', 'kokugo', 'かきぞめのネコ', { fur: 'kuro', face: 'sparkle', head: 'hachimaki', outfit: 'haori', oc: '#4a3a7a', prop: 'kakizome', season: 'wa' }),
     E('ny-kokugo-02', 'kokugo', 'かるたとりめいじん', { fur: 'shiro', face: 'surprise', head: 'kanzashi', outfit: 'kimono', prop: 'karuta', season: 'wa' }),
     E('ny-kokugo-03', 'kokugo', 'おとしだまありがとう', { fur: 'cream', face: 'happy', head: 'kanzashi', hc: '#ffd23f', outfit: 'kimono', oc: '#3a7bd5', tc: '#ffd23f', prop: 'otoshidama', season: 'wa' }),
     E('ny-kokugo-04', 'kokugo', 'ねんがじょうのたより', { fur: 'chatora', face: 'smile', head: 'sheep', outfit: 'cardigan', oc: '#e23b6a', prop: 'nengajo', season: 'wa' }),
     E('ny-kokugo-05', 'kokugo', 'はごいたあそび', { fur: 'mike', face: 'wink', head: 'kanzashi', outfit: 'kimono', oc: '#2f9a8a', prop: 'hagoita', season: 'wa' }),
+    E('ny-kokugo-06', 'kokugo', 'しょしゃたいかい', { fur: 'shiro', face: 'sparkle', head: 'take', outfit: 'samue', prop: 'brush', season: 'sumi' }),
+    E('ny-kokugo-07', 'kokugo', 'うたあわせのたんざく', { fur: 'cream', face: 'happy', head: 'hanagasa', outfit: 'furisode', prop: 'tanzaku', season: 'umeB' }),
+    E('ny-kokugo-08', 'kokugo', 'ひつじどしのおはなし', { fur: 'chatora', face: 'surprise', head: 'sheep', outfit: 'woolvest', prop: 'paper', season: 'kumo' }),
+    E('ny-kokugo-09', 'kokugo', 'つるかめのことわざ', { fur: 'gray', face: 'wink', head: 'laurel', outfit: 'tsurugara', prop: 'tsurukame', season: 'wa' }),
+    E('ny-kokugo-10', 'kokugo', 'ななくさのことば', { fur: 'kuro', face: 'smile', head: 'bow', hc: '#4fbf6a', outfit: 'smock', oc: '#fffaf0', tc: '#4fbf6a', prop: 'nanakusa', season: 'matsuB' }),
+    E('ny-kokugo-11', 'kokugo', 'おしょうがつのうた', { fur: 'kiji', face: 'happy', head: 'tophat', hc: '#c8372d', outfit: 'haori', oc: '#c8372d', prop: 'tsuzumi', season: 'matsuri' }),
+    E('ny-kokugo-12', 'kokugo', 'おりづるのてがみ', { fur: 'mike', face: 'wink', head: 'shimekazari', outfit: 'shippo', prop: 'orizuru', season: 'hinode' }),
+    E('ny-kokugo-13', 'kokugo', 'ことほぎのしょ', { fur: 'hachi', face: 'closed', head: 'cat', hc: '#e23b6a', outfit: 'asanoha', oc: '#2a5fb0', tc: '#fffaf0', prop: 'kakejiku', season: 'hoshi' }),
+    E('ny-kokugo-14', 'kokugo', 'ことわざじてん', { fur: 'tuxedo', face: 'surprise', head: 'mortar', hc: '#c8372d', outfit: 'robe', oc: '#8a2a4a', prop: 'dict', season: 'torii' }),
+    E('ny-kokugo-15', 'kokugo', 'うらしまたろうのはなし', { fur: 'chairo', face: 'sparkle', head: 'kame', outfit: 'uroko', prop: 'scroll', season: 'tsuruB' }),
     E('ny-kira-01', 'kira', 'キラキラ・きんのきもの', { fur: 'shiro', face: 'sparkle', head: 'kanzashi', hc: '#f6b82e', outfit: 'kimono', oc: '#e23b6a', prop: 'fukubukuro', kira: true, season: 'wa' }),
     E('ny-kira-02', 'kira', 'ひつじどしのおうさま', { fur: 'cream', face: 'happy', head: 'sheep', outfit: 'cape', prop: 'scepter', kira: true, season: 'wa' }),
-    E('ny-kira-03', 'kira', 'はつひのヒーロー', { fur: 'chatora', face: 'sparkle', head: 'hachimaki', outfit: 'champion', prop: 'hamaya', kira: true, season: 'wa' })
+    E('ny-kira-03', 'kira', 'はつひのヒーロー', { fur: 'chatora', face: 'sparkle', head: 'hachimaki', outfit: 'champion', prop: 'hamaya', kira: true, season: 'wa' }),
+    E('ny-kira-04', 'kira', 'キラキラ・こがねのししまい', { fur: 'chatora', face: 'sparkle', head: 'shishi', hc: '#f6b82e', outfit: 'kamishimo', oc: '#c8372d', prop: 'bigstar', kira: true, season: 'kinpaku' }),
+    E('ny-kira-05', 'kira', 'キラキラ・はつひのひめ', { fur: 'cream', face: 'happy', head: 'hinode', outfit: 'furisode', prop: 'heartwand', kira: true, season: 'hinode' }),
+    E('ny-kira-06', 'kira', 'キラキラ・つるかめのおうじ', { fur: 'kiji', face: 'wink', head: 'tsuru', outfit: 'tsurugara', oc: '#2a3a6a', prop: 'tsurukame', kira: true, season: 'kumo' }),
+    E('ny-kira-07', 'kira', 'キラキラ・だるましょうぐん', { fur: 'kuro', face: 'surprise', head: 'daruma', outfit: 'armor', prop: 'shield', kira: true, season: 'kinpaku' }),
+    E('ny-kira-08', 'kira', 'キラキラ・うめのひめ', { fur: 'mike', face: 'sparkle', head: 'ume', outfit: 'shippo', oc: '#e23b6a', prop: 'magicwand', kira: true, season: 'umeB' }),
+    E('ny-kira-09', 'kira', 'キラキラ・ふくのかみ', { fur: 'tuxedo', face: 'happy', head: 'daikoku', hc: '#f6b82e', outfit: 'ichimatsu', oc: '#d9302c', tc: '#ffd23f', prop: 'omamori', pc: '#f6b82e', kira: true, season: 'kinpaku' })
   ];
   var SETS = { xmas: XMAS, ny: NY };
 
